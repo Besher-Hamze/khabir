@@ -314,43 +314,68 @@ class ProviderServiceItem {
   });
 
   factory ProviderServiceItem.fromJson(Map<String, dynamic> json) {
+    // Handle nested service structure from API
+    final serviceData = json['service'] as Map<String, dynamic>?;
+
+    // Check if this is a minimal service structure (like from providers by service API)
+    final isMinimalStructure =
+        serviceData == null &&
+        !json.containsKey('title') &&
+        !json.containsKey('name_en') &&
+        json.containsKey('price');
+
     return ProviderServiceItem(
       id: json['id'] ?? 0,
-      serviceId: json['serviceId'],
+      serviceId: json['serviceId'] ?? serviceData?['id'],
+
+      // Handle title - provide fallback for minimal structure
       title:
+          serviceData?['title'] ??
           json['title'] ??
           json['name_en'] ??
           json['nameEn'] ??
-          json['service']['title'] ??
-          json['service']['title'] ??
-          '',
+          (isMinimalStructure ? 'Service ${json['id'] ?? 'Unknown'}' : ''),
+
+      // Handle description - provide fallback for minimal structure
       description:
+          serviceData?['description'] ??
           json['description'] ??
           json['description_en'] ??
           json['descriptionEn'] ??
-          json['service']['description'] ??
-          '',
-      image: json['image'] ?? json['service']['image'] ?? '',
+          (isMinimalStructure ? 'Service description not available' : ''),
+
+      // Handle image - provide fallback for minimal structure
+      image:
+          serviceData?['image'] ??
+          json['image'] ??
+          (isMinimalStructure ? '' : ''),
+
       price: (json['price'] ?? 0.0).toDouble(),
       offerPrice: json['offerPrice']?.toDouble(),
       isActive: json['isActive'] ?? json['is_active'] ?? true,
+
+      // Get commission from nested service
       commission:
-          json['commission']?.toDouble() ??
-          json['service']['commission']?.toDouble(),
-      categoryId: json['categoryId'],
-      category: json['category'] != null || json['service']['category'] != null
-          ? CategoryModel.fromJson(
-              json['category'] ?? json['service']['category'],
-            )
-          : null,
+          serviceData?['commission']?.toDouble() ??
+          json['commission']?.toDouble(),
+
+      // Get categoryId from nested service or category
+      categoryId:
+          serviceData?['categoryId'] ??
+          serviceData?['category']?['id'] ??
+          json['categoryId'],
+
       // Legacy fields
       providerId: json['provider_id'] ?? json['providerId']?.toString(),
       subcategoryId:
           json['subcategory_id'] ?? json['subcategoryId']?.toString(),
       nameAr: json['name_ar'] ?? json['nameAr'],
-      nameEn: json['name_en'] ?? json['nameEn'],
+      nameEn: json['name_en'] ?? json['nameEn'] ?? serviceData?['title'],
       descriptionAr: json['description_ar'] ?? json['descriptionAr'],
-      descriptionEn: json['description_en'] ?? json['descriptionEn'],
+      descriptionEn:
+          json['description_en'] ??
+          json['descriptionEn'] ??
+          serviceData?['description'],
       unit: json['unit'],
       sortOrder: json['sort_order'] ?? json['sortOrder'],
     );

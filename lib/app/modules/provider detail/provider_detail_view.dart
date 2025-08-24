@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
 import '../../core/utils/helpers.dart' as Helpers;
+import '../../routes/app_routes.dart';
 
 class ProviderDetailView extends StatelessWidget {
   final Provider provider;
@@ -47,10 +48,6 @@ class ProviderDetailView extends StatelessWidget {
             // Description Card
             if (provider.description.isNotEmpty) _buildDescriptionCard(),
             if (provider.description.isNotEmpty) const SizedBox(height: 8),
-
-            // Provider Stats Card
-            _buildProviderStatsCard(),
-            const SizedBox(height: 8),
 
             // Services Card
             _buildServicesCard(),
@@ -264,101 +261,6 @@ class ProviderDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildProviderStatsCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            offset: const Offset(0, 1),
-            blurRadius: 4,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Statistics',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  Icons.work,
-                  'Orders',
-                  '${provider.totalOrders}',
-                  Colors.blue,
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  Icons.check_circle,
-                  'Completed',
-                  '${provider.completedOrders}',
-                  Colors.green,
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  Icons.emoji_events,
-                  'Rank',
-                  '#${provider.rank}',
-                  Colors.orange,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    IconData icon,
-    String title,
-    String value,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 18),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          title,
-          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
   Widget _buildServicesCard() {
     if (provider.services.isEmpty) {
       return Container(
@@ -486,6 +388,7 @@ class ProviderDetailView extends StatelessWidget {
                   ],
                 ),
               ),
+              _buildRequestServiceButton(service.id),
             ],
           ),
           const SizedBox(height: 12),
@@ -516,6 +419,33 @@ class ProviderDetailView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRequestServiceButton(int serviceId) {
+    return ElevatedButton(
+      onPressed: () {
+        final service = provider.services.firstWhere((s) => s.id == serviceId);
+        Get.toNamed(
+          AppRoutes.requestService,
+          arguments: {
+            'provider': provider,
+            'serviceId': serviceId,
+            'serviceName': service.title,
+            'categoryName': service.category?.titleEn,
+            'categoryState': service.category?.state,
+            'categoryId': service.categoryId,
+          },
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        minimumSize: const Size(80, 32),
+      ),
+      child: const Text('Request', style: TextStyle(fontSize: 12)),
     );
   }
 
