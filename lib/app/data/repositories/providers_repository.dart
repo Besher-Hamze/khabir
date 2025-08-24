@@ -77,6 +77,7 @@ class ProvidersRepository {
       final response = await _apiService.get(AppConstants.topProviders);
 
       if (response.statusCode == 200) {
+        print('Top providers response: ${response.data}');
         return TopProvidersResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to load top providers: ${response.statusCode}');
@@ -84,5 +85,13 @@ class ProvidersRepository {
     } catch (e) {
       throw Exception('Error fetching top providers: $e');
     }
+  }
+
+  // Get provider by ID
+  Future<ProviderApiModel> getProviderById(String providerId) async {
+    final response = await _apiService.get(
+      AppConstants.providerById.replaceAll('{id}', providerId),
+    );
+    return ProviderApiModel.fromJson(response.data);
   }
 }

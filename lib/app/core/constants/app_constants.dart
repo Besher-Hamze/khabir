@@ -51,6 +51,7 @@ class AppConstants {
   static const String offers = '/offers';
   static const String offersActive = '/offers/active';
   static const String availableOffers = '/offers/available';
+  static const String adBanners = '/ad-banners';
 
   // Categories & Services Endpoints
   static const String categories = '/categories';
@@ -63,7 +64,7 @@ class AppConstants {
       '/providers/{providerId}/categories/{categoryId}/services';
   static const String createServiceRequest = '/orders/multiple-services';
   static const String topProviders = '/providers/top/comprehensive';
-
+  static const String providerById = '/providers/{id}';
   // Orders Endpoints
   static const String getUserOrders = '/orders';
 

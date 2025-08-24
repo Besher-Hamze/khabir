@@ -503,10 +503,18 @@ class ProviderDetailView extends StatelessWidget {
                 '${service.price} OMR',
                 style: TextStyle(
                   fontSize: 15,
+                  decoration: service.offerPrice != null
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
                 ),
               ),
+              if (service.offerPrice != null)
+                Text(
+                  '${service.offerPrice} OMR',
+                  style: TextStyle(fontSize: 15, color: Colors.green),
+                ),
             ],
           ),
         ],

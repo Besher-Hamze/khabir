@@ -87,106 +87,136 @@ class HomeView extends GetView<HomeController> {
     final PageController pageController = PageController();
     final RxInt currentPage = 0.obs;
 
-    // Dummy banner images
-    final List<String> bannerImages = [
-      'assets/images/logo-04.png',
-      'assets/images/logo-04.png',
-      'assets/images/logo-04.png',
-      'assets/images/logo-04.png',
-    ];
-
-    return Column(
-      children: [
-        SizedBox(
+    return Obx(() {
+      if (controller.isBannersLoading.value) {
+        return Container(
           height: 150,
-          child: PageView.builder(
-            controller: pageController,
-            onPageChanged: (index) {
-              currentPage.value = index;
-            },
-            itemCount: bannerImages.length,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 4),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    bannerImages[index],
-                    width: double.infinity,
-                    height: 150,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.red.withOpacity(0.8),
-                              Colors.orange.withOpacity(0.8),
-                            ],
-                          ),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.image,
-                                size: 40,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Banner ${index + 1}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              );
-            },
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.grey[200],
           ),
-        ),
-        const SizedBox(height: 12),
-        Obx(
-          () => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              bannerImages.length,
-              (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: currentPage.value == index
-                      ? Colors.red
-                      : Colors.grey[300],
-                  shape: BoxShape.circle,
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (controller.banners.isEmpty) {
+        return Container(
+          height: 150,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.grey[100],
+          ),
+          child: const Center(
+            child: Text(
+              'No banners available',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        );
+      }
+
+      final banners = controller.banners;
+
+      return Column(
+        children: [
+          SizedBox(
+            height: 150,
+            child: PageView.builder(
+              controller: pageController,
+              onPageChanged: (index) {
+                currentPage.value = index;
+              },
+              itemCount: banners.length,
+              itemBuilder: (context, index) {
+                final banner = banners[index];
+                return GestureDetector(
+                  onTap: () => controller.onBannerTap(banner),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          offset: const Offset(0, 4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        Helpers.getImageUrl(banner.imageUrl),
+                        width: double.infinity,
+                        height: 150,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.red.withOpacity(0.8),
+                                  Colors.orange.withOpacity(0.8),
+                                ],
+                              ),
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.image,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    banner.title.isNotEmpty
+                                        ? banner.title
+                                        : 'Banner ${index + 1}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          Obx(
+            () => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                banners.length,
+                (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: currentPage.value == index
+                        ? AppColors.primary
+                        : Colors.grey[300],
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildCategoriesSection() {

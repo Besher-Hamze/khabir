@@ -44,6 +44,8 @@ import '../modules/provider detail/provider_detail_view.dart';
 import '../modules/provider detail/provider_detail_binding.dart';
 import '../modules/all providers/all_providers_view.dart';
 import '../modules/all providers/all_providers_binding.dart';
+import '../modules/offers/offers_view.dart';
+import '../modules/offers/offers_binding.dart';
 
 class AppPages {
   static const initial = AppRoutes.splash;
@@ -274,11 +276,18 @@ class AppPages {
       binding: ProviderDetailBinding(),
     ),
 
-    // All Providers
+        // All Providers
     GetPage(
-      name: AppRoutes.allProviders,
+      name: AppRoutes.allProviders, 
       page: () => const AllProvidersView(),
       binding: AllProvidersBinding(),
+    ),
+
+    // Offers
+    GetPage(
+      name: AppRoutes.offers,
+      page: () => const OffersView(),
+      binding: OffersBinding(),
     ),
   ];
 }

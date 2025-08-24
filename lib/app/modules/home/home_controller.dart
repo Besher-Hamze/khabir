@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/repositories/services_repository.dart';
 import '../../data/repositories/providers_repository.dart';
-import '../../data/models/service_model.dart';
+import '../../data/repositories/banner_repository.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/models/category_model.dart';
 import '../../routes/app_routes.dart';
@@ -13,11 +13,14 @@ class HomeController extends GetxController {
   final ServicesRepository _servicesRepository = Get.find<ServicesRepository>();
   final ProvidersRepository _providersRepository =
       Get.find<ProvidersRepository>();
+  final BannerRepository _bannerRepository = Get.find<BannerRepository>();
 
   var isLoading = false.obs;
   var isProvidersLoading = false.obs;
+  var isBannersLoading = false.obs;
   var categories = <CategoryModel>[].obs;
   var bestProviders = <TopProviderModel>[].obs;
+  var banners = <BannerModel>[].obs;
   var selectedState = 'الرياض'.obs;
 
   @override
@@ -29,7 +32,7 @@ class HomeController extends GetxController {
   Future<void> loadHomeData() async {
     isLoading.value = true;
     try {
-      await Future.wait([loadCategories(), loadBestProviders()]);
+      await Future.wait([loadCategories(), loadBestProviders(), loadBanners()]);
     } finally {
       isLoading.value = false;
     }
@@ -45,6 +48,21 @@ class HomeController extends GetxController {
       print('Error loading categories: $e');
       // Fallback to mock data
       categories.value = [];
+    }
+  }
+
+  Future<void> loadBanners() async {
+    try {
+      isBannersLoading.value = true;
+      final bannersList = await _bannerRepository.getAdBanners();
+      // Filter only active banners
+      banners.value = bannersList.where((banner) => banner.isActive).toList();
+      print('Loaded ${banners.length} active banners');
+    } catch (e) {
+      print('Error loading banners: $e');
+      banners.value = [];
+    } finally {
+      isBannersLoading.value = false;
     }
   }
 
@@ -106,10 +124,29 @@ class HomeController extends GetxController {
     }
   }
 
-  void openWhatsAppSupport() async {
-    final url = '${AppConstants.whatsAppUrl}${AppConstants.supportWhatsApp}';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  // FIXED: Better URL validation and error handling
+  Future<void> openWhatsAppSupport() async {
+    try {
+      final url = '${AppConstants.whatsAppUrl}${AppConstants.supportWhatsApp}';
+
+      // Validate URL format
+      if (!_isValidUrl(url)) {
+        print('Invalid WhatsApp URL: $url');
+        _showErrorMessage('Invalid WhatsApp URL');
+        return;
+      }
+
+      final uri = Uri.parse(url);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        print('Cannot launch WhatsApp URL: $url');
+        _showErrorMessage('WhatsApp is not installed or URL is invalid');
+      }
+    } catch (e) {
+      print('Error opening WhatsApp support: $e');
+      _showErrorMessage('Failed to open WhatsApp');
     }
   }
 
@@ -145,50 +182,42 @@ class HomeController extends GetxController {
     Get.toNamed(AppRoutes.providers);
   }
 
+  // FIXED: Better URL validation and error handling for banners
+  Future<void> onBannerTap(BannerModel banner) async {
+    try {
+      if (banner.linkType == 'external' && banner.externalLink != null) {
+        final url = banner.externalLink!;
+
+        // Validate URL format
+        if (!_isValidUrl(url)) {
+          print('Invalid external URL in banner: $url');
+          _showErrorMessage('Invalid link URL');
+          return;
+        }
+
+        final uri = Uri.parse(url);
+
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          print('Cannot launch external URL: $url');
+          _showErrorMessage('Cannot open this link');
+        }
+      } else if (banner.linkType == 'provider' && banner.providerId != null) {
+        Get.toNamed(
+          AppRoutes.providerDetail,
+          arguments: {'providerId': banner.providerId},
+        );
+      }
+    } catch (e) {
+      print('Error handling banner tap: $e');
+      _showErrorMessage('Failed to open link');
+    }
+  }
+
   void selectState(String state) {
     selectedState.value = state;
     loadBestProviders();
-  }
-
-  void showStateSelectionDialog() {
-    final states = [
-      'الرياض',
-      'جدة',
-      'الدمام',
-      'مكة المكرمة',
-      'المدينة المنورة',
-      'الطائف',
-      'تبوك',
-      'بريدة',
-      'خميس مشيط',
-      'الهفوف',
-    ];
-
-    Get.dialog(
-      AlertDialog(
-        title: Text('select_state'.tr),
-        content: Container(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: states.length,
-            itemBuilder: (context, index) {
-              final state = states[index];
-              return ListTile(
-                title: Text(state),
-                trailing: selectedState.value == state
-                    ? Icon(Icons.check, color: Get.theme.primaryColor)
-                    : null,
-                onTap: () {
-                  selectState(state);
-                  Get.back();
-                },
-              );
-            },
-          ),
-        ),
-      ),
-    );
   }
 
   Future<void> refreshData() async {
@@ -215,5 +244,58 @@ class HomeController extends GetxController {
     if (isProvidersLoading.value) return 'Loading...';
     if (bestProviders.isEmpty) return 'No providers available';
     return '${bestProviders.length} providers loaded';
+  }
+
+  // ADDED: URL validation helper method
+  bool _isValidUrl(String url) {
+    if (url.isEmpty) return false;
+
+    try {
+      final uri = Uri.parse(url);
+
+      // Check for placeholder text (common Lorem ipsum words)
+      final placeholderWords = [
+        'lorem',
+        'ipsum',
+        'dolor',
+        'sit',
+        'amet',
+        'autem',
+        'nostrum',
+      ];
+      final lowercaseUrl = url.toLowerCase();
+
+      for (String word in placeholderWords) {
+        if (lowercaseUrl.contains(word)) {
+          print('URL contains placeholder text: $word');
+          return false;
+        }
+      }
+
+      // Must have a scheme
+      if (uri.scheme.isEmpty) return false;
+
+      // For web URLs, must have a host
+      if ((uri.scheme == 'http' || uri.scheme == 'https') && uri.host.isEmpty) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print('URL parsing error: $e');
+      return false;
+    }
+  }
+
+  // ADDED: Error message helper
+  void _showErrorMessage(String message) {
+    Get.snackbar(
+      'Error',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red.withOpacity(0.1),
+      colorText: Colors.red,
+      duration: Duration(seconds: 3),
+    );
   }
 }

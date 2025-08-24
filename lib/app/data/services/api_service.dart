@@ -35,8 +35,8 @@ class ApiService extends GetxService {
 
     _dio.interceptors.add(
       LogInterceptor(
-        requestBody: true,
-        responseBody: true,
+        requestBody: false,
+        responseBody: false,
         logPrint: (log) => print('API: $log'),
       ),
     );

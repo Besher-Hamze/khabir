@@ -36,6 +36,7 @@ class ProviderApiResponse {
 }
 
 // New model for individual provider from API
+
 class ProviderApiModel {
   final int id;
   final String name;
@@ -46,9 +47,17 @@ class ProviderApiModel {
   final String? location;
   final bool isActive;
   final bool isVerified;
+  final double? rate;
   final DateTime createdAt;
+  final double averageRating;
+  final int totalRatings;
+  final int totalOrders;
+  final int completedOrders;
+  final int activeServices;
+  final int totalRevenue;
+  final String tier;
   final List<ProviderServiceApi> providerServices;
-
+  final int rank;
   ProviderApiModel({
     required this.id,
     required this.name,
@@ -57,16 +66,26 @@ class ProviderApiModel {
     required this.state,
     required this.phone,
     this.location,
+    this.rate,
     required this.isActive,
     required this.isVerified,
     required this.createdAt,
     required this.providerServices,
+    required this.averageRating,
+    required this.totalRatings,
+    required this.totalOrders,
+    required this.completedOrders,
+    required this.activeServices,
+    required this.totalRevenue,
+    required this.tier,
+    required this.rank,
   });
 
   factory ProviderApiModel.fromJson(Map<String, dynamic> json) {
     return ProviderApiModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
+      rate: json['rate'] ?? 0.0,
       image: json['image'] ?? '',
       description: json['description'] ?? '',
       state: json['state'] ?? '',
@@ -82,6 +101,14 @@ class ProviderApiModel {
               ?.map((e) => ProviderServiceApi.fromJson(e))
               .toList() ??
           [],
+      averageRating: json['averageRating'] ?? 0.0,
+      totalRatings: json['totalRatings'] ?? 0,
+      totalOrders: json['totalOrders'] ?? 0,
+      completedOrders: json['completedOrders'] ?? 0,
+      activeServices: json['activeServices'] ?? 0,
+      totalRevenue: json['totalRevenue'] ?? 0,
+      tier: json['tier'] ?? '',
+      rank: json['rank'] ?? 0,
     );
   }
 
@@ -98,26 +125,57 @@ class ProviderApiModel {
       'isVerified': isVerified,
       'createdAt': createdAt.toIso8601String(),
       'providerServices': providerServices.map((e) => e.toJson()).toList(),
+      'averageRating': averageRating,
+      'totalRatings': totalRatings,
+      'totalOrders': totalOrders,
+      'completedOrders': completedOrders,
+      'activeServices': activeServices,
+      'totalRevenue': totalRevenue,
+      'rank': rank,
+      'tier': tier,
     };
   }
 }
 
 // New model for provider service from API
 class ProviderServiceApi {
+  final String title;
   final double price;
   final bool isActive;
-
-  ProviderServiceApi({required this.price, required this.isActive});
+  final double? offerPrice;
+  final String image;
+  final String description;
+  ProviderServiceApi({
+    required this.title,
+    required this.price,
+    required this.isActive,
+    this.offerPrice,
+    required this.image,
+    required this.description,
+  });
 
   factory ProviderServiceApi.fromJson(Map<String, dynamic> json) {
     return ProviderServiceApi(
+      title: json['title'] ?? '',
       price: (json['price'] ?? 0.0).toDouble(),
       isActive: json['isActive'] ?? false,
+      offerPrice: json['offerPrice'] != null
+          ? (json['offerPrice']).toDouble()
+          : null,
+      image: json['image'] ?? '',
+      description: json['description'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'price': price, 'isActive': isActive};
+    return {
+      'title': title,
+      'price': price,
+      'isActive': isActive,
+      'offerPrice': offerPrice,
+      'image': image,
+      'description': description,
+    };
   }
 }
 
@@ -893,7 +951,7 @@ class TopProviderModel {
   final double totalRevenue;
   final int activeServices;
   final String tier;
-  final int score;
+  final double score;
   final int rank;
 
   TopProviderModel({
@@ -947,7 +1005,7 @@ class TopProviderModel {
       totalRevenue: (json['totalRevenue'] ?? 0).toDouble(),
       activeServices: json['activeServices'] ?? 0,
       tier: json['tier'] ?? '',
-      score: json['score'] ?? 0,
+      score: (json['score'] ?? 0).toDouble(),
       rank: json['rank'] ?? 0,
     );
   }
@@ -984,6 +1042,7 @@ class TopProviderService {
   final int serviceId;
   final bool isActive;
   final double price;
+  final double? offerPrice;
   final TopService service;
 
   TopProviderService({
@@ -992,6 +1051,7 @@ class TopProviderService {
     required this.serviceId,
     required this.isActive,
     required this.price,
+    this.offerPrice,
     required this.service,
   });
 
@@ -1002,6 +1062,9 @@ class TopProviderService {
       serviceId: json['serviceId'] ?? 0,
       isActive: json['isActive'] ?? false,
       price: (json['price'] ?? 0).toDouble(),
+      offerPrice: json['offerPrice'] != null
+          ? (json['offerPrice']).toDouble()
+          : null,
       service: TopService.fromJson(json['service'] ?? {}),
     );
   }
@@ -1137,7 +1200,7 @@ class OfferModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'providerId': id,
+      'providerId': providerId,
       'serviceId': serviceId,
       'startDate': startDate.toIso8601String(),
       'endDate': endDate.toIso8601String(),
@@ -1215,6 +1278,79 @@ class OfferService {
       'title': title,
       'description': description,
       'image': image,
+    };
+  }
+}
+
+// Banner Models
+class BannerResponse {
+  final List<BannerModel> banners;
+
+  BannerResponse({required this.banners});
+
+  factory BannerResponse.fromJson(List<dynamic> json) {
+    return BannerResponse(
+      banners: json.map((e) => BannerModel.fromJson(e)).toList(),
+    );
+  }
+}
+
+class BannerModel {
+  final int id;
+  final String title;
+  final String description;
+  final String imageUrl;
+  final String linkType; // 'external' or 'provider'
+  final String? externalLink;
+  final int? providerId;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  BannerModel({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.imageUrl,
+    required this.linkType,
+    this.externalLink,
+    this.providerId,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory BannerModel.fromJson(Map<String, dynamic> json) {
+    return BannerModel(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      linkType: json['linkType'] ?? 'external',
+      externalLink: json['externalLink'],
+      providerId: json['providerId'],
+      isActive: json['isActive'] ?? false,
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
+      updatedAt: DateTime.parse(
+        json['updatedAt'] ?? DateTime.now().toIso8601String(),
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'imageUrl': imageUrl,
+      'linkType': linkType,
+      'externalLink': externalLink,
+      'providerId': providerId,
+      'isActive': isActive,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 }

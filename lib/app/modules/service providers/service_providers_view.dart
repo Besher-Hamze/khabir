@@ -251,12 +251,31 @@ class ServiceProvidersView extends StatelessWidget {
                         ),
                         TextSpan(
                           text: '${controller.getProviderPrice(provider)} OMR',
-                          style: const TextStyle(
+                          style: TextStyle(
+                            decoration:
+                                controller.getProviderOfferPrice(provider) !=
+                                    null
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
                             fontSize: 16,
-                            color: Colors.red,
+                            color:
+                                controller.getProviderOfferPrice(provider) !=
+                                    null
+                                ? Colors.green
+                                : Colors.red,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                        if (controller.getProviderOfferPrice(provider) != null)
+                          TextSpan(
+                            text:
+                                '${controller.getProviderOfferPrice(provider)} OMR',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.green,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -272,7 +291,8 @@ class ServiceProvidersView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '4.5', // Default rating since API doesn't provide it
+                      provider.rate
+                          .toString(), // Default rating since API doesn't provide it
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

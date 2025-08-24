@@ -85,6 +85,13 @@ class ServiceProvidersController extends GetxController {
     return 0.0;
   }
 
+  double? getProviderOfferPrice(ProviderApiModel provider) {
+    if (provider.providerServices.isNotEmpty) {
+      return provider.providerServices.first.offerPrice;
+    }
+    return null;
+  }
+
   // Handle provider selection
   void onProviderSelected(ProviderApiModel provider) {
     Get.toNamed(
