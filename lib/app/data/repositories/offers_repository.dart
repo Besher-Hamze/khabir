@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../models/provider_model.dart';
 import '../../core/constants/app_constants.dart';
-import '../../core/services/api_service.dart';
+import '../services/api_service.dart';
 
 class OffersRepository {
   final ApiService _apiService;
@@ -12,7 +12,7 @@ class OffersRepository {
   Future<List<OfferModel>> getAvailableOffers() async {
     try {
       final response = await _apiService.get(AppConstants.availableOffers);
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.map((json) => OfferModel.fromJson(json)).toList();
