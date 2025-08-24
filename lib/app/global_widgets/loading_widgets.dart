@@ -2,17 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/values/colors.dart';
 
-class LoadingWidget extends StatelessWidget {
+class LoadingWidget extends StatefulWidget {
   final String? message;
   final Color? color;
   final double size;
 
-  const LoadingWidget({
-    Key? key,
-    this.message,
-    this.color,
-    this.size = 40,
-  }) : super(key: key);
+  const LoadingWidget({Key? key, this.message, this.color, this.size = 40})
+    : super(key: key);
+
+  @override
+  State<LoadingWidget> createState() => _LoadingWidgetState();
+}
+
+class _LoadingWidgetState extends State<LoadingWidget>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.4,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,23 +45,49 @@ class LoadingWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: size,
-            height: size,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                color ?? AppColors.primary,
-              ),
-            ),
+          AnimatedBuilder(
+            animation: _fadeAnimation,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _fadeAnimation.value,
+                child: Container(
+                  width: widget.size + 20,
+                  height: widget.size + 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        offset: const Offset(0, 2),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: widget.size,
+                      height: widget.size,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          widget.color ?? AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          if (message != null) ...[
+          if (widget.message != null) ...[
             const SizedBox(height: 16),
             Text(
-              message!,
-              style: const TextStyle(
+              widget.message!,
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
             ),
@@ -74,43 +125,53 @@ class EmptyWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (imagePath != null)
-              Image.asset(
-                imagePath!,
-                width: 120,
-                height: 120,
-                color: AppColors.textLight,
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Image.asset(
+                    imagePath!,
+                    color: Colors.grey[400],
+                    fit: BoxFit.contain,
+                  ),
+                ),
               )
             else if (icon != null)
               Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(40),
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: icon!,
+                child: Center(child: icon!),
               )
             else
               Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(40),
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.inbox_outlined,
-                  size: 40,
-                  color: AppColors.textLight,
+                  size: 36,
+                  color: Colors.grey[400],
                 ),
               ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Text(
-              title ?? 'no_data'.tr,
-              style: const TextStyle(
+              title ?? 'Nothing here yet',
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: Colors.grey[800],
               ),
               textAlign: TextAlign.center,
             ),
@@ -118,29 +179,32 @@ class EmptyWidget extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 subtitle!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: Colors.grey[600],
+                  height: 1.4,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
             if (onRetry != null) ...[
               const SizedBox(height: 24),
-              ElevatedButton(
+              ElevatedButton.icon(
                 onPressed: onRetry,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: Text(retryText ?? 'Try Again'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
+                    horizontal: 20,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  elevation: 0,
                 ),
-                child: Text(retryText ?? 'retry'.tr),
               ),
             ],
           ],
@@ -167,13 +231,9 @@ class ErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EmptyWidget(
-      title: title ?? 'network_error'.tr,
-      subtitle: subtitle ?? 'unknown_error'.tr,
-      icon: const Icon(
-        Icons.error_outline,
-        size: 40,
-        color: AppColors.error,
-      ),
+      title: title ?? 'Something went wrong',
+      subtitle: subtitle ?? 'Please check your connection and try again',
+      icon: Icon(Icons.error_outline, size: 36, color: Colors.red[400]),
       onRetry: onRetry,
       retryText: retryText,
     );
@@ -184,11 +244,8 @@ class ShimmerLoading extends StatefulWidget {
   final Widget child;
   final bool isLoading;
 
-  const ShimmerLoading({
-    Key? key,
-    required this.child,
-    this.isLoading = true,
-  }) : super(key: key);
+  const ShimmerLoading({Key? key, required this.child, this.isLoading = true})
+    : super(key: key);
 
   @override
   State<ShimmerLoading> createState() => _ShimmerLoadingState();
@@ -203,13 +260,13 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(
+    _animation = Tween<double>(begin: 0.3, end: 0.7).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _animationController.repeat();
+    _animationController.repeat(reverse: true);
   }
 
   @override
@@ -227,25 +284,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        return ShaderMask(
-          shaderCallback: (bounds) {
-            return LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: const [
-                Colors.transparent,
-                AppColors.borderLight,
-                Colors.transparent,
-              ],
-              stops: [
-                _animation.value - 0.3,
-                _animation.value,
-                _animation.value + 0.3,
-              ].map((stop) => stop.clamp(0.0, 1.0)).toList(),
-            ).createShader(bounds);
-          },
-          child: widget.child,
-        );
+        return Opacity(opacity: _animation.value, child: widget.child);
       },
     );
   }
@@ -270,7 +309,7 @@ class ShimmerBox extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: Colors.grey[200],
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -282,29 +321,19 @@ class ShimmerText extends StatelessWidget {
   final double width;
   final double height;
 
-  const ShimmerText({
-    Key? key,
-    required this.width,
-    this.height = 16,
-  }) : super(key: key);
+  const ShimmerText({Key? key, required this.width, this.height = 16})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ShimmerBox(
-      width: width,
-      height: height,
-      borderRadius: 4,
-    );
+    return ShimmerBox(width: width, height: height, borderRadius: 4);
   }
 }
 
 class ShimmerCircle extends StatelessWidget {
   final double size;
 
-  const ShimmerCircle({
-    Key? key,
-    required this.size,
-  }) : super(key: key);
+  const ShimmerCircle({Key? key, required this.size}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -312,8 +341,8 @@ class ShimmerCircle extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceVariant,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
           shape: BoxShape.circle,
         ),
       ),
@@ -350,33 +379,35 @@ class ProviderCardShimmer extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
+            color: Colors.black.withOpacity(0.04),
             offset: const Offset(0, 2),
             blurRadius: 8,
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         children: [
-          ShimmerCircle(size: 60),
-          SizedBox(width: 16),
+          const ShimmerCircle(size: 60),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShimmerText(width: 120, height: 16),
-                SizedBox(height: 8),
-                ShimmerText(width: 80, height: 12),
-                SizedBox(height: 8),
-                ShimmerText(width: 100, height: 12),
+                ShimmerText(width: Get.width * 0.4, height: 16),
+                const SizedBox(height: 8),
+                ShimmerText(width: Get.width * 0.25, height: 12),
+                const SizedBox(height: 8),
+                ShimmerText(width: Get.width * 0.3, height: 12),
               ],
             ),
           ),
-          ShimmerBox(width: 60, height: 24),
+          const SizedBox(width: 12),
+          const ShimmerBox(width: 60, height: 24, borderRadius: 12),
         ],
       ),
     );
@@ -392,44 +423,45 @@ class BookingCardShimmer extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
+            color: Colors.black.withOpacity(0.04),
             offset: const Offset(0, 2),
             blurRadius: 8,
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              ShimmerCircle(size: 50),
-              SizedBox(width: 12),
+              const ShimmerCircle(size: 50),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ShimmerText(width: 100, height: 14),
-                    SizedBox(height: 4),
-                    ShimmerText(width: 140, height: 12),
+                    ShimmerText(width: Get.width * 0.3, height: 14),
+                    const SizedBox(height: 4),
+                    ShimmerText(width: Get.width * 0.4, height: 12),
                   ],
                 ),
               ),
-              ShimmerBox(width: 50, height: 20),
+              const ShimmerBox(width: 50, height: 20, borderRadius: 10),
             ],
           ),
-          SizedBox(height: 12),
-          ShimmerText(width: double.infinity, height: 12),
-          SizedBox(height: 8),
+          const SizedBox(height: 12),
+          ShimmerText(width: Get.width * 0.8, height: 12),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ShimmerText(width: 80, height: 12),
-              ShimmerText(width: 60, height: 12),
+              ShimmerText(width: Get.width * 0.25, height: 12),
+              ShimmerText(width: Get.width * 0.2, height: 12),
             ],
           ),
         ],

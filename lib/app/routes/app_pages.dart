@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/modules/services/services_view.dart';
+import 'package:khabir/app/modules/user/user_binding.dart';
 import '../modules/home/search_view.dart';
 import 'app_routes.dart';
 
@@ -35,6 +36,14 @@ import '../modules/service providers/service_providers_view.dart';
 import '../modules/service providers/service_providers_binding.dart';
 import '../modules/request service view/request_service_view.dart';
 import '../modules/request service view/request_service_binding.dart';
+import '../modules/success page/success_page_view.dart';
+import '../modules/success page/success_page_binding.dart';
+import '../modules/orders/orders_view.dart';
+import '../modules/orders/orders_binding.dart';
+import '../modules/provider detail/provider_detail_view.dart';
+import '../modules/provider detail/provider_detail_binding.dart';
+import '../modules/all providers/all_providers_view.dart';
+import '../modules/all providers/all_providers_binding.dart';
 
 class AppPages {
   static const initial = AppRoutes.splash;
@@ -96,7 +105,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.main,
       page: () => const MainView(),
-      bindings: [MainBinding(), CategoriesBinding()],
+      bindings: [MainBinding(), CategoriesBinding(), UserBinding()],
     ),
 
     GetPage(
@@ -130,7 +139,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileView(),
-      binding: ProfileBinding(),
+      binding: UserBinding(),
     ),
 
     GetPage(
@@ -156,6 +165,18 @@ class AppPages {
       name: AppRoutes.requestService,
       page: () => const RequestServiceView(),
       binding: RequestServiceBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.successPage,
+      page: () => const SuccessPageView(),
+      binding: SuccessPageBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.orders,
+      page: () => const OrdersView(),
+      binding: OrdersBinding(),
     ),
 
     GetPage(
@@ -242,6 +263,22 @@ class AppPages {
       name: AppRoutes.searchResults,
       page: () => const SearchResultsView(),
       binding: SearchBinding(),
+    ),
+
+    // Provider Detail
+    GetPage(
+      name: AppRoutes.providerDetail,
+      page: () => ProviderDetailView(
+        provider: Get.arguments,
+      ), // Provider passed via arguments
+      binding: ProviderDetailBinding(),
+    ),
+
+    // All Providers
+    GetPage(
+      name: AppRoutes.allProviders,
+      page: () => const AllProvidersView(),
+      binding: AllProvidersBinding(),
     ),
   ];
 }

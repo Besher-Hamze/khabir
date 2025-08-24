@@ -20,6 +20,9 @@ class AppConstants {
 
   // User Endpoints
   static const String userProfile = '/users/profile';
+  static const String userLocations = '/users/locations';
+  static const String userLocationById = '/users/locations/{id}';
+  static const String setDefaultLocation = '/users/locations/{id}/set-default';
 
   // Orders Endpoints
   static const String orders = '/orders';
@@ -47,6 +50,7 @@ class AppConstants {
   // Offers Endpoints
   static const String offers = '/offers';
   static const String offersActive = '/offers/active';
+  static const String availableOffers = '/offers/available';
 
   // Categories & Services Endpoints
   static const String categories = '/categories';
@@ -58,6 +62,10 @@ class AppConstants {
   static const String providerServices =
       '/providers/{providerId}/categories/{categoryId}/services';
   static const String createServiceRequest = '/orders/multiple-services';
+  static const String topProviders = '/providers/top/comprehensive';
+
+  // Orders Endpoints
+  static const String getUserOrders = '/orders';
 
   // Location Tracking Endpoints
   static const String locationTrackingHealth = '/location-tracking/health';
@@ -180,4 +188,23 @@ class AppConstants {
   static const String timeNow = 'now';
   static const String timeTomorrow = 'tomorrow';
   static const String timeCustom = 'custom';
+
+  static const List<Map<String, String>> OMAN_GOVERNORATES = [
+    {"value": "Muscat", "label": "Muscat - مسقط"},
+    {"value": "Dhofar", "label": "Dhofar - ظفار"},
+    {"value": "Musandam", "label": "Musandam - مسندم"},
+    {"value": "Buraimi", "label": "Buraimi - البريمي"},
+    {"value": "Dakhiliyah", "label": "Dakhiliyah - الداخلية"},
+    {"value": "North Al Batinah", "label": "North Al Batinah - شمال الباطنة"},
+    {"value": "South Al Batinah", "label": "South Al Batinah - جنوب الباطنة"},
+    {
+      "value": "North Al Sharqiyah",
+      "label": "North Al Sharqiyah - شمال الشرقية",
+    },
+    {
+      "value": "South Al Sharqiyah",
+      "label": "South Al Sharqiyah - جنوب الشرقية",
+    },
+    {"value": "Al Wusta", "label": "Al Wusta - الوسطى"},
+  ];
 }

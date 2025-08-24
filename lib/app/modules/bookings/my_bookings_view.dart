@@ -1,71 +1,115 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/values/colors.dart';
+import '../../core/utils/helpers.dart' as Helpers;
+import '../orders/orders_controller.dart';
+import '../../data/models/provider_model.dart';
 
-import '../track/track_screen.dart';
-
-class MyBookingsView extends StatelessWidget {
+class MyBookingsView extends GetView<OrdersController> {
   const MyBookingsView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildBookingCard(
-          providerName: 'Mohamad Soltani',
-          serviceType: 'Electricity',
-          id: '66518722',
-          rating: 5.0,
-          category: 'Electricity',
-          type: 'Switch lamps',
-          number: '2',
-          duration: 'Now',
-          totalPrice: '10 OMR',
-          imageUrl: 'assets/images/logo-04.png',
-          statusButtons: [
-            StatusButton(text: 'Incomplete', color: Colors.red),
-            StatusButton(text: 'Complete', color: Colors.green),
-            StatusButton(text: 'Track', color: Colors.blue),
-            StatusButton(text: 'Acceptable', color: Colors.green),
-          ],
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          ),
+        );
+      }
+
+      if (controller.hasError.value) {
+        return _buildErrorWidget();
+      }
+
+      if (controller.orders.isEmpty) {
+        return _buildEmptyWidget();
+      }
+
+      return RefreshIndicator(
+        onRefresh: controller.refreshOrders,
+        color: AppColors.primary,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.orders.length,
+          itemBuilder: (context, index) {
+            final order = controller.orders[index];
+            return _buildBookingCard(order);
+          },
         ),
-        const SizedBox(height: 16),
-        _buildBookingCard(
-          providerName: 'Ali Marwan',
-          serviceType: 'Electricity',
-          id: '66533322',
-          rating: 4.0,
-          category: 'Electricity',
-          type: 'Switch lamps',
-          number: '1',
-          duration: '22/5/2025',
-          totalPrice: '12 OMR',
-          imageUrl: 'assets/images/logo-04.png',
-          statusButtons: [
-            StatusButton(text: 'Incomplete', color: Colors.red),
-            StatusButton(text: 'Complete', color: Colors.green),
-            StatusButton(text: 'Delete', color: Colors.black),
-            StatusButton(text: 'Rejected', color: Colors.red),
-          ],
-        ),
-      ],
+      );
+    });
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
+          const SizedBox(height: 16),
+          Text(
+            'Something went wrong',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            controller.errorMessage.value,
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: controller.loadOrders,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Try Again'),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildBookingCard({
-    required String providerName,
-    required String serviceType,
-    required String id,
-    required double rating,
-    required String category,
-    required String type,
-    required String number,
-    required String duration,
-    required String totalPrice,
-    required String imageUrl,
-    required List<StatusButton> statusButtons,
-  }) {
+  Widget _buildEmptyWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'No Bookings Yet',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You haven\'t made any bookings yet.\nStart by requesting a service!',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBookingCard(OrderModel order) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -89,10 +133,23 @@ class MyBookingsView extends StatelessWidget {
                 height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: AssetImage(imageUrl),
-                    fit: BoxFit.cover,
-                  ),
+                  color: Colors.grey[100],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: order.provider.image.isNotEmpty
+                      ? Image.network(
+                          Helpers.getImageUrl(order.provider.image),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.person,
+                              size: 30,
+                              color: Colors.grey[400],
+                            );
+                          },
+                        )
+                      : Icon(Icons.person, size: 30, color: Colors.grey[400]),
                 ),
               ),
 
@@ -104,7 +161,7 @@ class MyBookingsView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      providerName,
+                      order.provider.name,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -113,7 +170,7 @@ class MyBookingsView extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      serviceType,
+                      order.service.title,
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black54,
@@ -128,7 +185,7 @@ class MyBookingsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'ID $id',
+                    'ID ${order.id}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.black54,
@@ -138,7 +195,7 @@ class MyBookingsView extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // Rating
+                  // Rating (using a default 5.0 for now)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -146,14 +203,12 @@ class MyBookingsView extends StatelessWidget {
                         return Icon(
                           Icons.star,
                           size: 14,
-                          color: index < rating.floor()
-                              ? Colors.amber
-                              : Colors.grey[300],
+                          color: index < 5 ? Colors.amber : Colors.grey[300],
                         );
                       }),
                       const SizedBox(width: 4),
                       Text(
-                        rating.toString(),
+                        '5.0',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -172,11 +227,17 @@ class MyBookingsView extends StatelessWidget {
           // Details Section
           Row(
             children: [
-              _buildDetailColumn('Category', category),
-              _buildDetailColumn('Type', type),
-              _buildDetailColumn('Number', number),
-              _buildDetailColumn('Duration', duration),
-              _buildDetailColumn('Total Price', totalPrice),
+              _buildDetailColumn('Category', order.service.title),
+              _buildDetailColumn('Type', order.service.description),
+              _buildDetailColumn('Number', order.quantity.toString()),
+              _buildDetailColumn(
+                'Duration',
+                controller.formatDate(order.scheduledDate),
+              ),
+              _buildDetailColumn(
+                'Total Price',
+                controller.formatCurrency(order.totalAmount),
+              ),
             ],
           ),
 
@@ -184,16 +245,21 @@ class MyBookingsView extends StatelessWidget {
 
           // Status Buttons
           Row(
-            children: statusButtons
-                .map(
-                  (button) => Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: _buildStatusButton(button.text, button.color),
-                    ),
-                  ),
-                )
-                .toList(),
+            children: [
+              Expanded(
+                child: _buildStatusButton('Incomplete', Colors.red, order),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildStatusButton('Complete', Colors.green, order),
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: _buildStatusButton('Track', Colors.blue, order)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildStatusButton('Acceptable', Colors.green, order),
+              ),
+            ],
           ),
         ],
       ),
@@ -227,29 +293,66 @@ class MyBookingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusButton(String text, Color color) {
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey[600]),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusButton(String text, Color color, OrderModel order) {
     return GestureDetector(
       onTap: () {
         if (text.toLowerCase() == 'track') {
-          // Create booking object from your existing data
-          final booking = ServiceBooking(
-            id: '66533322',
-            // Use actual ID from your data
-            category: 'Electricity',
-            type: 'Switch lamps',
-            number: 2,
-            duration: '7/5/2025',
-            providerName: 'Mohamad Soltani',
-            providerPhone: '+96XXXXXXXXX',
-            providerImage: 'assets/images/provider.jpg',
-            price: 36,
+          // TODO: Implement tracking functionality
+          Get.snackbar(
+            'Tracking',
+            'Tracking feature coming soon!',
+            backgroundColor: Colors.blue,
+            colorText: Colors.white,
           );
-
-          // Navigate to tracking screen
-          Get.to(() => TrackingView(booking: booking));
+        } else if (text.toLowerCase() == 'incomplete') {
+          Get.snackbar(
+            'Status Update',
+            'Marking as incomplete...',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        } else if (text.toLowerCase() == 'complete') {
+          Get.snackbar(
+            'Status Update',
+            'Marking as complete...',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else if (text.toLowerCase() == 'acceptable') {
+          Get.snackbar(
+            'Status Update',
+            'Marking as acceptable...',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
         }
-        // Handle button tap
-        print('$text button tapped');
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -270,14 +373,4 @@ class MyBookingsView extends StatelessWidget {
       ),
     );
   }
-}
-
-class StatusButton {
-  final String text;
-  final Color color;
-
-  StatusButton({
-    required this.text,
-    required this.color,
-  });
 }

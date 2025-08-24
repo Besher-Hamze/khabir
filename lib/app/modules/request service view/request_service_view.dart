@@ -4,6 +4,8 @@ import 'package:khabir/app/core/utils/helpers.dart';
 import '../../core/values/colors.dart';
 import 'request_service_controller.dart';
 import '../../data/models/provider_model.dart';
+import '../../widgets/map_picker_widget.dart';
+import '../../data/models/user_location_model.dart';
 
 class RequestServiceView extends StatelessWidget {
   const RequestServiceView({Key? key}) : super(key: key);
@@ -534,6 +536,7 @@ class RequestServiceView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
+              // Location Display and Selection
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -545,13 +548,41 @@ class RequestServiceView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey[200]!, width: 1.5),
                 ),
-                child: Text(
-                  controller.selectedLocation.value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            controller.selectedLocation.value?.address ??
+                                'No location selected',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () =>
+                              _showLocationPickerDialog(controller),
+                          icon: const Icon(
+                            Icons.edit_location,
+                            size: 20,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (controller.selectedLocation.value != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '${controller.selectedLocation.value!.title} - ${controller.selectedLocation.value!.description}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -793,7 +824,7 @@ class RequestServiceView extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed:
-            (controller.hasSelectedServices && !controller.isLoading.value)
+            (controller.hasSelectedServices && !controller.isSubmitting.value)
             ? controller.submitRequest
             : null,
         style: ElevatedButton.styleFrom(
@@ -805,7 +836,7 @@ class RequestServiceView extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        child: controller.isLoading.value
+        child: controller.isSubmitting.value
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -831,6 +862,113 @@ class RequestServiceView extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+      ),
+    );
+  }
+
+  void _showLocationPickerDialog(RequestServiceController controller) {
+    double? selectedLatitude;
+    double? selectedLongitude;
+    String selectedAddress = '';
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Select Service Location'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 600,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Instructions
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Tap on the map to select your service location or use your saved locations',
+                        style: TextStyle(color: Colors.blue[700], fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Map Picker
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[300]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: MapPickerWidget(
+                      initialLatitude:
+                          controller.selectedLocation.value?.latitude,
+                      initialLongitude:
+                          controller.selectedLocation.value?.longitude,
+                      initialAddress:
+                          controller.selectedLocation.value?.address,
+                      onLocationSelected: (latitude, longitude, address) {
+                        selectedLatitude = latitude;
+                        selectedLongitude = longitude;
+                        selectedAddress = address;
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (selectedLatitude != null && selectedLongitude != null) {
+                // Create a temporary location model for the selected coordinates
+                final tempLocation = UserLocationModel(
+                  id: -1, // Temporary ID
+                  title: 'Selected Location',
+                  description: 'Temporarily selected for this service',
+                  latitude: selectedLatitude!,
+                  longitude: selectedLongitude!,
+                  address: selectedAddress.isNotEmpty
+                      ? selectedAddress
+                      : 'Selected Location',
+                  isDefault: false,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+
+                controller.setLocation(tempLocation);
+                Get.back();
+              } else {
+                Get.snackbar(
+                  'Error',
+                  'Please select a location on the map',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Confirm Location'),
+          ),
+        ],
       ),
     );
   }

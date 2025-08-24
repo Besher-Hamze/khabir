@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../data/models/provider_model.dart';
+import '../../data/models/user_location_model.dart';
 import '../../data/repositories/providers_repository.dart';
+import '../../data/repositories/user_repository.dart';
+import '../../routes/app_routes.dart';
 
 class RequestServiceController extends GetxController {
   final ProvidersRepository _providersRepository =
       Get.find<ProvidersRepository>();
+  final UserRepository _userRepository = Get.find<UserRepository>();
 
   // Observable variables
   final RxList<ProviderServiceItem> services = <ProviderServiceItem>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool isSubmitting =
+      false.obs; // Separate loading state for submission
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
   final RxMap<int, int> serviceQuantities = <int, int>{}.obs;
   final RxString selectedDuration = 'Now'.obs;
-  final RxString selectedLocation = 'Muscat'.obs;
+  final Rx<UserLocationModel?> selectedLocation = Rx<UserLocationModel?>(null);
   final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
   final RxString notes = ''.obs;
+  final RxList<UserLocationModel> availableLocations =
+      <UserLocationModel>[].obs;
 
   // Provider and category info
   ProviderApiModel? provider;
@@ -36,6 +44,27 @@ class RequestServiceController extends GetxController {
       if (provider != null && categoryId != null) {
         loadProviderServices(provider!.id, categoryId!);
       }
+    }
+
+    // Load user locations
+    loadUserLocations();
+  }
+
+  // Load user locations
+  Future<void> loadUserLocations() async {
+    try {
+      final response = await _userRepository.getUserLocations();
+      availableLocations.value = response.locations;
+
+      // Set default location if available
+      if (availableLocations.isNotEmpty) {
+        final defaultLocation = availableLocations.firstWhereOrNull(
+          (loc) => loc.isDefault,
+        );
+        selectedLocation.value = defaultLocation ?? availableLocations.first;
+      }
+    } catch (e) {
+      print('Error loading user locations: $e');
     }
   }
 
@@ -123,7 +152,7 @@ class RequestServiceController extends GetxController {
   }
 
   // Set location
-  void setLocation(String location) {
+  void setLocation(UserLocationModel location) {
     selectedLocation.value = location;
   }
 
@@ -140,8 +169,8 @@ class RequestServiceController extends GetxController {
     }
 
     try {
-      // Show loading state in the UI instead of dialog
-      isLoading.value = true;
+      // Show submission loading state
+      isSubmitting.value = true;
 
       // Prepare the request data according to the API structure
       final request = ServiceRequestRequest(
@@ -156,13 +185,13 @@ class RequestServiceController extends GetxController {
             )
             .toList(),
         scheduledDate: _getScheduledDate(),
-        location: "Home",
+        location: selectedLocation.value?.title ?? "Home",
         locationDetails:
-            selectedLocation.value, // You can enhance this with more details
+            selectedLocation.value?.address ?? "No location selected",
         userLocation: UserLocation(
-          latitude: 0.0, // You can get actual user location here
-          longitude: 0.0, // You can get actual user location here
-          address: selectedLocation.value,
+          latitude: selectedLocation.value?.latitude ?? 0.0,
+          longitude: selectedLocation.value?.longitude ?? 0.0,
+          address: selectedLocation.value?.address ?? "No address",
         ),
         notes: notes.value.isNotEmpty
             ? notes.value
@@ -172,38 +201,48 @@ class RequestServiceController extends GetxController {
       // Send the request to the API
       final response = await _providersRepository.createServiceRequest(request);
 
-      // Hide loading state
-      isLoading.value = false;
+      // Hide submission loading state
+      isSubmitting.value = false;
 
-      // Show success message with booking details
-      Get.snackbar(
-        'Success!',
-        'Service request submitted successfully!\nBooking ID: ${response.bookingId}',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 5),
+      // Reset form state
+      resetForm();
+
+      // Navigate to success page with booking details
+      Get.offAllNamed(
+        AppRoutes.successPage,
+        arguments: {
+          'bookingId': response.bookingId,
+          'totalAmount': response.totalAmount.toString(),
+          'scheduledDate': response.scheduledDate,
+        },
       );
-
-      // Print the response for debugging
-      print('Service request created successfully:');
-      print('Booking ID: ${response.bookingId}');
-      print('Status: ${response.status}');
-      print('Total Amount: ${response.totalAmount} OMR');
-      print('Scheduled Date: ${response.scheduledDate}');
-
-      // Navigate back to previous screen
-      Get.back();
     } catch (e) {
-      // Hide loading state
-      isLoading.value = false;
+      // Hide submission loading state
+      isSubmitting.value = false;
 
       // Show error message
+      String errorMsg = 'Failed to submit service request';
+      if (e.toString().contains('Exception:')) {
+        errorMsg = e.toString().split('Exception:').last.trim();
+      } else if (e.toString().contains('Error:')) {
+        errorMsg = e.toString().split('Error:').last.trim();
+      } else {
+        errorMsg = e.toString();
+      }
+
       Get.snackbar(
         'Error',
-        'Failed to submit service request: ${e.toString()}',
+        errorMsg,
         backgroundColor: Colors.red,
         colorText: Colors.white,
         duration: const Duration(seconds: 5),
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        onTap: (_) {
+          // If user taps the snackbar, dismiss it
+          Get.closeCurrentSnackbar();
+        },
       );
 
       print('Error submitting service request: $e');
@@ -234,6 +273,19 @@ class RequestServiceController extends GetxController {
   Future<void> refreshServices() async {
     if (provider != null && categoryId != null) {
       await loadProviderServices(provider!.id, categoryId!);
+    }
+  }
+
+  // Reset form state after successful submission
+  void resetForm() {
+    serviceQuantities.clear();
+    selectedDuration.value = 'Now';
+    selectedDate.value = null;
+    notes.value = '';
+
+    // Reinitialize quantities to 0
+    for (var service in services) {
+      serviceQuantities[service.id] = 0;
     }
   }
 }

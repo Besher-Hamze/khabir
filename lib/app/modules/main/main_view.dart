@@ -16,95 +16,99 @@ class MainView extends GetView<MainController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const HomeAppBar(),
-      body: Obx(() => IndexedStack(
-        index: controller.currentIndex.value,
-        children: const [
-          HomeView(),
-          MyBookingsView(),
-          CategoriesView(),
-          OffersView(),
-          ProfileView(),
-        ],
-      )),
-      bottomNavigationBar: Obx(() => BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: controller.currentIndex.value,
-        onTap: controller.changePage,
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textLight,
-        selectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+      body: Obx(
+        () => IndexedStack(
+          index: controller.currentIndex.value,
+          children: const [
+            HomeView(),
+            MyBookingsView(),
+            CategoriesView(showAppBar: false, showFilter: false),
+            OffersView(),
+            ProfileView(),
+          ],
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+      ),
+      bottomNavigationBar: Obx(
+        () => BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: controller.currentIndex.value,
+          onTap: controller.changePage,
+          backgroundColor: AppColors.surface,
+          selectedItemColor: AppColors.primary,
+          unselectedItemColor: AppColors.textLight,
+          selectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          elevation: 8,
+          items: [
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  controller.currentIndex.value == 0
+                      ? Icons.home
+                      : Icons.home_outlined,
+                  size: 24,
+                ),
+              ),
+              label: 'home'.tr,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  controller.currentIndex.value == 1
+                      ? Icons.bookmark
+                      : Icons.bookmark_border,
+                  size: 24,
+                ),
+              ),
+              label: 'my_bookings'.tr,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  controller.currentIndex.value == 2
+                      ? Icons.grid_view
+                      : Icons.grid_view_outlined,
+                  size: 24,
+                ),
+              ),
+              label: 'categories'.tr,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  controller.currentIndex.value == 3
+                      ? Icons.local_offer
+                      : Icons.local_offer_outlined,
+                  size: 24,
+                ),
+              ),
+              label: 'offers'.tr,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  controller.currentIndex.value == 4
+                      ? Icons.person
+                      : Icons.person_outline,
+                  size: 24,
+                ),
+              ),
+              label: 'profile'.tr,
+            ),
+          ],
         ),
-        elevation: 8,
-        items: [
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                controller.currentIndex.value == 0 
-                  ? Icons.home 
-                  : Icons.home_outlined,
-                size: 24,
-              ),
-            ),
-            label: 'home'.tr,
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                controller.currentIndex.value == 1 
-                  ? Icons.bookmark 
-                  : Icons.bookmark_border,
-                size: 24,
-              ),
-            ),
-            label: 'my_bookings'.tr,
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                controller.currentIndex.value == 2 
-                  ? Icons.grid_view 
-                  : Icons.grid_view_outlined,
-                size: 24,
-              ),
-            ),
-            label: 'categories'.tr,
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                controller.currentIndex.value == 3 
-                  ? Icons.local_offer 
-                  : Icons.local_offer_outlined,
-                size: 24,
-              ),
-            ),
-            label: 'offers'.tr,
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                controller.currentIndex.value == 4 
-                  ? Icons.person 
-                  : Icons.person_outline,
-                size: 24,
-              ),
-            ),
-            label: 'profile'.tr,
-          ),
-        ],
-      )),
+      ),
     );
   }
 }

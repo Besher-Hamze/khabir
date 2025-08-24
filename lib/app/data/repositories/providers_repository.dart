@@ -70,4 +70,19 @@ class ProvidersRepository {
       throw Exception('Error creating service request: $e');
     }
   }
+
+  // Get top providers
+  Future<TopProvidersResponse> getTopProviders() async {
+    try {
+      final response = await _apiService.get(AppConstants.topProviders);
+
+      if (response.statusCode == 200) {
+        return TopProvidersResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load top providers: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching top providers: $e');
+    }
+  }
 }

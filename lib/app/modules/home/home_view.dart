@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/values/colors.dart';
+import '../../core/utils/helpers.dart' as Helpers;
 import '../../global_widgets/loading_widgets.dart';
 import '../../data/models/service_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/models/category_model.dart';
 import 'home_controller.dart';
+import '../provider detail/provider_detail_view.dart';
+import '../all providers/all_providers_view.dart';
+import '../../routes/app_routes.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -325,16 +329,21 @@ class HomeView extends GetView<HomeController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Best Providers',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Best Providers',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
             GestureDetector(
-              onTap: () => controller.goToAllProviders(),
+              onTap: () => _navigateToAllProviders(),
               child: Text(
                 'View All',
                 style: TextStyle(
@@ -351,11 +360,51 @@ class HomeView extends GetView<HomeController> {
 
         // Providers List
         Obx(() {
-          if (controller.isLoading.value) {
+          if (controller.isProvidersLoading.value) {
             return Column(
               children: List.generate(
                 2,
                 (index) => const ProviderCardShimmer(),
+              ),
+            );
+          }
+
+          if (controller.bestProviders.isEmpty) {
+            return Container(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No providers available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Check back later for top service providers',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => controller.forceRefreshProviders(),
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text('Try Again'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -371,9 +420,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildProviderCard(ServiceProvider provider) {
+  Widget _buildProviderCard(TopProviderModel provider) {
     return GestureDetector(
-      onTap: () => controller.goToProvider(provider),
+      onTap: () => _navigateToProviderDetail(provider),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(20),
@@ -400,25 +449,31 @@ class HomeView extends GetView<HomeController> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
-                  'assets/images/logo-04.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        gradient: LinearGradient(
-                          colors: [Colors.blue[100]!, Colors.purple[100]!],
+                child: provider.image.isNotEmpty
+                    ? Image.network(
+                        Helpers.getImageUrl(provider.image),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Image.asset(
+                              'assets/images/logo-04.png',
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Image.asset(
+                          'assets/images/logo-04.png',
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 35,
-                        color: Colors.grey,
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
 
@@ -439,37 +494,80 @@ class HomeView extends GetView<HomeController> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    provider.services.isNotEmpty
-                        ? provider.services.first.nameEn
-                        : 'Service Provider',
+                    provider.description.isNotEmpty
+                        ? provider.description
+                        : 'Professional Service Provider',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
                       fontWeight: FontWeight.w500,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
 
-            // Rating
-            Row(
+            // Rating and Verification
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  provider.rating.toStringAsFixed(1),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      provider.averageRating.toStringAsFixed(1),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.star, size: 18, color: Colors.amber),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                const Icon(Icons.star, size: 18, color: Colors.amber),
+                const SizedBox(height: 4),
+                if (provider.isVerified)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.verified, size: 10, color: Colors.green),
+                        const SizedBox(width: 2),
+                        Text(
+                          'Verified',
+                          style: TextStyle(
+                            fontSize: 8,
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _navigateToProviderDetail(TopProviderModel provider) {
+    Get.toNamed(AppRoutes.providerDetail, arguments: provider);
+  }
+
+  void _navigateToAllProviders() {
+    Get.toNamed(AppRoutes.allProviders);
   }
 }

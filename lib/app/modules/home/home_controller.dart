@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/repositories/services_repository.dart';
+import '../../data/repositories/providers_repository.dart';
 import '../../data/models/service_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/models/category_model.dart';
@@ -10,10 +11,13 @@ import '../../core/constants/app_constants.dart';
 
 class HomeController extends GetxController {
   final ServicesRepository _servicesRepository = Get.find<ServicesRepository>();
+  final ProvidersRepository _providersRepository =
+      Get.find<ProvidersRepository>();
 
   var isLoading = false.obs;
+  var isProvidersLoading = false.obs;
   var categories = <CategoryModel>[].obs;
-  var bestProviders = <ServiceProvider>[].obs;
+  var bestProviders = <TopProviderModel>[].obs;
   var selectedState = 'الرياض'.obs;
 
   @override
@@ -40,103 +44,55 @@ class HomeController extends GetxController {
     } catch (e) {
       print('Error loading categories: $e');
       // Fallback to mock data
-      categories.value = _getMockCategories();
+      categories.value = [];
     }
   }
 
   Future<void> loadBestProviders() async {
     try {
-      final providersList = await _servicesRepository.getTopRatedProviders();
-      bestProviders.value = providersList
-          .take(5)
-          .toList(); // Show first 5 providers
+      isProvidersLoading.value = true;
+      print('Loading best providers...');
+
+      final response = await _providersRepository.getTopProviders();
+      print('API Response: ${response.providers.length} providers received');
+
+      if (response.providers.isNotEmpty) {
+        // Filter active providers and sort by rank/score
+        final activeProviders = response.providers
+            .where((provider) => provider.isActive)
+            .toList();
+
+        if (activeProviders.isNotEmpty) {
+          // Sort by rank (lower is better) and take top 5
+          activeProviders.sort((a, b) => a.rank.compareTo(b.rank));
+          bestProviders.value = activeProviders.take(5).toList();
+
+          print(
+            'Successfully loaded ${bestProviders.length} active providers from API',
+          );
+          print('Providers sorted by rank:');
+
+          // Debug: Print provider details
+          for (var provider in bestProviders) {
+            print(
+              'Provider: ${provider.name} - Rating: ${provider.averageRating} - Tier: ${provider.tier} - Rank: ${provider.rank}',
+            );
+          }
+        } else {
+          print('No active providers found in API response');
+          bestProviders.value = [];
+        }
+      } else {
+        print('No providers returned from API');
+        bestProviders.value = [];
+      }
     } catch (e) {
       print('Error loading best providers: $e');
-      // Fallback to mock data
-      bestProviders.value = _getMockProviders();
+      print('Error details: ${e.toString()}');
+      bestProviders.value = [];
+    } finally {
+      isProvidersLoading.value = false;
     }
-  }
-
-  // Mock data fallback methods
-  List<CategoryModel> _getMockCategories() {
-    return [
-      CategoryModel(
-        id: 1,
-        image: 'assets/icons/bag.png',
-        titleAr: 'كهرباء',
-        titleEn: 'Electricity',
-        state: 'الرياض',
-      ),
-      CategoryModel(
-        id: 2,
-        image: 'assets/icons/bag.png',
-        titleAr: 'سباكة',
-        titleEn: 'Plumbing',
-        state: 'الرياض',
-      ),
-      CategoryModel(
-        id: 3,
-        image: 'assets/icons/bag.png',
-        titleAr: 'نجارة',
-        titleEn: 'Carpentry',
-        state: 'الرياض',
-      ),
-      CategoryModel(
-        id: 4,
-        image: 'assets/icons/bag.png',
-        titleAr: 'تلفاز وستالايت',
-        titleEn: 'TV & Satellite',
-        state: 'الرياض',
-      ),
-      CategoryModel(
-        id: 5,
-        image: 'assets/icons/bag.png',
-        titleAr: 'دهان',
-        titleEn: 'Painting',
-        state: 'الرياض',
-      ),
-    ];
-  }
-
-  List<ServiceProvider> _getMockProviders() {
-    return [
-      ServiceProvider(
-        id: '1',
-        name: 'أحمد محمد',
-        phone: '+966501234567',
-        state: 'الرياض',
-        city: 'الرياض',
-        rating: 4.8,
-        reviewsCount: 25,
-        status: ProviderStatus.online,
-        isVerified: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 365)),
-      ),
-      ServiceProvider(
-        id: '2',
-        name: 'محمد علي',
-        phone: '+966502345678',
-        state: 'الرياض',
-        city: 'الرياض',
-        rating: 4.6,
-        reviewsCount: 18,
-        status: ProviderStatus.online,
-        isVerified: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 200)),
-      ),
-      ServiceProvider(
-        id: '3',
-        name: 'فاطمة أحمد',
-        phone: '+966503456789',
-        state: 'الرياض',
-        city: 'الرياض',
-        rating: 4.9,
-        reviewsCount: 42,
-        status: ProviderStatus.busy,
-        isVerified: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 300)),
-      ),
-    ];
   }
 
   String getGreeting() {
@@ -181,7 +137,7 @@ class HomeController extends GetxController {
     );
   }
 
-  void goToProvider(ServiceProvider provider) {
+  void goToProvider(TopProviderModel provider) {
     // Get.to(const RequestServiceView());
   }
 
@@ -237,5 +193,27 @@ class HomeController extends GetxController {
 
   Future<void> refreshData() async {
     await loadHomeData();
+  }
+
+  Future<void> refreshProviders() async {
+    await loadBestProviders();
+  }
+
+  Future<void> forceRefreshProviders() async {
+    print('Force refreshing providers...');
+    bestProviders.clear(); // Clear existing data
+    await loadBestProviders(); // Reload from API
+  }
+
+  bool get hasProviders => bestProviders.isNotEmpty;
+
+  int get providersCount => bestProviders.length;
+
+  bool get needsRefresh => bestProviders.isEmpty && !isProvidersLoading.value;
+
+  String get providersStatus {
+    if (isProvidersLoading.value) return 'Loading...';
+    if (bestProviders.isEmpty) return 'No providers available';
+    return '${bestProviders.length} providers loaded';
   }
 }

@@ -631,3 +631,590 @@ class ServiceRequestProvider {
     return {'id': id, 'name': name, 'phone': phone, 'image': image};
   }
 }
+
+// Order Models
+class OrderResponse {
+  final List<OrderModel> orders;
+
+  OrderResponse({required this.orders});
+
+  factory OrderResponse.fromJson(List<dynamic> json) {
+    return OrderResponse(
+      orders: json.map((order) => OrderModel.fromJson(order)).toList(),
+    );
+  }
+}
+
+class OrderModel {
+  final int id;
+  final int userId;
+  final int providerId;
+  final int serviceId;
+  final String status;
+  final String orderDate;
+  final String bookingId;
+  final double commissionAmount;
+  final String location;
+  final String locationDetails;
+  final double providerAmount;
+  final OrderLocation providerLocation;
+  final int quantity;
+  final String scheduledDate;
+  final double totalAmount;
+  final OrderUser user;
+  final OrderProvider provider;
+  final OrderService service;
+  final OrderInvoice invoice;
+
+  OrderModel({
+    required this.id,
+    required this.userId,
+    required this.providerId,
+    required this.serviceId,
+    required this.status,
+    required this.orderDate,
+    required this.bookingId,
+    required this.commissionAmount,
+    required this.location,
+    required this.locationDetails,
+    required this.providerAmount,
+    required this.providerLocation,
+    required this.quantity,
+    required this.scheduledDate,
+    required this.totalAmount,
+    required this.user,
+    required this.provider,
+    required this.service,
+    required this.invoice,
+  });
+
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    return OrderModel(
+      id: json['id'] ?? 0,
+      userId: json['userId'] ?? 0,
+      providerId: json['providerId'] ?? 0,
+      serviceId: json['serviceId'] ?? 0,
+      status: json['status'] ?? '',
+      orderDate: json['orderDate'] ?? '',
+      bookingId: json['bookingId'] ?? '',
+      commissionAmount: (json['commissionAmount'] ?? 0).toDouble(),
+      location: json['location'] ?? '',
+      locationDetails: json['locationDetails'] ?? '',
+      providerAmount: (json['providerAmount'] ?? 0).toDouble(),
+      providerLocation: OrderLocation.fromJson(json['providerLocation'] ?? {}),
+      quantity: json['quantity'] ?? 0,
+      scheduledDate: json['scheduledDate'] ?? '',
+      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      user: OrderUser.fromJson(json['user'] ?? {}),
+      provider: OrderProvider.fromJson(json['provider'] ?? {}),
+      service: OrderService.fromJson(json['service'] ?? {}),
+      invoice: OrderInvoice.fromJson(json['invoice'] ?? {}),
+    );
+  }
+}
+
+class OrderLocation {
+  final String address;
+  final double latitude;
+  final double longitude;
+
+  OrderLocation({
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory OrderLocation.fromJson(Map<String, dynamic> json) {
+    return OrderLocation(
+      address: json['address'] ?? '',
+      latitude: (json['latitude'] ?? 0).toDouble(),
+      longitude: (json['longitude'] ?? 0).toDouble(),
+    );
+  }
+}
+
+class OrderUser {
+  final int id;
+  final String name;
+  final String phone;
+  final String? email;
+  final double? latitude;
+  final double? longitude;
+
+  OrderUser({
+    required this.id,
+    required this.name,
+    required this.phone,
+    this.email,
+    this.latitude,
+    this.longitude,
+  });
+
+  factory OrderUser.fromJson(Map<String, dynamic> json) {
+    return OrderUser(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      phone: json['phone'] ?? '',
+      email: json['email'],
+      latitude: json['latitude'] != null ? (json['latitude']).toDouble() : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude']).toDouble()
+          : null,
+    );
+  }
+}
+
+class OrderProvider {
+  final int id;
+  final String name;
+  final String phone;
+  final String image;
+
+  OrderProvider({
+    required this.id,
+    required this.name,
+    required this.phone,
+    required this.image,
+  });
+
+  factory OrderProvider.fromJson(Map<String, dynamic> json) {
+    return OrderProvider(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      phone: json['phone'] ?? '',
+      image: json['image'] ?? '',
+    );
+  }
+}
+
+class OrderService {
+  final int id;
+  final String title;
+  final String description;
+  final String image;
+
+  OrderService({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.image,
+  });
+
+  factory OrderService.fromJson(Map<String, dynamic> json) {
+    return OrderService(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      image: json['image'] ?? '',
+    );
+  }
+}
+
+class OrderInvoice {
+  final int id;
+  final int orderId;
+  final String? paymentDate;
+  final double totalAmount;
+  final double discount;
+  final String? paymentMethod;
+  final String paymentStatus;
+  final bool isVerified;
+  final String? payoutDate;
+  final String payoutStatus;
+  final String? verifiedAt;
+  final String? verifiedBy;
+
+  OrderInvoice({
+    required this.id,
+    required this.orderId,
+    this.paymentDate,
+    required this.totalAmount,
+    required this.discount,
+    this.paymentMethod,
+    required this.paymentStatus,
+    required this.isVerified,
+    this.payoutDate,
+    required this.payoutStatus,
+    this.verifiedAt,
+    this.verifiedBy,
+  });
+
+  factory OrderInvoice.fromJson(Map<String, dynamic> json) {
+    return OrderInvoice(
+      id: json['id'] ?? 0,
+      orderId: json['orderId'] ?? 0,
+      paymentDate: json['paymentDate'],
+      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      discount: (json['discount'] ?? 0).toDouble(),
+      paymentMethod: json['paymentMethod'],
+      paymentStatus: json['paymentStatus'] ?? '',
+      isVerified: json['isVerified'] ?? false,
+      payoutDate: json['payoutDate'],
+      payoutStatus: json['payoutStatus'] ?? '',
+      verifiedAt: json['verifiedAt'],
+      verifiedBy: json['verifiedBy'],
+    );
+  }
+}
+
+// Top Providers Models
+class TopProvidersResponse {
+  final List<TopProviderModel> providers;
+
+  TopProvidersResponse({required this.providers});
+
+  factory TopProvidersResponse.fromJson(Map<String, dynamic> json) {
+    return TopProvidersResponse(
+      providers:
+          (json['providers'] as List<dynamic>?)
+              ?.map((e) => TopProviderModel.fromJson(e))
+              .toList() ??
+          [],
+    );
+  }
+}
+
+class TopProviderModel {
+  final int id;
+  final String name;
+  final String image;
+  final String description;
+  final String state;
+  final String phone;
+  final bool isActive;
+  final bool isVerified;
+  final String email;
+  final List<ProviderOrder> orders;
+  final List<TopProviderService> providerServices;
+  final double averageRating;
+  final int totalRatings;
+  final int totalOrders;
+  final int completedOrders;
+  final double totalRevenue;
+  final int activeServices;
+  final String tier;
+  final int score;
+  final int rank;
+
+  TopProviderModel({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.description,
+    required this.state,
+    required this.phone,
+    required this.isActive,
+    required this.isVerified,
+    required this.email,
+    required this.orders,
+    required this.providerServices,
+    required this.averageRating,
+    required this.totalRatings,
+    required this.totalOrders,
+    required this.completedOrders,
+    required this.totalRevenue,
+    required this.activeServices,
+    required this.tier,
+    required this.score,
+    required this.rank,
+  });
+
+  factory TopProviderModel.fromJson(Map<String, dynamic> json) {
+    return TopProviderModel(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      image: json['image'] ?? '',
+      description: json['description'] ?? '',
+      state: json['state'] ?? '',
+      phone: json['phone'] ?? '',
+      isActive: json['isActive'] ?? false,
+      isVerified: json['isVerified'] ?? false,
+      email: json['email'] ?? '',
+      orders:
+          (json['orders'] as List<dynamic>?)
+              ?.map((e) => ProviderOrder.fromJson(e))
+              .toList() ??
+          [],
+      providerServices:
+          (json['providerServices'] as List<dynamic>?)
+              ?.map((e) => TopProviderService.fromJson(e))
+              .toList() ??
+          [],
+      averageRating: (json['averageRating'] ?? 0).toDouble(),
+      totalRatings: json['totalRatings'] ?? 0,
+      totalOrders: json['totalOrders'] ?? 0,
+      completedOrders: json['completedOrders'] ?? 0,
+      totalRevenue: (json['totalRevenue'] ?? 0).toDouble(),
+      activeServices: json['activeServices'] ?? 0,
+      tier: json['tier'] ?? '',
+      score: json['score'] ?? 0,
+      rank: json['rank'] ?? 0,
+    );
+  }
+}
+
+class ProviderOrder {
+  final int id;
+  final String status;
+  final double totalAmount;
+  final DateTime orderDate;
+
+  ProviderOrder({
+    required this.id,
+    required this.status,
+    required this.totalAmount,
+    required this.orderDate,
+  });
+
+  factory ProviderOrder.fromJson(Map<String, dynamic> json) {
+    return ProviderOrder(
+      id: json['id'] ?? 0,
+      status: json['status'] ?? '',
+      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      orderDate: DateTime.parse(
+        json['orderDate'] ?? DateTime.now().toIso8601String(),
+      ),
+    );
+  }
+}
+
+class TopProviderService {
+  final int id;
+  final int providerId;
+  final int serviceId;
+  final bool isActive;
+  final double price;
+  final TopService service;
+
+  TopProviderService({
+    required this.id,
+    required this.providerId,
+    required this.serviceId,
+    required this.isActive,
+    required this.price,
+    required this.service,
+  });
+
+  factory TopProviderService.fromJson(Map<String, dynamic> json) {
+    return TopProviderService(
+      id: json['id'] ?? 0,
+      providerId: json['providerId'] ?? 0,
+      serviceId: json['serviceId'] ?? 0,
+      isActive: json['isActive'] ?? false,
+      price: (json['price'] ?? 0).toDouble(),
+      service: TopService.fromJson(json['service'] ?? {}),
+    );
+  }
+}
+
+class TopService {
+  final int id;
+  final String image;
+  final String title;
+  final String description;
+  final double commission;
+  final String whatsapp;
+  final int? categoryId;
+  final TopCategory? category;
+
+  TopService({
+    required this.id,
+    required this.image,
+    required this.title,
+    required this.description,
+    required this.commission,
+    required this.whatsapp,
+    this.categoryId,
+    this.category,
+  });
+
+  factory TopService.fromJson(Map<String, dynamic> json) {
+    return TopService(
+      id: json['id'] ?? 0,
+      image: json['image'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      commission: (json['commission'] ?? 0).toDouble(),
+      whatsapp: json['whatsapp'] ?? '',
+      categoryId: json['categoryId'],
+      category: json['category'] != null
+          ? TopCategory.fromJson(json['category'])
+          : null,
+    );
+  }
+}
+
+class TopCategory {
+  final int id;
+  final String image;
+  final String titleAr;
+  final String titleEn;
+  final String state;
+
+  TopCategory({
+    required this.id,
+    required this.image,
+    required this.titleAr,
+    required this.titleEn,
+    required this.state,
+  });
+
+  factory TopCategory.fromJson(Map<String, dynamic> json) {
+    return TopCategory(
+      id: json['id'] ?? 0,
+      image: json['image'] ?? '',
+      titleAr: json['titleAr'] ?? '',
+      titleEn: json['titleEn'] ?? '',
+      state: json['state'] ?? '',
+    );
+  }
+}
+
+// Offer Models
+class OfferResponse {
+  final List<OfferModel> offers;
+
+  OfferResponse({required this.offers});
+
+  factory OfferResponse.fromJson(Map<String, dynamic> json) {
+    return OfferResponse(
+      offers:
+          (json as List<dynamic>?)
+              ?.map((e) => OfferModel.fromJson(e))
+              .toList() ??
+          [],
+    );
+  }
+}
+
+class OfferModel {
+  final int id;
+  final int providerId;
+  final int serviceId;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String description;
+  final bool isActive;
+  final double offerPrice;
+  final double originalPrice;
+  final OfferProvider provider;
+  final OfferService service;
+
+  OfferModel({
+    required this.id,
+    required this.providerId,
+    required this.serviceId,
+    required this.startDate,
+    required this.endDate,
+    required this.description,
+    required this.isActive,
+    required this.offerPrice,
+    required this.originalPrice,
+    required this.provider,
+    required this.service,
+  });
+
+  factory OfferModel.fromJson(Map<String, dynamic> json) {
+    return OfferModel(
+      id: json['id'] ?? 0,
+      providerId: json['providerId'] ?? 0,
+      serviceId: json['serviceId'] ?? 0,
+      startDate: DateTime.parse(
+        json['startDate'] ?? DateTime.now().toIso8601String(),
+      ),
+      endDate: DateTime.parse(
+        json['endDate'] ?? DateTime.now().toIso8601String(),
+      ),
+      description: json['description'] ?? '',
+      isActive: json['isActive'] ?? false,
+      offerPrice: (json['offerPrice'] ?? 0).toDouble(),
+      originalPrice: (json['originalPrice'] ?? 0).toDouble(),
+      provider: OfferProvider.fromJson(json['provider'] ?? {}),
+      service: OfferService.fromJson(json['service'] ?? {}),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'providerId': id,
+      'serviceId': serviceId,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'description': description,
+      'isActive': isActive,
+      'offerPrice': offerPrice,
+      'originalPrice': originalPrice,
+      'provider': provider.toJson(),
+      'service': service.toJson(),
+    };
+  }
+}
+
+class OfferProvider {
+  final int id;
+  final String name;
+  final String image;
+  final bool isVerified;
+  final bool isActive;
+
+  OfferProvider({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.isVerified,
+    required this.isActive,
+  });
+
+  factory OfferProvider.fromJson(Map<String, dynamic> json) {
+    return OfferProvider(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      image: json['image'] ?? '',
+      isVerified: json['isVerified'] ?? false,
+      isActive: json['isActive'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+      'isVerified': isVerified,
+      'isActive': isActive,
+    };
+  }
+}
+
+class OfferService {
+  final int id;
+  final String title;
+  final String description;
+  final String image;
+
+  OfferService({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.image,
+  });
+
+  factory OfferService.fromJson(Map<String, dynamic> json) {
+    return OfferService(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      image: json['image'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'image': image,
+    };
+  }
+}

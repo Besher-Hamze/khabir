@@ -8,130 +8,125 @@ import '../../data/models/category_model.dart';
 import '../../global_widgets/loading_widgets.dart';
 
 class CategoriesView extends StatelessWidget {
-  const CategoriesView({Key? key}) : super(key: key);
+  final bool showAppBar;
+  final bool showFilter;
+
+  const CategoriesView({
+    Key? key,
+    this.showAppBar = true,
+    this.showFilter = true,
+  }) : super(key: key);
+
+  // Factory constructor for navigation bar use (minimal version)
+  factory CategoriesView.minimal({Key? key}) {
+    return CategoriesView(key: key, showAppBar: false, showFilter: false);
+  }
+
+  // Factory constructor for navigation bar use with filter
+  factory CategoriesView.navBar({Key? key, bool showFilter = false}) {
+    return CategoriesView(key: key, showAppBar: false, showFilter: showFilter);
+  }
 
   @override
   Widget build(BuildContext context) {
     final CategoriesController controller = Get.find<CategoriesController>();
 
+    Widget content = Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (controller.hasError.value) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+              const SizedBox(height: 16),
+              Text(
+                'error'.tr,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                controller.errorMessage.value,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: controller.refreshCategories,
+                child: Text('retry'.tr),
+              ),
+            ],
+          ),
+        );
+      }
+
+      if (controller.categories.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.category_outlined, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                'no_data'.tr,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'No categories available',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return RefreshIndicator(
+        onRefresh: controller.refreshCategories,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 1,
+            ),
+            itemCount: controller.categories.length,
+            itemBuilder: (context, index) {
+              return _buildCategoryItem(
+                controller.categories[index],
+                controller,
+              );
+            },
+          ),
+        ),
+      );
+    });
+
+    // If showAppBar is false, return just the content (for navigation bar)
+    if (!showAppBar) {
+      return content;
+    }
+
+    // If showAppBar is true, return with Scaffold and AppBar (for standalone page)
     return Scaffold(
       appBar: AppBar(
         title: Text('categories'.tr),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          // State filter dropdown
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list),
-            onSelected: (String state) {
-              if (state.isEmpty) {
-                controller.clearStateFilter();
-              } else {
-                controller.loadCategoriesByState(state);
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: '',
-                  child: Text('all_categories'.tr),
-                ),
-                ...controller.availableStates.map(
-                  (state) =>
-                      PopupMenuItem<String>(value: state, child: Text(state)),
-                ),
-              ];
-            },
-          ),
-        ],
       ),
-
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.hasError.value) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                const SizedBox(height: 16),
-                Text(
-                  'error'.tr,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  controller.errorMessage.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refreshCategories,
-                  child: Text('retry'.tr),
-                ),
-              ],
-            ),
-          );
-        }
-
-        if (controller.categories.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.category_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'no_data'.tr,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'No categories available',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: controller.refreshCategories,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1,
-              ),
-              itemCount: controller.categories.length,
-              itemBuilder: (context, index) {
-                return _buildCategoryItem(
-                  controller.categories[index],
-                  controller,
-                );
-              },
-            ),
-          ),
-        );
-      }),
+      body: content,
     );
   }
 
