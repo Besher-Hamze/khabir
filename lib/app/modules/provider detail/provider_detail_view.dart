@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/provider_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
 import '../../core/utils/helpers.dart' as Helpers;
 
 class ProviderDetailView extends StatelessWidget {
-  final TopProviderModel provider;
+  final Provider provider;
 
   const ProviderDetailView({Key? key, required this.provider})
     : super(key: key);
@@ -199,19 +200,19 @@ class ProviderDetailView extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: _getTierColor(provider.tier).withOpacity(0.1),
+                  color: _getTierColor(provider.tier.name).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _getTierColor(provider.tier),
+                    color: _getTierColor(provider.tier.name),
                     width: 1,
                   ),
                 ),
                 child: Text(
-                  provider.tier.toUpperCase(),
+                  provider.tier.name.toUpperCase(),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: _getTierColor(provider.tier),
+                    color: _getTierColor(provider.tier.name),
                   ),
                 ),
               ),
@@ -359,7 +360,7 @@ class ProviderDetailView extends StatelessWidget {
   }
 
   Widget _buildServicesCard() {
-    if (provider.providerServices.isEmpty) {
+    if (provider.services.isEmpty) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 12),
         padding: const EdgeInsets.all(20),
@@ -423,9 +424,7 @@ class ProviderDetailView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...provider.providerServices.map(
-            (service) => _buildServiceItem(service),
-          ),
+          ...provider.services.map((service) => _buildServiceItem(service)),
         ],
       ),
     );
@@ -452,10 +451,8 @@ class ProviderDetailView extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
-                    image: service.service.image.isNotEmpty
-                        ? NetworkImage(
-                            Helpers.getImageUrl(service.service.image),
-                          )
+                    image: service.image.isNotEmpty
+                        ? NetworkImage(Helpers.getImageUrl(service.image))
                         : const AssetImage('assets/images/logo-04.png')
                               as ImageProvider,
                     fit: BoxFit.cover,
@@ -470,7 +467,7 @@ class ProviderDetailView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      service.service.title,
+                      service.title,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -481,7 +478,7 @@ class ProviderDetailView extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      service.service.description,
+                      service.description,
                       style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

@@ -48,3 +48,29 @@ class CategoryModel {
     return 'http://31.97.71.187:3000$image';
   }
 }
+
+class TopCategory {
+  final int id;
+  final String image;
+  final String titleAr;
+  final String titleEn;
+  final String state;
+
+  TopCategory({
+    required this.id,
+    required this.image,
+    required this.titleAr,
+    required this.titleEn,
+    required this.state,
+  });
+
+  factory TopCategory.fromJson(Map<String, dynamic> json) {
+    return TopCategory(
+      id: json['id'] ?? 0,
+      image: json['image'] ?? '',
+      titleAr: json['titleAr'] ?? '',
+      titleEn: json['titleEn'] ?? '',
+      state: json['state'] ?? '',
+    );
+  }
+}

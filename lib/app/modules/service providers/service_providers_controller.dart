@@ -79,15 +79,15 @@ class ServiceProvidersController extends GetxController {
 
   // Get provider price
   double getProviderPrice(ProviderApiModel provider) {
-    if (provider.providerServices.isNotEmpty) {
-      return provider.providerServices.first.price;
+    if (provider.services.isNotEmpty) {
+      return provider.services.first.price;
     }
     return 0.0;
   }
 
   double? getProviderOfferPrice(ProviderApiModel provider) {
-    if (provider.providerServices.isNotEmpty) {
-      return provider.providerServices.first.offerPrice;
+    if (provider.services.isNotEmpty) {
+      return provider.services.first.offerPrice;
     }
     return null;
   }

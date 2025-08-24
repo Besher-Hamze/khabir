@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/banner_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/repositories/services_repository.dart';
 import '../../data/repositories/providers_repository.dart';
@@ -82,7 +83,7 @@ class HomeController extends GetxController {
 
         if (activeProviders.isNotEmpty) {
           // Sort by rank (lower is better) and take top 5
-          activeProviders.sort((a, b) => a.rank.compareTo(b.rank));
+          activeProviders.sort((a, b) => a.rank.compareTo(b.rank ?? 0));
           bestProviders.value = activeProviders.take(5).toList();
 
           print(
@@ -204,10 +205,11 @@ class HomeController extends GetxController {
           _showErrorMessage('Cannot open this link');
         }
       } else if (banner.linkType == 'provider' && banner.providerId != null) {
-        Get.toNamed(
-          AppRoutes.providerDetail,
-          arguments: {'providerId': banner.providerId},
+        // get provider by id
+        final provider = await _providersRepository.getProviderById(
+          banner.providerId.toString(),
         );
+        Get.toNamed(AppRoutes.providerDetail, arguments: provider);
       }
     } catch (e) {
       print('Error handling banner tap: $e');

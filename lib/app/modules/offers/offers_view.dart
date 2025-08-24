@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/offer_model.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
 import '../../core/utils/helpers.dart' as Helpers;

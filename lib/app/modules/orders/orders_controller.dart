@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/order_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/orders_repository.dart';
 

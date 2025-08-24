@@ -324,7 +324,7 @@ class RequestServiceView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Price: ${service.providerService.price + service.commission} OMR',
+                      'Price: ${service.price + (service.commission ?? 0)} OMR',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

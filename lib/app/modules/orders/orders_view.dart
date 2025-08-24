@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/order_model.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/helpers.dart' as Helpers;
 import 'orders_controller.dart';

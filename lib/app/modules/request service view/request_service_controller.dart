@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/provider_model.dart';
+import 'package:khabir/app/data/models/service_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/models/user_location_model.dart';
 import '../../data/repositories/providers_repository.dart';
@@ -75,8 +77,10 @@ class RequestServiceController extends GetxController {
       hasError.value = false;
       errorMessage.value = '';
 
-      final ProviderServicesResponse response = await _providersRepository
-          .getProviderServices(providerId, categoryId);
+      final Provider response = await _providersRepository.getProviderServices(
+        providerId,
+        categoryId,
+      );
 
       services.value = response.services;
 
@@ -109,8 +113,8 @@ class RequestServiceController extends GetxController {
     if (service == null) return 0.0;
 
     final quantity = getServiceQuantity(serviceId);
-    final basePrice = service.providerService.price * quantity;
-    final commission = service.commission;
+    final basePrice = service.price * quantity;
+    final commission = service.commission ?? 0;
 
     return basePrice + commission;
   }
@@ -211,9 +215,9 @@ class RequestServiceController extends GetxController {
       Get.offAllNamed(
         AppRoutes.successPage,
         arguments: {
-          'bookingId': response.bookingId,
+          'bookingId': response.id,
           'totalAmount': response.totalAmount.toString(),
-          'scheduledDate': response.scheduledDate,
+          'scheduledDate': response.scheduledDate.toString(),
         },
       );
     } catch (e) {

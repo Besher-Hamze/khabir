@@ -1,3 +1,5 @@
+import 'package:khabir/app/data/models/user_location_model.dart';
+
 import 'category_model.dart';
 
 class ServiceModel {
@@ -363,5 +365,73 @@ class UpdateRatingRequest {
 
   Map<String, dynamic> toJson() {
     return {'rating': rating, 'comment': comment};
+  }
+}
+
+// New model for service request API request
+class ServiceRequestRequest {
+  final int providerId;
+  final List<ServiceRequestItem> services;
+  final String scheduledDate;
+  final String location;
+  final String locationDetails;
+  final UserLocation userLocation;
+  final String notes;
+
+  ServiceRequestRequest({
+    required this.providerId,
+    required this.services,
+    required this.scheduledDate,
+    required this.location,
+    required this.locationDetails,
+    required this.userLocation,
+    required this.notes,
+  });
+
+  factory ServiceRequestRequest.fromJson(Map<String, dynamic> json) {
+    return ServiceRequestRequest(
+      providerId: json['providerId'] ?? 0,
+      services:
+          (json['services'] as List<dynamic>?)
+              ?.map((e) => ServiceRequestItem.fromJson(e))
+              .toList() ??
+          [],
+      scheduledDate: json['scheduledDate'] ?? '',
+      location: json['location'] ?? '',
+      locationDetails: json['locationDetails'] ?? '',
+      userLocation: UserLocation.fromJson(json['userLocation'] ?? {}),
+      notes: json['notes'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'providerId': providerId,
+      'services': services.map((e) => e.toJson()).toList(),
+      'scheduledDate': scheduledDate,
+      'location': location,
+      'locationDetails': locationDetails,
+      'userLocation': userLocation.toJson(),
+      'notes': notes,
+    };
+  }
+}
+
+// New model for service request item
+class ServiceRequestItem {
+  final int serviceId;
+  final int quantity;
+
+  ServiceRequestItem({required this.serviceId, required this.quantity});
+
+  factory ServiceRequestItem.fromJson(Map<String, dynamic> json) {
+    return ServiceRequestItem(
+      serviceId: json['serviceId'] ?? 0,
+      quantity: json['quantity'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'serviceId': serviceId, 'quantity': quantity};
   }
 }

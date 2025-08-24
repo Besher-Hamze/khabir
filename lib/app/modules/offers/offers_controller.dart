@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/offer_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/offers_repository.dart';
 

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/order_model.dart';
 import '../models/provider_model.dart';
 import '../services/api_service.dart';
 import '../../core/constants/app_constants.dart';

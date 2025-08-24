@@ -134,52 +134,9 @@ class AllProvidersView extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 16),
-
-          // Category Filter
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _getCategories().map((category) {
-                return GestureDetector(
-                  onTap: () => _onCategoryChanged(category),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.primary),
-                    ),
-                    child: Text(
-                      category,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
         ],
       ),
     );
-  }
-
-  List<String> _getCategories() {
-    Set<String> categorySet = {'All'};
-    for (var provider in controller.bestProviders) {
-      for (var service in provider.providerServices) {
-        if (service.service.category != null) {
-          categorySet.add(service.service.category!.titleEn);
-        }
-      }
-    }
-    return categorySet.toList();
   }
 
   void _filterProviders(String query) {
@@ -316,15 +273,17 @@ class AllProvidersView extends GetView<HomeController> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getTierColor(provider.tier).withOpacity(0.1),
+                          color: _getTierColor(
+                            provider.tier.name,
+                          ).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          provider.tier.toUpperCase(),
+                          provider.tier.name.toUpperCase(),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: _getTierColor(provider.tier),
+                            color: _getTierColor(provider.tier.name),
                           ),
                         ),
                       ),
