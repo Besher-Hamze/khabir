@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/data/models/order_model.dart';
+import 'package:khabir/app/modules/track/track_binding.dart';
+import 'package:khabir/app/modules/track/track_screen.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/orders_repository.dart';
+import '../../routes/app_routes.dart';
 
 class OrdersController extends GetxController {
   late final OrdersRepository _ordersRepository;
@@ -12,6 +15,7 @@ class OrdersController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool isDeletingOrder = false.obs;
 
   @override
   void onInit() {
@@ -57,31 +61,213 @@ class OrdersController extends GetxController {
     await loadOrders();
   }
 
-  // Get status color
+  // Delete order (for rejected orders)
+  Future<void> deleteOrder(OrderModel order) async {
+    try {
+      // Show confirmation dialog
+      bool? confirmDelete = await Get.dialog<bool>(
+        AlertDialog(
+          title: const Text('Delete Order'),
+          content: Text(
+            'Are you sure you want to delete order #${order.id}?\nThis action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmDelete != true) return;
+
+      isDeletingOrder.value = true;
+
+      final result = await _ordersRepository.deleteOrder(order.id);
+
+      if (result['success']) {
+        // Remove order from local list
+        orders.removeWhere((o) => o.id == order.id);
+
+        Get.snackbar(
+          'Success',
+          result['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          result['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to delete order: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    } finally {
+      isDeletingOrder.value = false;
+    }
+  }
+
+  // Track order (for approved orders)
+  void trackOrder(OrderModel order) {
+    try {
+      // Convert OrderModel to ServiceBooking for TrackingView
+      final serviceBooking = ServiceBooking(
+        id: order.id.toString(),
+        category: order.service.title,
+        type: order.service.description,
+        number: order.quantity,
+        duration: formatDate(order.scheduledDate),
+        providerName: order.provider.name,
+        providerPhone: order.provider.phone,
+        providerImage: order.provider.image.isNotEmpty
+            ? order.provider.image
+            : 'assets/images/placeholder.png',
+        price: order.totalAmount.toInt(),
+      );
+
+      // Navigate to tracking screen
+      Get.to(
+        () => TrackingView(booking: serviceBooking),
+        binding: LocationTrackingBinding(),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to open tracking: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    }
+  }
+
+  // Cancel order (for pending orders)
+  Future<void> cancelOrder(OrderModel order) async {
+    try {
+      // Show confirmation dialog
+      bool? confirmCancel = await Get.dialog<bool>(
+        AlertDialog(
+          title: const Text('Cancel Order'),
+          content: Text('Are you sure you want to cancel order #${order.id}?'),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text('No'),
+            ),
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Cancel Order'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmCancel != true) return;
+
+      isLoading.value = true;
+
+      final result = await _ordersRepository.cancelOrder(order.id);
+
+      if (result['success']) {
+        // Update order in local list
+        final updatedOrder = result['order'] as OrderModel;
+        final index = orders.indexWhere((o) => o.id == order.id);
+        if (index != -1) {
+          orders[index] = updatedOrder;
+        }
+
+        Get.snackbar(
+          'Success',
+          result['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          result['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to cancel order: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Get status color based on order status
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
         return Colors.orange;
       case 'accepted':
+      case 'approved':
         return Colors.blue;
+      case 'rejected':
+        return Colors.red;
       case 'in_progress':
         return Colors.purple;
       case 'completed':
         return Colors.green;
       case 'cancelled':
-        return Colors.red;
+        return Colors.red.shade400;
       default:
         return Colors.grey;
     }
   }
 
-  // Get status text
+  // Get status text with proper formatting
   String getStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
         return 'Pending';
       case 'accepted':
         return 'Accepted';
+      case 'approved':
+        return 'Approved';
+      case 'rejected':
+        return 'Rejected';
       case 'in_progress':
         return 'In Progress';
       case 'completed':
@@ -89,8 +275,28 @@ class OrdersController extends GetxController {
       case 'cancelled':
         return 'Cancelled';
       default:
-        return status;
+        return status.toUpperCase();
     }
+  }
+
+  // Check if order can be tracked
+  bool canTrackOrder(String status) {
+    return [
+      'accepted',
+      'approved',
+      'in_progress',
+    ].contains(status.toLowerCase());
+  }
+
+  // Check if order can be deleted
+  bool canDeleteOrder(String status) {
+    return status.toLowerCase() == 'rejected' ||
+        status.toLowerCase() == 'cancelled';
+  }
+
+  // Check if order can be cancelled
+  bool canCancelOrder(String status) {
+    return status.toLowerCase() == 'pending';
   }
 
   // Format date
@@ -107,4 +313,49 @@ class OrdersController extends GetxController {
   String formatCurrency(double amount) {
     return '${amount.toStringAsFixed(2)} OMR';
   }
+
+  // Get order status badge widget
+  Widget getStatusBadge(String status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: getStatusColor(status).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: getStatusColor(status).withOpacity(0.3)),
+      ),
+      child: Text(
+        getStatusText(status),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: getStatusColor(status),
+        ),
+      ),
+    );
+  }
 }
+
+// // ServiceBooking class for TrackingView compatibility
+// class ServiceBooking {
+//   final String id;
+//   final String category;
+//   final String type;
+//   final int number;
+//   final String duration;
+//   final String providerName;
+//   final String providerPhone;
+//   final String providerImage;
+//   final int price;
+
+//   ServiceBooking({
+//     required this.id,
+//     required this.category,
+//     required this.type,
+//     required this.number,
+//     required this.duration,
+//     required this.providerName,
+//     required this.providerPhone,
+//     required this.providerImage,
+//     required this.price,
+//   });
+// }

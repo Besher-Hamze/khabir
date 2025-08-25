@@ -64,25 +64,27 @@ class LoginView extends GetView<AuthController> {
               const SizedBox(height: 16),
 
               // Password Field
-              Obx(() => CustomTextField(
-                label: 'password'.tr,
-                controller: controller.passwordController,
-                obscureText: !controller.isPasswordVisible.value,
-                validator: controller.validatePassword,
-                prefixIcon: const Icon(
-                  Icons.lock,
-                  color: AppColors.textLight,
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    controller.isPasswordVisible.value
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+              Obx(
+                () => CustomTextField(
+                  label: 'password'.tr,
+                  controller: controller.passwordController,
+                  obscureText: !controller.isPasswordVisible.value,
+                  validator: controller.validatePassword,
+                  prefixIcon: const Icon(
+                    Icons.lock,
                     color: AppColors.textLight,
                   ),
-                  onPressed: controller.togglePasswordVisibility,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      controller.isPasswordVisible.value
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: AppColors.textLight,
+                    ),
+                    onPressed: controller.togglePasswordVisibility,
+                  ),
                 ),
-              )),
+              ),
 
               const SizedBox(height: 12),
 
@@ -105,12 +107,14 @@ class LoginView extends GetView<AuthController> {
               const SizedBox(height: 40),
 
               // Login Button
-              Obx(() => CustomButton(
-                text: 'login'.tr,
-                onPressed: controller.login,
-                isLoading: controller.isLoading.value,
-                width: double.infinity,
-              )),
+              Obx(
+                () => CustomButton(
+                  text: 'login'.tr,
+                  onPressed: controller.login,
+                  isLoading: controller.isLoading.value,
+                  width: double.infinity,
+                ),
+              ),
 
               const SizedBox(height: 24),
 
@@ -141,16 +145,6 @@ class LoginView extends GetView<AuthController> {
               ),
 
               const SizedBox(height: 40),
-
-              // Skip Button
-              CustomButton(
-                text: 'skip'.tr,
-                onPressed: controller.loginAsGuest,
-                isOutlined: true,
-                width: double.infinity,
-              ),
-
-              const SizedBox(height: 20),
             ],
           ),
         ),

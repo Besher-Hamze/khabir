@@ -1,4 +1,6 @@
-import 'package:get/get.dart';
+import 'dart:io';
+import 'package:get/get.dart' hide FormData, MultipartFile;
+import 'package:dio/dio.dart';
 import '../models/user_model.dart';
 import '../services/storage_service.dart';
 import '../services/api_service.dart';
@@ -12,8 +14,8 @@ class AuthRepository {
   Future<Map<String, dynamic>> login(String phone, String password) async {
     try {
       final response = await _apiService.post(
-        AppConstants.authPhoneLogin,
-        data: {'phoneNumber': phone, 'password': password},
+        AppConstants.authLogin,
+        data: {'phone': phone, 'password': password},
       );
 
       if (response.statusCode == 201) {
@@ -44,7 +46,7 @@ class AuthRepository {
     }
   }
 
-  // Register new user - Step 1 (Initiate)
+  // Register new user - Step 1 (Initiate with image upload)
   Future<Map<String, dynamic>> registerInitiate({
     required String name,
     required String phone,
@@ -52,19 +54,40 @@ class AuthRepository {
     required String state,
     String? email,
     String? address,
+    String? profileImagePath,
   }) async {
     try {
+      FormData formData = FormData.fromMap({
+        'name': name,
+        'phoneNumber': phone,
+        'password': password,
+        'role': 'USER',
+        'state': state,
+        'email': email ?? '',
+        'address': address ?? '$state, OMAN',
+      });
+
+      // Add profile image if provided
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        File imageFile = File(profileImagePath);
+        if (await imageFile.exists()) {
+          formData.files.add(
+            MapEntry(
+              'image',
+              await MultipartFile.fromFile(
+                profileImagePath,
+                filename:
+                    'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              ),
+            ),
+          );
+        }
+      }
+
       final response = await _apiService.post(
         AppConstants.authRegisterInitiate,
-        data: {
-          'name': name,
-          'phoneNumber': phone,
-          'password': password,
-          'role': 'USER',
-          'state': state,
-          'email': email,
-          'address': address ?? '$state, Saudi Arabia',
-        },
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -82,7 +105,7 @@ class AuthRepository {
     }
   }
 
-  // Register new user - Step 2 (Complete)
+  // Register new user - Step 2 (Complete with image upload)
   Future<Map<String, dynamic>> registerComplete({
     required String name,
     required String phone,
@@ -91,20 +114,41 @@ class AuthRepository {
     required String otp,
     String? email,
     String? address,
+    String? profileImagePath,
   }) async {
     try {
+      FormData formData = FormData.fromMap({
+        'name': name,
+        'phoneNumber': phone,
+        'password': password,
+        'otp': otp,
+        'role': 'USER',
+        'state': state,
+        'email': email ?? '',
+        'address': address ?? '$state, Oman',
+      });
+
+      // Add profile image if provided
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        File imageFile = File(profileImagePath);
+        if (await imageFile.exists()) {
+          formData.files.add(
+            MapEntry(
+              'profileImage',
+              await MultipartFile.fromFile(
+                profileImagePath,
+                filename:
+                    'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              ),
+            ),
+          );
+        }
+      }
+
       final response = await _apiService.post(
         AppConstants.authRegisterComplete,
-        data: {
-          'name': name,
-          'phoneNumber': phone,
-          'password': password,
-          'otp': otp,
-          'role': 'USER',
-          'state': state,
-          'email': email,
-          'address': address ?? '$state, Saudi Arabia',
-        },
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -162,16 +206,12 @@ class AuthRepository {
     }
   }
 
-  // Verify OTP
-  Future<Map<String, dynamic>> verifyOTP(
-    User user,
-    String otp,
-    String password,
-  ) async {
+  // Verify OTP (simplified - just phone and OTP)
+  Future<Map<String, dynamic>> verifyOTP(String phoneNumber, String otp) async {
     try {
       final response = await _apiService.post(
         AppConstants.authRegisterComplete,
-        data: {...user.toJson(), 'otp': otp, 'password': password},
+        data: {'phoneNumber': phoneNumber, 'otp': otp},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -206,19 +246,16 @@ class AuthRepository {
     }
   }
 
-  // Reset password
+  // Reset password with OTP
   Future<Map<String, dynamic>> resetPassword(
     String phone,
+    String otp,
     String newPassword,
   ) async {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordReset,
-        data: {
-          'phoneNumber': phone,
-          'otp': '123456', // This should be the OTP from the previous step
-          'newPassword': newPassword,
-        },
+        data: {'phoneNumber': phone, 'otp': otp, 'newPassword': newPassword},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -252,7 +289,7 @@ class AuthRepository {
   // Get current user
   User? get currentUser => _storageService.getUser();
 
-  // Update user profile
+  // Update user profile with image upload
   Future<Map<String, dynamic>> updateProfile({
     String? name,
     String? email,
@@ -260,14 +297,33 @@ class AuthRepository {
     String? profileImagePath,
   }) async {
     try {
+      FormData formData = FormData();
+
+      if (name != null) formData.fields.add(MapEntry('name', name));
+      if (email != null) formData.fields.add(MapEntry('email', email));
+      if (state != null) formData.fields.add(MapEntry('state', state));
+
+      // Add profile image if provided
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        File imageFile = File(profileImagePath);
+        if (await imageFile.exists()) {
+          formData.files.add(
+            MapEntry(
+              'profileImage',
+              await MultipartFile.fromFile(
+                profileImagePath,
+                filename:
+                    'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              ),
+            ),
+          );
+        }
+      }
+
       final response = await _apiService.put(
         AppConstants.userProfile,
-        data: {
-          if (name != null) 'name': name,
-          if (email != null) 'email': email,
-          if (state != null) 'state': state,
-          if (profileImagePath != null) 'profileImage': profileImagePath,
-        },
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

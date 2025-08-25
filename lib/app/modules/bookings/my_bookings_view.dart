@@ -181,7 +181,7 @@ class MyBookingsView extends GetView<OrdersController> {
                 ),
               ),
 
-              // ID and Rating
+              // ID and Status
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -196,28 +196,8 @@ class MyBookingsView extends GetView<OrdersController> {
 
                   const SizedBox(height: 8),
 
-                  // Rating (using a default 5.0 for now)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ...List.generate(5, (index) {
-                        return Icon(
-                          Icons.star,
-                          size: 14,
-                          color: index < 5 ? Colors.amber : Colors.grey[300],
-                        );
-                      }),
-                      const SizedBox(width: 4),
-                      Text(
-                        '5.0',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Order Status Badge
+                  controller.getStatusBadge(order.status),
                 ],
               ),
             ],
@@ -244,24 +224,8 @@ class MyBookingsView extends GetView<OrdersController> {
 
           const SizedBox(height: 20),
 
-          // Status Buttons
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatusButton('Incomplete', Colors.red, order),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatusButton('Complete', Colors.green, order),
-              ),
-              const SizedBox(width: 8),
-              Expanded(child: _buildStatusButton('Track', Colors.blue, order)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatusButton('Acceptable', Colors.green, order),
-              ),
-            ],
-          ),
+          // Dynamic Action Buttons based on order status
+          _buildActionButtons(order),
         ],
       ),
     );
@@ -294,84 +258,259 @@ class MyBookingsView extends GetView<OrdersController> {
     );
   }
 
-  Widget _buildDetailRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-        ),
+  Widget _buildActionButtons(OrderModel order) {
+    List<Widget> buttons = [];
+
+    // Show different buttons based on order status
+    if (controller.canDeleteOrder(order.status)) {
+      // Show delete button for rejected orders
+      buttons.add(
         Expanded(
+          child: _buildActionButton(
+            'Delete',
+            Colors.red,
+            order,
+            onTap: () => controller.deleteOrder(order),
+            icon: Icons.delete,
+          ),
+        ),
+      );
+    } else if (controller.canTrackOrder(order.status)) {
+      // Show track button for approved/accepted/in-progress orders
+      buttons.add(
+        Expanded(
+          child: _buildActionButton(
+            'Track',
+            Colors.blue,
+            order,
+            onTap: () => controller.trackOrder(order),
+            icon: Icons.location_on,
+          ),
+        ),
+      );
+    } else if (controller.canCancelOrder(order.status)) {
+      // Show cancel button for pending orders
+      buttons.add(
+        Expanded(
+          child: _buildActionButton(
+            'Cancel',
+            Colors.orange,
+            order,
+            onTap: () => controller.cancelOrder(order),
+            icon: Icons.cancel,
+          ),
+        ),
+      );
+    }
+
+    // Always show status info button
+    if (buttons.isNotEmpty) {
+      buttons.add(const SizedBox(width: 8));
+    }
+
+    buttons.add(
+      Expanded(
+        child: _buildActionButton(
+          'Details',
+          Colors.grey[600]!,
+          order,
+          onTap: () => _showOrderDetails(order),
+          icon: Icons.info_outline,
+        ),
+      ),
+    );
+
+    // // Add contact provider button for active orders
+    // if (![
+    //   'rejected',
+    //   'cancelled',
+    //   'completed',
+    // ].contains(order.status.toLowerCase())) {
+    //   buttons.add(const SizedBox(width: 8));
+    //   buttons.add(
+    //     Expanded(
+    //       child: _buildActionButton(
+    //         'Contact',
+    //         Colors.green,
+    //         order,
+    //         onTap: () => _contactProvider(order),
+    //         icon: Icons.phone,
+    //       ),
+    //     ),
+    //   );
+    // }
+
+    return Row(children: buttons);
+  }
+
+  Widget _buildActionButton(
+    String text,
+    Color color,
+    OrderModel order, {
+    required VoidCallback onTap,
+    IconData? icon,
+  }) {
+    return Obx(() {
+      bool isLoading =
+          (text == 'Delete' && controller.isDeletingOrder.value) ||
+          (text != 'Delete' && controller.isLoading.value);
+
+      return GestureDetector(
+        onTap: isLoading ? null : onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isLoading ? color.withOpacity(0.6) : color,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(icon, size: 14, color: Colors.white),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        text,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      );
+    });
+  }
+
+  void _showOrderDetails(OrderModel order) {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Order #${order.id} Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDetailRow('Status', controller.getStatusText(order.status)),
+              const SizedBox(height: 8),
+              _buildDetailRow('Service', order.service.title),
+              const SizedBox(height: 8),
+              _buildDetailRow('Provider', order.provider.name),
+              const SizedBox(height: 8),
+              _buildDetailRow('Phone', order.provider.phone),
+              const SizedBox(height: 8),
+              _buildDetailRow('Quantity', order.quantity.toString()),
+              const SizedBox(height: 8),
+              _buildDetailRow(
+                'Total Amount',
+                controller.formatCurrency(order.totalAmount),
+              ),
+              const SizedBox(height: 8),
+              _buildDetailRow(
+                'Scheduled Date',
+                controller.formatDate(order.scheduledDate),
+              ),
+              const SizedBox(height: 8),
+              _buildDetailRow('Location', order.location),
+              if (order.locationDetails.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _buildDetailRow('Location Details', order.locationDetails),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100,
           child: Text(
-            value,
+            '$label:',
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
             ),
           ),
+        ),
+        Expanded(
+          child: Text(value, style: const TextStyle(color: Colors.black87)),
         ),
       ],
     );
   }
 
-  Widget _buildStatusButton(String text, Color color, OrderModel order) {
-    return GestureDetector(
-      onTap: () {
-        if (text.toLowerCase() == 'track') {
-          // TODO: Implement tracking functionality
-          Get.snackbar(
-            'Tracking',
-            'Tracking feature coming soon!',
-            backgroundColor: Colors.blue,
-            colorText: Colors.white,
-          );
-        } else if (text.toLowerCase() == 'incomplete') {
-          Get.snackbar(
-            'Status Update',
-            'Marking as incomplete...',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        } else if (text.toLowerCase() == 'complete') {
-          Get.snackbar(
-            'Status Update',
-            'Marking as complete...',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-          );
-        } else if (text.toLowerCase() == 'acceptable') {
-          Get.snackbar(
-            'Status Update',
-            'Marking as acceptable...',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-          );
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // void _contactProvider(OrderModel order) {
+  //   Get.bottomSheet(
+  //     Container(
+  //       padding: const EdgeInsets.all(20),
+  //       decoration: const BoxDecoration(
+  //         color: Colors.white,
+  //         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //       ),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Text(
+  //             'Contact ${order.provider.name}',
+  //             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //           ),
+  //           const SizedBox(height: 20),
+  //           ListTile(
+  //             leading: const Icon(Icons.phone, color: Colors.green),
+  //             title: const Text('Call'),
+  //             subtitle: Text(order.provider.phone),
+  //             onTap: () {
+  //               Get.back();
+  //               // TODO: Implement phone call functionality
+  //               Get.snackbar(
+  //                 'Calling',
+  //                 'Calling ${order.provider.name}...',
+  //                 backgroundColor: Colors.green,
+  //                 colorText: Colors.white,
+  //               );
+  //             },
+  //           ),
+  //           ListTile(
+  //             leading: const Icon(Icons.message, color: Colors.blue),
+  //             title: const Text('Send Message'),
+  //             subtitle: const Text('Send a message to provider'),
+  //             onTap: () {
+  //               Get.back();
+  //               // TODO: Implement messaging functionality
+  //               Get.snackbar(
+  //                 'Message',
+  //                 'Opening chat with ${order.provider.name}...',
+  //                 backgroundColor: Colors.blue,
+  //                 colorText: Colors.white,
+  //               );
+  //             },
+  //           ),
+  //           const SizedBox(height: 20),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }

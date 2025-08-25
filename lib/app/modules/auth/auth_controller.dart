@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:khabir/app/data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../routes/app_routes.dart';
+import '../../core/constants/app_constants.dart';
 
 class AuthController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
@@ -35,24 +36,8 @@ class AuthController extends GetxController {
   final forgotPasswordFormKey = GlobalKey<FormState>();
   final resetPasswordFormKey = GlobalKey<FormState>();
 
-  // States list
-  final states = [
-    'الرياض',
-    'جدة',
-    'الدمام',
-    'مكة المكرمة',
-    'المدينة المنورة',
-    'الطائف',
-    'تبوك',
-    'بريدة',
-    'خميس مشيط',
-    'الهفوف',
-    'حفر الباطن',
-    'الجبيل',
-    'ضباء',
-    'رفحاء',
-    'القطيف',
-  ];
+  // Oman Governorates list from AppConstants
+  List<Map<String, String>> get states => AppConstants.OMAN_GOVERNORATES;
 
   @override
   void onClose() {
@@ -85,14 +70,14 @@ class AuthController extends GetxController {
     selectedState.value = state;
   }
 
-  // Pick profile image
+  // Pick profile image from gallery
   Future<void> pickProfileImage() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
       );
 
       if (image != null) {
@@ -103,13 +88,102 @@ class AuthController extends GetxController {
         'error'.tr,
         'image_pick_error'.tr,
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     }
   }
 
+  // Pick profile image from camera
+  Future<void> pickProfileImageFromCamera() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        profileImagePath.value = image.path;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'error'.tr,
+        'image_pick_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  // Show image picker options
+  void showImagePickerOptions() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'select_image_source'.tr,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Get.back();
+                    pickProfileImageFromCamera();
+                  },
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.camera_alt,
+                        size: 50,
+                        color: Colors.blue,
+                      ),
+                      const SizedBox(height: 8),
+                      Text('camera'.tr),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Get.back();
+                    pickProfileImage();
+                  },
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.photo_library,
+                        size: 50,
+                        color: Colors.green,
+                      ),
+                      const SizedBox(height: 8),
+                      Text('gallery'.tr),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Login
   Future<void> login() async {
-    // if (!loginFormKey.currentState!.validate()) return;
+    if (loginFormKey.currentState?.validate() ?? false) return;
 
     isLoading.value = true;
 
@@ -184,7 +258,7 @@ class AuthController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Step 1: Initiate registration
+      // Step 1: Initiate registration with image upload
       final initiateResult = await _authRepository.registerInitiate(
         name: usernameController.text.trim(),
         phone: phoneController.text.trim(),
@@ -194,7 +268,10 @@ class AuthController extends GetxController {
             ? emailController.text.trim()
             : null,
         address: selectedState.value.isNotEmpty
-            ? '$selectedState.value, Saudi Arabia'
+            ? '$selectedState.value, Oman'
+            : null,
+        profileImagePath: profileImagePath.value.isNotEmpty
+            ? profileImagePath.value
             : null,
       );
 
@@ -207,6 +284,7 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        startTimer();
         Get.toNamed(AppRoutes.verifyPhone);
       } else {
         Get.snackbar(
@@ -246,6 +324,7 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        startTimer();
         Get.toNamed(AppRoutes.verifyPhone);
       } else {
         Get.snackbar(
@@ -269,7 +348,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // Verify OTP
+  // Verify OTP (simplified - just phone and OTP)
   Future<void> verifyOTP() async {
     if (otpCode.value.length != 4) {
       Get.snackbar(
@@ -284,24 +363,10 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
-    final User user = User(
-      name: usernameController.text.trim(),
-      phoneNumber: phoneController.text.trim(),
-      role: 'USER',
-      state: selectedState.value,
-      isVerified: false,
-      createdAt: DateTime.now(),
-      id: '',
-
-      address: selectedState.value.isNotEmpty
-          ? '${selectedState.value}, Saudi Arabia'
-          : null,
-    );
     try {
       final result = await _authRepository.verifyOTP(
-        user,
+        phoneNumber.value,
         otpCode.value,
-        passwordController.text,
       );
 
       if (result['success']) {
@@ -355,7 +420,10 @@ class AuthController extends GetxController {
             ? emailController.text.trim()
             : null,
         address: selectedState.value.isNotEmpty
-            ? '$selectedState.value, Saudi Arabia'
+            ? '$selectedState.value, Oman'
+            : null,
+        profileImagePath: profileImagePath.value.isNotEmpty
+            ? profileImagePath.value
             : null,
       );
 
@@ -390,6 +458,17 @@ class AuthController extends GetxController {
 
   // Resend OTP
   Future<void> resendOTP() async {
+    if (timerSeconds.value > 0) {
+      Get.snackbar(
+        'info'.tr,
+        'wait_before_resend'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     await sendOTP();
   }
 
@@ -402,6 +481,7 @@ class AuthController extends GetxController {
     try {
       final result = await _authRepository.resetPassword(
         phoneNumber.value,
+        otpCode.value,
         newPasswordController.text,
       );
 
@@ -443,17 +523,34 @@ class AuthController extends GetxController {
     }
 
     // Remove all spaces, dashes, parentheses, and other formatting
-    String cleanedPhone = value.replaceAll(RegExp(r'[\s\-\(\)\+]'), '');
+    String cleanedPhone = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
 
-    // Check if it contains only digits
-    if (!RegExp(r'^\d+$').hasMatch(cleanedPhone)) {
-      return 'invalid_phone'.tr;
+    // Check if it starts with +
+    if (!cleanedPhone.startsWith('+')) {
+      return 'phone_must_start_with_plus'.tr;
     }
 
-    // Check minimum and maximum length (international standards)
-    // Most phone numbers are between 7-15 digits
-    if (cleanedPhone.length < 7 || cleanedPhone.length > 15) {
+    // Remove the + for further validation
+    String phoneWithoutPlus = cleanedPhone.substring(1);
+
+    // Check if it contains only digits after +
+    if (!RegExp(r'^\d+$').hasMatch(phoneWithoutPlus)) {
+      return 'invalid_phone_format'.tr;
+    }
+
+    // Check length (international standards: 7-15 digits after country code)
+    if (phoneWithoutPlus.length < 7 || phoneWithoutPlus.length > 15) {
       return 'invalid_phone_length'.tr;
+    }
+
+    // Optional: Check for specific Oman country code (+968)
+    if (!cleanedPhone.startsWith('+968')) {
+      return 'phone_must_be_omani'.tr;
+    }
+
+    // Oman phone numbers are typically 8 digits after +968
+    if (phoneWithoutPlus.length != 11 || !phoneWithoutPlus.startsWith('968')) {
+      return 'invalid_oman_phone'.tr;
     }
 
     return null;
@@ -519,16 +616,41 @@ class AuthController extends GetxController {
     Get.toNamed(AppRoutes.privacyPolicy);
   }
 
+  // Timer for OTP resend
   RxInt timerSeconds = 120.obs; // 2 minutes timer
   Timer? _timer;
+
   void startTimer() {
     timerSeconds.value = 120;
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (timerSeconds.value > 0) {
         timerSeconds.value--;
       } else {
         timer.cancel();
       }
     });
+  }
+
+  // Format timer display
+  String get formattedTimer {
+    int minutes = timerSeconds.value ~/ 60;
+    int seconds = timerSeconds.value % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  // Clear form data
+  void clearFormData() {
+    phoneController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+    usernameController.clear();
+    emailController.clear();
+    newPasswordController.clear();
+    selectedState.value = '';
+    profileImagePath.value = '';
+    otpCode.value = '';
+    phoneNumber.value = '';
+    agreedToTerms.value = false;
   }
 }

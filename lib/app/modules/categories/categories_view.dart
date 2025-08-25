@@ -99,7 +99,7 @@ class CategoriesView extends StatelessWidget {
               crossAxisCount: 3,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1,
+              childAspectRatio: 0.9,
             ),
             itemCount: controller.categories.length,
             itemBuilder: (context, index) {

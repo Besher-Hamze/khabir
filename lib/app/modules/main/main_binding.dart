@@ -11,6 +11,7 @@ import 'package:khabir/app/data/repositories/services_repository.dart';
 import 'package:khabir/app/data/repositories/providers_repository.dart';
 import 'package:khabir/app/data/repositories/user_repository.dart';
 import 'package:khabir/app/modules/orders/orders_controller.dart';
+import 'package:khabir/app/modules/user/user_controller.dart';
 
 import 'main_controller.dart';
 
@@ -23,6 +24,7 @@ class MainBinding extends Bindings {
       () => BannerRepository(Get.find<ApiService>()),
     );
     Get.lazyPut<UserRepository>(() => UserRepository());
+    Get.lazyPut<UserController>(() => UserController());
     Get.lazyPut<OrdersRepository>(() => OrdersRepository());
     Get.lazyPut<OrdersController>(() => OrdersController());
     // for category

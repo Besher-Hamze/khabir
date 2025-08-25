@@ -73,99 +73,108 @@ class SignupView extends GetView<AuthController> {
                 const SizedBox(height: 16),
 
                 // State Dropdown
-                Obx(() => DropdownButtonFormField<String>(
-                  value: controller.selectedState.value.isEmpty
-                      ? null
-                      : controller.selectedState.value,
-                  decoration: InputDecoration(
-                    labelText: 'Choose your state',
-                    prefixIcon: const Icon(
-                      Icons.language,
-                      color: AppColors.textLight,
+                Obx(
+                  () => DropdownButtonFormField<String>(
+                    value: controller.selectedState.value.isEmpty
+                        ? null
+                        : controller.selectedState.value,
+                    decoration: InputDecoration(
+                      labelText: 'Choose your state',
+                      prefixIcon: const Icon(
+                        Icons.language,
+                        color: AppColors.textLight,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.keyboard_arrow_down,
+                        color: AppColors.textLight,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 2,
+                        ),
+                      ),
                     ),
-                    suffixIcon: const Icon(
-                      Icons.keyboard_arrow_down,
-                      color: AppColors.textLight,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                    ),
+                    items: controller.states.map((Map<String, dynamic> state) {
+                      return DropdownMenuItem<String>(
+                        value: state['value'],
+                        child: Text(state['label'] ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (String? value) {
+                      if (value != null) {
+                        controller.selectState(value);
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'field_required'.tr;
+                      }
+                      return null;
+                    },
                   ),
-                  items: controller.states.map((String state) {
-                    return DropdownMenuItem<String>(
-                      value: state,
-                      child: Text(state),
-                    );
-                  }).toList(),
-                  onChanged: (String? value) {
-                    if (value != null) {
-                      controller.selectState(value);
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'field_required'.tr;
-                    }
-                    return null;
-                  },
-                )),
+                ),
 
                 const SizedBox(height: 16),
 
                 // Password Field
-                Obx(() => CustomTextField(
-                  label: 'Enter your password',
-                  controller: controller.passwordController,
-                  obscureText: !controller.isPasswordVisible.value,
-                  validator: controller.validatePassword,
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: AppColors.textLight,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.isPasswordVisible.value
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                Obx(
+                  () => CustomTextField(
+                    label: 'Enter your password',
+                    controller: controller.passwordController,
+                    obscureText: !controller.isPasswordVisible.value,
+                    validator: controller.validatePassword,
+                    prefixIcon: const Icon(
+                      Icons.lock,
                       color: AppColors.textLight,
                     ),
-                    onPressed: controller.togglePasswordVisibility,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: controller.togglePasswordVisibility,
+                    ),
                   ),
-                )),
+                ),
 
                 const SizedBox(height: 16),
 
                 // Confirm Password Field
-                Obx(() => CustomTextField(
-                  label: 'Confirm your password',
-                  controller: controller.confirmPasswordController,
-                  obscureText: !controller.isConfirmPasswordVisible.value,
-                  validator: controller.validateConfirmPassword,
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: AppColors.textLight,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.isConfirmPasswordVisible.value
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                Obx(
+                  () => CustomTextField(
+                    label: 'Confirm your password',
+                    controller: controller.confirmPasswordController,
+                    obscureText: !controller.isConfirmPasswordVisible.value,
+                    validator: controller.validateConfirmPassword,
+                    prefixIcon: const Icon(
+                      Icons.lock,
                       color: AppColors.textLight,
                     ),
-                    onPressed: controller.toggleConfirmPasswordVisibility,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isConfirmPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: controller.toggleConfirmPasswordVisibility,
+                    ),
                   ),
-                )),
+                ),
 
                 const SizedBox(height: 16),
 
@@ -188,15 +197,17 @@ class SignupView extends GetView<AuthController> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Obx(() => Text(
-                            controller.profileImagePath.value.isNotEmpty
-                                ? 'Photo selected'
-                                : 'Choose photo to upload',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.textSecondary,
+                          child: Obx(
+                            () => Text(
+                              controller.profileImagePath.value.isNotEmpty
+                                  ? 'Photo selected'
+                                  : 'Choose photo to upload',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
-                          )),
+                          ),
                         ),
                         const Icon(
                           Icons.file_upload_outlined,
@@ -211,52 +222,58 @@ class SignupView extends GetView<AuthController> {
                 const SizedBox(height: 20),
 
                 // Terms and Conditions Checkbox
-                Obx(() => Row(
-                  children: [
-                    Checkbox(
-                      value: controller.agreedToTerms.value,
-                      onChanged: (value) => controller.toggleTermsAgreement(),
-                      activeColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
+                Obx(
+                  () => Row(
+                    children: [
+                      Checkbox(
+                        value: controller.agreedToTerms.value,
+                        onChanged: (value) => controller.toggleTermsAgreement(),
+                        activeColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: controller.toggleTermsAgreement,
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                            ),
-                            children: [
-                              const TextSpan(text: 'I agree to the '),
-                              TextSpan(
-                                text: 'terms and conditions',
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: controller.toggleTermsAgreement,
+                          child: RichText(
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
                               ),
-                            ],
+                              children: [
+                                const TextSpan(text: 'I agree to the '),
+                                TextSpan(
+                                  text: 'terms and conditions',
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                )),
+                    ],
+                  ),
+                ),
 
                 const SizedBox(height: 30),
 
                 // Sign Up Button
-                Obx(() => CustomButton(
-                  text: 'SIGN UP',
-                  onPressed: controller.agreedToTerms.value ? controller.signUp : null,
-                  isLoading: controller.isLoading.value,
-                  width: double.infinity,
-                  enabled: controller.agreedToTerms.value,
-                )),
+                Obx(
+                  () => CustomButton(
+                    text: 'SIGN UP',
+                    onPressed: controller.agreedToTerms.value
+                        ? controller.signUp
+                        : null,
+                    isLoading: controller.isLoading.value,
+                    width: double.infinity,
+                    enabled: controller.agreedToTerms.value,
+                  ),
+                ),
 
                 const SizedBox(height: 24),
 

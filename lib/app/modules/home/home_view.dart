@@ -335,16 +335,20 @@ class HomeView extends GetView<HomeController> {
 
             const SizedBox(height: 4),
             // Category Name
-            Text(
-              category.titleEn.isNotEmpty ? category.titleEn : category.titleAr,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+            Expanded(
+              child: Text(
+                category.titleEn.isNotEmpty
+                    ? category.titleEn
+                    : category.titleAr,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
