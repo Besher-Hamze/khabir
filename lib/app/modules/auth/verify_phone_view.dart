@@ -23,7 +23,7 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Title
               Text(
-                'Forgot your Password?',
+                'forgot_password_title'.tr,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -36,7 +36,7 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Description
               Text(
-                'We sent you a 4 digit code to verify\nyour mobile number',
+                'otp_sent_message'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -49,7 +49,7 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Instruction
               Text(
-                'Enter in the field below.',
+                'enter_otp_instruction'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -124,40 +124,44 @@ class VerifyPhoneView extends GetView<AuthController> {
               const SizedBox(height: 16),
 
               // Timer
-              Obx(() => RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Expires in ',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 14,
+              Obx(
+                () => RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Expires in ',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: _formatTimer(controller.timerSeconds.value),
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      TextSpan(
+                        text: _formatTimer(controller.timerSeconds.value),
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
 
               const SizedBox(height: 120),
 
               // Confirmation Button
-              Obx(() => CustomButton(
-                text: '▶ Confirmation',
-                onPressed: controller.otpCode.value.length == 4
-                    ? controller.verifyOTP
-                    : null,
-                isLoading: controller.isLoading.value,
-                width: double.infinity,
-                enabled: controller.otpCode.value.length == 4,
-              )),
+              Obx(
+                () => CustomButton(
+                  text: '▶ Confirmation',
+                  onPressed: controller.otpCode.value.length == 4
+                      ? controller.verifyOTP
+                      : null,
+                  isLoading: controller.isLoading.value,
+                  width: double.infinity,
+                  enabled: controller.otpCode.value.length == 4,
+                ),
+              ),
 
               const SizedBox(height: 40),
             ],

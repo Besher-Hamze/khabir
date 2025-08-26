@@ -34,7 +34,7 @@ class SignupView extends GetView<AuthController> {
 
                 // Title
                 Text(
-                  'Create An Account',
+                  'create_account_title'.tr,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -47,7 +47,7 @@ class SignupView extends GetView<AuthController> {
 
                 // Full Name Field
                 CustomTextField(
-                  label: 'Enter your full name',
+                  label: 'enter_full_name'.tr,
                   controller: controller.usernameController,
                   validator: controller.validateUsername,
                   prefixIcon: const Icon(
@@ -60,7 +60,7 @@ class SignupView extends GetView<AuthController> {
 
                 // Phone Number Field
                 CustomTextField(
-                  label: 'Enter your mobile number',
+                  label: 'enter_mobile_number'.tr,
                   controller: controller.phoneController,
                   validator: controller.validatePhone,
                   keyboardType: TextInputType.phone,
@@ -79,7 +79,7 @@ class SignupView extends GetView<AuthController> {
                         ? null
                         : controller.selectedState.value,
                     decoration: InputDecoration(
-                      labelText: 'Choose your state',
+                      labelText: 'choose_state'.tr,
                       prefixIcon: const Icon(
                         Icons.language,
                         color: AppColors.textLight,
@@ -131,7 +131,7 @@ class SignupView extends GetView<AuthController> {
                 // Password Field
                 Obx(
                   () => CustomTextField(
-                    label: 'Enter your password',
+                    label: 'enter_password'.tr,
                     controller: controller.passwordController,
                     obscureText: !controller.isPasswordVisible.value,
                     validator: controller.validatePassword,
@@ -156,7 +156,7 @@ class SignupView extends GetView<AuthController> {
                 // Confirm Password Field
                 Obx(
                   () => CustomTextField(
-                    label: 'Confirm your password',
+                    label: 'confirm_password_label'.tr,
                     controller: controller.confirmPasswordController,
                     obscureText: !controller.isConfirmPasswordVisible.value,
                     validator: controller.validateConfirmPassword,
@@ -200,8 +200,8 @@ class SignupView extends GetView<AuthController> {
                           child: Obx(
                             () => Text(
                               controller.profileImagePath.value.isNotEmpty
-                                  ? 'Photo selected'
-                                  : 'Choose photo to upload',
+                                  ? 'photo_selected'.tr
+                                  : 'choose_photo_to_upload'.tr,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.textSecondary,
@@ -243,9 +243,9 @@ class SignupView extends GetView<AuthController> {
                                 color: AppColors.textSecondary,
                               ),
                               children: [
-                                const TextSpan(text: 'I agree to the '),
+                                TextSpan(text: 'i_agree_to_terms'.tr),
                                 TextSpan(
-                                  text: 'terms and conditions',
+                                  text: 'terms_and_conditions'.tr,
                                   style: const TextStyle(
                                     color: AppColors.textPrimary,
                                     fontWeight: FontWeight.w600,
@@ -265,7 +265,7 @@ class SignupView extends GetView<AuthController> {
                 // Sign Up Button
                 Obx(
                   () => CustomButton(
-                    text: 'SIGN UP',
+                    text: 'sign_up_button'.tr,
                     onPressed: controller.agreedToTerms.value
                         ? controller.signUp
                         : null,
@@ -281,18 +281,18 @@ class SignupView extends GetView<AuthController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Have an account already? ',
-                      style: TextStyle(
+                    Text(
+                      'have_account_already'.tr,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                     ),
                     GestureDetector(
                       onTap: controller.goToLogin,
-                      child: const Text(
-                        'Log in',
-                        style: TextStyle(
+                      child: Text(
+                        'log_in'.tr,
+                        style: const TextStyle(
                           color: AppColors.primary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

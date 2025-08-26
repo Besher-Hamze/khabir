@@ -67,14 +67,14 @@ class OrdersController extends GetxController {
       // Show confirmation dialog
       bool? confirmDelete = await Get.dialog<bool>(
         AlertDialog(
-          title: const Text('Delete Order'),
+          title: Text('delete_order'.tr),
           content: Text(
             'Are you sure you want to delete order #${order.id}?\nThis action cannot be undone.',
           ),
           actions: [
             TextButton(
               onPressed: () => Get.back(result: false),
-              child: const Text('Cancel'),
+              child: Text('cancel'.tr),
             ),
             ElevatedButton(
               onPressed: () => Get.back(result: true),
@@ -82,7 +82,7 @@ class OrdersController extends GetxController {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: Text('delete'.tr),
             ),
           ],
         ),
@@ -171,12 +171,12 @@ class OrdersController extends GetxController {
       // Show confirmation dialog
       bool? confirmCancel = await Get.dialog<bool>(
         AlertDialog(
-          title: const Text('Cancel Order'),
+          title: Text('cancel_order'.tr),
           content: Text('Are you sure you want to cancel order #${order.id}?'),
           actions: [
             TextButton(
               onPressed: () => Get.back(result: false),
-              child: const Text('No'),
+              child: Text('no'.tr),
             ),
             ElevatedButton(
               onPressed: () => Get.back(result: true),
@@ -184,7 +184,7 @@ class OrdersController extends GetxController {
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Cancel Order'),
+              child: Text('cancel_order'.tr),
             ),
           ],
         ),

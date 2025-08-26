@@ -375,7 +375,7 @@ class OffersView extends GetView<OffersController> {
           ElevatedButton.icon(
             onPressed: controller.loadOffers,
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('Try Again'),
+            label: Text('try_again'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -412,7 +412,7 @@ class OffersView extends GetView<OffersController> {
           ElevatedButton.icon(
             onPressed: controller.refreshOffers,
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('Refresh'),
+            label: Text('refresh'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

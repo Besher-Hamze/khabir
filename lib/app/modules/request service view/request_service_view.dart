@@ -91,7 +91,7 @@ class RequestServiceView extends StatelessWidget {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: controller.refreshServices,
-                  child: const Text('Retry'),
+                  child: Text('retry'.tr),
                 ),
               ],
             ),
@@ -873,7 +873,7 @@ class RequestServiceView extends StatelessWidget {
 
     Get.dialog(
       AlertDialog(
-        title: const Text('Select Service Location'),
+        title: Text('select_service_location'.tr),
         content: SizedBox(
           width: double.maxFinite,
           height: 600,
@@ -932,7 +932,7 @@ class RequestServiceView extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               if (selectedLatitude != null && selectedLongitude != null) {
@@ -966,7 +966,7 @@ class RequestServiceView extends StatelessWidget {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Confirm Location'),
+            child: Text('confirm_location'.tr),
           ),
         ],
       ),

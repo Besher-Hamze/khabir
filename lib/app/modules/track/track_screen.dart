@@ -268,13 +268,13 @@ class _TrackingViewState extends State<TrackingView>
     final userLocation = _trackingController.userLocation.value;
 
     if (userLocation == null) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Getting your location...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text('getting_your_location'.tr),
           ],
         ),
       );
@@ -304,7 +304,7 @@ class _TrackingViewState extends State<TrackingView>
           Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
           const SizedBox(height: 16),
           Text(
-            'Tracking Error',
+            'tracking_error'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -328,7 +328,7 @@ class _TrackingViewState extends State<TrackingView>
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text('Retry'),
+            child: Text('retry'.tr),
           ),
         ],
       ),
@@ -369,7 +369,7 @@ class _TrackingViewState extends State<TrackingView>
               ),
               const SizedBox(width: 8),
               Text(
-                isConnected ? 'Live Tracking' : 'Reconnecting...',
+                isConnected ? 'live_tracking'.tr : 'reconnecting'.tr,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -417,10 +417,10 @@ class _TrackingViewState extends State<TrackingView>
                   ),
                 ),
 
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Live Tracking',
-                    style: TextStyle(
+                    'live_tracking'.tr,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -460,10 +460,13 @@ class _TrackingViewState extends State<TrackingView>
             // Service Details Row
             Row(
               children: [
-                _buildDetailColumn('Category', widget.booking.category),
-                _buildDetailColumn('Type', widget.booking.type),
-                _buildDetailColumn('Number', widget.booking.number.toString()),
-                _buildDetailColumn('Duration', widget.booking.duration),
+                _buildDetailColumn('category'.tr, widget.booking.category),
+                _buildDetailColumn('type'.tr, widget.booking.type),
+                _buildDetailColumn(
+                  'number'.tr,
+                  widget.booking.number.toString(),
+                ),
+                _buildDetailColumn('duration'.tr, widget.booking.duration),
               ],
             ),
 
@@ -534,7 +537,7 @@ class _TrackingViewState extends State<TrackingView>
                             color:
                                 _trackingController.providerStatus.value
                                         .toLowerCase() ==
-                                    'online'
+                                    'online'.tr
                                 ? Colors.green
                                 : Colors.grey[600],
                             fontWeight: FontWeight.w500,
@@ -550,7 +553,7 @@ class _TrackingViewState extends State<TrackingView>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'ID ${widget.booking.id}',
+                      'id'.tr + ' ${widget.booking.id}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.black54,
@@ -563,9 +566,12 @@ class _TrackingViewState extends State<TrackingView>
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'Price',
-                          style: TextStyle(fontSize: 14, color: Colors.black54),
+                        Text(
+                          'price'.tr,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -713,7 +719,12 @@ class _TrackingViewState extends State<TrackingView>
           Obx(
             () => FloatingActionButton(
               mini: true,
-              onPressed: () => _trackingController.checkConnection(),
+              onPressed: () {
+                _trackingController.checkConnection();
+                // _trackingController.startTracking(
+                //   int.tryParse(widget.booking.id) ?? 0,
+                // );
+              },
               backgroundColor: _trackingController.isConnected.value
                   ? Colors.green[100]
                   : Colors.red[100],

@@ -88,8 +88,8 @@ class UserController extends GetxController {
       }
 
       Get.snackbar(
-        'Success',
-        'Location created successfully',
+        'success'.tr,
+        'location_created'.tr,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
@@ -97,8 +97,8 @@ class UserController extends GetxController {
       return true;
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to create location: ${e.toString()}',
+        'error'.tr,
+        'failed_to_create_location'.tr + ': ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -128,8 +128,8 @@ class UserController extends GetxController {
       }
 
       Get.snackbar(
-        'Success',
-        'Location updated successfully',
+        'success'.tr,
+        'location_updated'.tr,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
@@ -137,8 +137,8 @@ class UserController extends GetxController {
       return true;
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to update location: ${e.toString()}',
+        'error'.tr,
+        'failed_to_update_location'.tr + ': ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -159,8 +159,8 @@ class UserController extends GetxController {
       await loadUserLocations();
 
       Get.snackbar(
-        'Success',
-        'Default location set successfully',
+        'success'.tr,
+        'default_location_set'.tr,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
@@ -168,8 +168,8 @@ class UserController extends GetxController {
       return true;
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to set default location: ${e.toString()}',
+        'error'.tr,
+        'failed_to_set_default_location'.tr + ': ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -190,8 +190,8 @@ class UserController extends GetxController {
       userLocations.removeWhere((loc) => loc.id == locationId);
 
       Get.snackbar(
-        'Success',
-        'Location deleted successfully',
+        'success'.tr,
+        'location_deleted'.tr,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
@@ -199,8 +199,8 @@ class UserController extends GetxController {
       return true;
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to delete location: ${e.toString()}',
+        'error'.tr,
+        'failed_to_delete_location'.tr + ': ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );

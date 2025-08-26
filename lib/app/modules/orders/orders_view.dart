@@ -87,7 +87,7 @@ class OrdersView extends GetView<OrdersController> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('Try Again'),
+            child: Text('try_again'.tr),
           ),
         ],
       ),

@@ -31,9 +31,9 @@ class LoginView extends GetView<AuthController> {
               ),
 
               // Welcome Back Title
-              const Text(
-                'Welcome Back',
-                style: TextStyle(
+              Text(
+                'welcome_back'.tr,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -45,7 +45,7 @@ class LoginView extends GetView<AuthController> {
 
               // Subtitle
               Text(
-                'Login to continue',
+                'login_to_continue'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   color: AppColors.primary.withOpacity(0.5),

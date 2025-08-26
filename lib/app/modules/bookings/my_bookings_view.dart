@@ -75,7 +75,7 @@ class MyBookingsView extends GetView<OrdersController> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('Try Again'),
+            child: Text('try_again'.tr),
           ),
         ],
       ),
@@ -399,7 +399,7 @@ class MyBookingsView extends GetView<OrdersController> {
   void _showOrderDetails(OrderModel order) {
     Get.dialog(
       AlertDialog(
-        title: Text('Order #${order.id} Details'),
+        title: Text('order_details'.tr + ' #${order.id}'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,7 +434,7 @@ class MyBookingsView extends GetView<OrdersController> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Close')),
+          TextButton(onPressed: () => Get.back(), child: Text('close'.tr)),
         ],
       ),
     );

@@ -95,7 +95,7 @@ class ProfileView extends GetView<UserController> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: controller.refreshProfile,
-                child: const Text('Retry'),
+                child: Text('retry'.tr),
               ),
             ],
           ),
@@ -118,7 +118,7 @@ class ProfileView extends GetView<UserController> {
               ),
             ],
           ),
-          child: const Center(child: Text('No profile data available')),
+          child: Center(child: Text('no_profile_data'.tr)),
         );
       }
 
@@ -569,7 +569,7 @@ class ProfileView extends GetView<UserController> {
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: controller.refreshLocations,
-                            child: const Text('Retry'),
+                            child: Text('retry'.tr),
                           ),
                         ],
                       ),
@@ -596,7 +596,7 @@ class ProfileView extends GetView<UserController> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'No locations saved',
+                            'no_locations_saved'.tr,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -605,7 +605,7 @@ class ProfileView extends GetView<UserController> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Add your first location to get started',
+                            'add_first_location_message'.tr,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
@@ -619,7 +619,7 @@ class ProfileView extends GetView<UserController> {
                               _showAddLocationDialog();
                             },
                             icon: const Icon(Icons.add_location, size: 20),
-                            label: const Text('Add Location'),
+                            label: Text('add_location'.tr),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -666,7 +666,7 @@ class ProfileView extends GetView<UserController> {
                               _showAddLocationDialog();
                             },
                             icon: const Icon(Icons.add_location, size: 20),
-                            label: const Text('Add New Location'),
+                            label: Text('add_new_location'.tr),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -811,7 +811,7 @@ class ProfileView extends GetView<UserController> {
                     },
                     itemBuilder: (BuildContext context) => [
                       if (!location.isDefault)
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'set_default',
                           child: Row(
                             children: [
@@ -821,11 +821,11 @@ class ProfileView extends GetView<UserController> {
                                 color: Colors.amber,
                               ),
                               SizedBox(width: 8),
-                              Text('Set as Default'),
+                              Text('set_as_default'.tr),
                             ],
                           ),
                         ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'edit',
                         child: Row(
                           children: [
@@ -835,11 +835,11 @@ class ProfileView extends GetView<UserController> {
                               color: Colors.blue,
                             ),
                             SizedBox(width: 8),
-                            Text('Edit'),
+                            Text('edit'.tr),
                           ],
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'delete',
                         child: Row(
                           children: [
@@ -849,7 +849,10 @@ class ProfileView extends GetView<UserController> {
                               color: Colors.red,
                             ),
                             SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
+                            Text(
+                              'delete'.tr,
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ],
                         ),
                       ),
@@ -879,7 +882,7 @@ class ProfileView extends GetView<UserController> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'State:',
+                          'state'.tr + ':',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -912,7 +915,7 @@ class ProfileView extends GetView<UserController> {
                           Icon(Icons.home, size: 14, color: Colors.grey[600]),
                           const SizedBox(width: 6),
                           Text(
-                            'Address:',
+                            'address'.tr + ':',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -1334,7 +1337,7 @@ class ProfileView extends GetView<UserController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text('cancel'.tr),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -1392,7 +1395,7 @@ class ProfileView extends GetView<UserController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Save Location'),
+                        child: Text('save_location'.tr),
                       ),
                     ),
                   ],
@@ -1674,7 +1677,7 @@ class ProfileView extends GetView<UserController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text('cancel'.tr),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -1724,7 +1727,7 @@ class ProfileView extends GetView<UserController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Update Location'),
+                        child: Text('update_location'.tr),
                       ),
                     ),
                   ],
@@ -1744,14 +1747,14 @@ class ProfileView extends GetView<UserController> {
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
             const SizedBox(width: 8),
-            const Text('Delete Location'),
+            Text('delete_location'.tr),
           ],
         ),
         content: Text(
           'Are you sure you want to delete "${location.title}"? This action cannot be undone.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back(); // Close confirmation dialog
@@ -1762,7 +1765,7 @@ class ProfileView extends GetView<UserController> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Delete'),
+            child: Text('delete'.tr),
           ),
         ],
       ),
@@ -1773,7 +1776,7 @@ class ProfileView extends GetView<UserController> {
   void _showEditNameDialog(UserProfileModel user) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Edit Name'),
+        title: Text('edit_name'.tr),
         content: const TextField(
           decoration: InputDecoration(
             hintText: 'Enter your name',
@@ -1781,13 +1784,13 @@ class ProfileView extends GetView<UserController> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               Get.snackbar('Success', 'Name updated successfully');
             },
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
       ),
@@ -1797,7 +1800,7 @@ class ProfileView extends GetView<UserController> {
   void _showEditPhoneDialog(UserProfileModel user) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Edit Phone Number'),
+        title: Text('edit_phone_number'.tr),
         content: const TextField(
           decoration: InputDecoration(
             hintText: 'Enter your phone number',
@@ -1806,13 +1809,13 @@ class ProfileView extends GetView<UserController> {
           keyboardType: TextInputType.phone,
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               Get.snackbar('Success', 'Phone number updated successfully');
             },
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
       ),
@@ -1822,7 +1825,7 @@ class ProfileView extends GetView<UserController> {
   void _showEditProfileDialog(UserProfileModel user) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Edit Profile'),
+        title: Text('edit_profile'.tr),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1843,13 +1846,13 @@ class ProfileView extends GetView<UserController> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               Get.snackbar('Success', 'Profile updated successfully');
             },
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
       ),
@@ -1859,13 +1862,13 @@ class ProfileView extends GetView<UserController> {
   void _showLanguageDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Select Language'),
+        title: Text('select_language'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('English'),
+              title: Text('english'.tr),
               trailing: const Icon(Icons.check, color: Colors.green),
               onTap: () {
                 Get.updateLocale(const Locale('en', 'US'));
@@ -1875,7 +1878,7 @@ class ProfileView extends GetView<UserController> {
             ),
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('العربية'),
+              title: Text('arabic'.tr),
               onTap: () {
                 Get.updateLocale(const Locale('ar', 'AE'));
                 Get.back();
@@ -1891,19 +1894,19 @@ class ProfileView extends GetView<UserController> {
   void _showDeleteAccountDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Delete Account'),
+        title: Text('delete_account'.tr),
         content: const Text(
           'Are you sure you want to delete your account? This action cannot be undone.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               Get.snackbar('Warning', 'Account deletion initiated');
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text('delete'.tr, style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1913,17 +1916,17 @@ class ProfileView extends GetView<UserController> {
   void _showLogoutDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text('log_out'.tr),
+        content: Text('log_out_confirmation'.tr),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               Get.offAllNamed(AppRoutes.login);
               Get.snackbar('Info', 'Logged out successfully');
             },
-            child: const Text('Log Out'),
+            child: Text('log_out'.tr),
           ),
         ],
       ),

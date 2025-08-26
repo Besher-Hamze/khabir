@@ -167,7 +167,7 @@ class EmptyWidget extends StatelessWidget {
               ),
             const SizedBox(height: 20),
             Text(
-              title ?? 'Nothing here yet',
+              title ?? 'nothing_here_yet'.tr,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -192,7 +192,7 @@ class EmptyWidget extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh, size: 18),
-                label: Text(retryText ?? 'Try Again'),
+                label: Text(retryText ?? 'try_again_default'.tr),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -231,8 +231,8 @@ class ErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EmptyWidget(
-      title: title ?? 'Something went wrong',
-      subtitle: subtitle ?? 'Please check your connection and try again',
+      title: title ?? 'something_went_wrong'.tr,
+      subtitle: subtitle ?? 'check_connection_message'.tr,
       icon: Icon(Icons.error_outline, size: 36, color: Colors.red[400]),
       onRetry: onRetry,
       retryText: retryText,

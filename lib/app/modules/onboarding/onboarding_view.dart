@@ -12,141 +12,143 @@ class OnboardingView extends GetView<OnboardingController> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: Obx(() => Column(
-          children: [
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildLanguageToggle(),
-                  const Spacer(),
-                  if (controller.currentPage < 2)
-                    TextButton(
-                      onPressed: controller.skipOnboarding,
-                      child: Text(
-                        "skip".tr,
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+        body: Obx(
+          () => Column(
+            children: [
+              const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildLanguageToggle(),
+                    const Spacer(),
+                    if (controller.currentPage < 2)
+                      TextButton(
+                        onPressed: controller.skipOnboarding,
+                        child: Text(
+                          "skip".tr,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ),
-            // Content
-            Expanded(
-              child: PageView.builder(
-                controller: controller.pageController,
-                itemCount: controller.onboardingData.length,
-                onPageChanged: controller.goToPage,
-                itemBuilder: (context, index) {
-                  final data = controller.onboardingData[index];
-
-                  // Check if this is the role selection page (third page)
-                  if (index == 2) {
-                    return _buildRoleSelectionPage();
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Image
-                        Container(
-                          height: 300,
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 40),
-                          child: Image.asset(
-                            data['image']!,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                height: 300,
-                                decoration: BoxDecoration(
-                                  color: AppColors.surfaceVariant,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: const Icon(
-                                  Icons.image,
-                                  size: 80,
-                                  color: AppColors.textLight,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            controller.onboardingData.length,
-                                (index) => _buildPageIndicator(index),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Title
-                        Text(
-                          data['title']!,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        // Description
-                        Text(
-                          data['description']!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textSecondary,
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Bottom Section
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Show navigation buttons only if not on role selection page
-                  if (controller.currentPage.value < 2) ...[
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            text: 'back'.tr,
-                            onPressed: controller.previousPage,
-                            isOutlined: true,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: CustomButton(
-                            text: 'next'.tr,
-                            onPressed: controller.nextPage,
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
-        )),
+              // Content
+              Expanded(
+                child: PageView.builder(
+                  controller: controller.pageController,
+                  itemCount: controller.onboardingData.length,
+                  onPageChanged: controller.goToPage,
+                  itemBuilder: (context, index) {
+                    final data = controller.onboardingData[index];
+
+                    // Check if this is the role selection page (third page)
+                    if (index == 2) {
+                      return _buildRoleSelectionPage();
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Image
+                          Container(
+                            height: 300,
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 40),
+                            child: Image.asset(
+                              data['image']!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceVariant,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Icon(
+                                    Icons.image,
+                                    size: 80,
+                                    color: AppColors.textLight,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              controller.onboardingData.length,
+                              (index) => _buildPageIndicator(index),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Title
+                          Text(
+                            data['title']!,
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          // Description
+                          Text(
+                            data['description']!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                              height: 1.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Bottom Section
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    // Show navigation buttons only if not on role selection page
+                    if (controller.currentPage.value < 2) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              text: 'back'.tr,
+                              onPressed: controller.previousPage,
+                              isOutlined: true,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: CustomButton(
+                              text: 'next'.tr,
+                              onPressed: controller.nextPage,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -188,7 +190,7 @@ class OnboardingView extends GetView<OnboardingController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               controller.onboardingData.length,
-                  (index) => _buildPageIndicator(index),
+              (index) => _buildPageIndicator(index),
             ),
           ),
           const SizedBox(height: 24),
@@ -286,8 +288,16 @@ class OnboardingView extends GetView<OnboardingController> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildLanguageButton('EN', Get.locale?.languageCode == 'en', true),
-          _buildLanguageButton('عربي', Get.locale?.languageCode == 'ar', false),
+          _buildLanguageButton(
+            'english'.tr,
+            Get.locale?.languageCode == 'en',
+            true,
+          ),
+          _buildLanguageButton(
+            'arabic'.tr,
+            Get.locale?.languageCode == 'ar',
+            false,
+          ),
         ],
       ),
     );
@@ -296,10 +306,10 @@ class OnboardingView extends GetView<OnboardingController> {
   Widget _buildLanguageButton(String text, bool isSelected, bool isLeft) {
     return GestureDetector(
       onTap: () {
-        if (text == 'عربي' && Get.locale?.languageCode != 'ar') {
+        if (text == 'arabic'.tr && Get.locale?.languageCode != 'ar') {
           Get.updateLocale(const Locale('ar'));
           controller.updateOnboardingData(); // Refresh the data
-        } else if (text == 'EN' && Get.locale?.languageCode != 'en') {
+        } else if (text == 'english'.tr && Get.locale?.languageCode != 'en') {
           Get.updateLocale(const Locale('en'));
           controller.updateOnboardingData(); // Refresh the data
         }
@@ -328,16 +338,18 @@ class OnboardingView extends GetView<OnboardingController> {
   }
 
   Widget _buildPageIndicator(int index) {
-    return Obx(() => Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-        color: controller.currentPage.value == index
-            ? AppColors.primary
-            : AppColors.borderLight.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(8),
+    return Obx(
+      () => Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: controller.currentPage.value == index
+              ? AppColors.primary
+              : AppColors.borderLight.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
-    ));
+    );
   }
 }

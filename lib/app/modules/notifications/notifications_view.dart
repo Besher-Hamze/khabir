@@ -294,14 +294,14 @@ class NotificationsView extends StatelessWidget {
             // Show delete confirmation
             Get.dialog(
               AlertDialog(
-                title: const Text('Delete Notification'),
+                title: Text('delete_notification'.tr),
                 content: const Text(
                   'Are you sure you want to delete this notification?',
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel'),
+                    child: Text('cancel'.tr),
                   ),
                   ElevatedButton(
                     onPressed: () {

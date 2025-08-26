@@ -74,7 +74,7 @@ class HomeView extends GetView<HomeController> {
             Icon(Icons.search, color: Colors.grey[400], size: 20),
             const SizedBox(width: 12),
             Text(
-              'Search',
+              'search'.tr,
               style: TextStyle(fontSize: 16, color: Colors.grey[500]),
             ),
           ],
@@ -106,10 +106,10 @@ class HomeView extends GetView<HomeController> {
             borderRadius: BorderRadius.circular(12),
             color: Colors.grey[100],
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No banners available',
-              style: TextStyle(color: Colors.grey),
+              'no_banners_available'.tr,
+              style: const TextStyle(color: Colors.grey),
             ),
           ),
         );

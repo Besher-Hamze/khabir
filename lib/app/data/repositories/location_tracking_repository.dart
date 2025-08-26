@@ -140,6 +140,9 @@ class LocationTrackingRepository {
         print('Socket error: $error');
       });
 
+      _socket!.on('tracking_status_changed', (data) {
+        print('Tracking status changed: $data');
+      });
       return _socket!;
     } catch (e) {
       print('Socket initialization error: $e');

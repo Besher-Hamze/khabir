@@ -161,7 +161,7 @@ class ProviderDetailView extends StatelessWidget {
                       Icon(Icons.verified, size: 12, color: Colors.green),
                       const SizedBox(width: 4),
                       Text(
-                        'Verified',
+                        'verified'.tr,
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.green,
@@ -239,7 +239,7 @@ class ProviderDetailView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Description',
+            'description'.tr,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -282,7 +282,7 @@ class ProviderDetailView extends StatelessWidget {
             Icon(Icons.build_outlined, size: 40, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              'No Services Available',
+              'no_services_available_provider'.tr,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -291,7 +291,7 @@ class ProviderDetailView extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'This provider has not added any services yet',
+              'provider_no_services_message'.tr,
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
@@ -318,7 +318,7 @@ class ProviderDetailView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Services',
+            'services_title'.tr,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -396,7 +396,7 @@ class ProviderDetailView extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Price: ',
+                'price_label'.tr,
                 style: TextStyle(fontSize: 13, color: Colors.grey[600]),
               ),
               Text(
@@ -445,7 +445,7 @@ class ProviderDetailView extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         minimumSize: const Size(80, 32),
       ),
-      child: const Text('Request', style: TextStyle(fontSize: 12)),
+      child: Text('request'.tr, style: const TextStyle(fontSize: 12)),
     );
   }
 

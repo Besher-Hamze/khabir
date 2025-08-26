@@ -82,7 +82,7 @@ class CategoriesView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'No categories available',
+                'no_categories_available'.tr,
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],

@@ -84,23 +84,22 @@ class ApiService extends GetxService {
         } else if (error.response?.statusCode == 400) {
           final responseData = error.response?.data;
           if (responseData is Map<String, dynamic>) {
-            final message =
-                responseData['message'] ?? 'خطأ في البيانات المرسلة';
-            Get.snackbar('خطأ', message);
+            final message = responseData['message'] ?? 'data_error'.tr;
+            Get.snackbar('error'.tr, message);
           } else {
-            Get.snackbar('خطأ', 'خطأ في البيانات المرسلة');
+            Get.snackbar('error'.tr, 'data_error'.tr);
           }
         } else if (error.response?.statusCode == 500) {
-          Get.snackbar('خطأ', 'خطأ في الخادم');
+          Get.snackbar('error'.tr, 'server_error_message'.tr);
         } else {
-          Get.snackbar('خطأ', 'حدث خطأ غير متوقع');
+          Get.snackbar('error'.tr, 'unexpected_error'.tr);
         }
         break;
       case DioExceptionType.connectionError:
-        Get.snackbar('خطأ', 'فشل في الاتصال بالخادم');
+        Get.snackbar('error'.tr, 'connection_failed'.tr);
         break;
       default:
-        Get.snackbar('خطأ', 'حدث خطأ غير متوقع');
+        Get.snackbar('error'.tr, 'unexpected_error'.tr);
     }
   }
 

@@ -25,9 +25,15 @@ class ResetPasswordView extends GetView<AuthController> {
             margin: const EdgeInsets.only(right: 16, top: 8),
             child: Row(
               children: [
-                _buildLanguageButton('عربي', Get.locale?.languageCode == 'ar'),
+                _buildLanguageButton(
+                  'arabic'.tr,
+                  Get.locale?.languageCode == 'ar',
+                ),
                 const SizedBox(width: 8),
-                _buildLanguageButton('EN', Get.locale?.languageCode == 'en'),
+                _buildLanguageButton(
+                  'english'.tr,
+                  Get.locale?.languageCode == 'en',
+                ),
               ],
             ),
           ),
@@ -91,66 +97,72 @@ class ResetPasswordView extends GetView<AuthController> {
                 const SizedBox(height: 40),
 
                 // New Password Field
-                Obx(() => CustomTextField(
-                  label: 'new_password'.tr,
-                  controller: controller.newPasswordController,
-                  obscureText: !controller.isPasswordVisible.value,
-                  validator: controller.validatePassword,
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: AppColors.textLight,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.isPasswordVisible.value
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                Obx(
+                  () => CustomTextField(
+                    label: 'new_password'.tr,
+                    controller: controller.newPasswordController,
+                    obscureText: !controller.isPasswordVisible.value,
+                    validator: controller.validatePassword,
+                    prefixIcon: const Icon(
+                      Icons.lock,
                       color: AppColors.textLight,
                     ),
-                    onPressed: controller.togglePasswordVisibility,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: controller.togglePasswordVisibility,
+                    ),
                   ),
-                )),
+                ),
 
                 const SizedBox(height: 16),
 
                 // Confirm New Password Field
-                Obx(() => CustomTextField(
-                  label: 'confirm_new_password'.tr,
-                  controller: controller.confirmPasswordController,
-                  obscureText: !controller.isConfirmPasswordVisible.value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'field_required'.tr;
-                    }
-                    if (value != controller.newPasswordController.text) {
-                      return 'passwords_not_match'.tr;
-                    }
-                    return null;
-                  },
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: AppColors.textLight,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.isConfirmPasswordVisible.value
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                Obx(
+                  () => CustomTextField(
+                    label: 'confirm_new_password'.tr,
+                    controller: controller.confirmPasswordController,
+                    obscureText: !controller.isConfirmPasswordVisible.value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'field_required'.tr;
+                      }
+                      if (value != controller.newPasswordController.text) {
+                        return 'passwords_not_match'.tr;
+                      }
+                      return null;
+                    },
+                    prefixIcon: const Icon(
+                      Icons.lock,
                       color: AppColors.textLight,
                     ),
-                    onPressed: controller.toggleConfirmPasswordVisibility,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isConfirmPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: controller.toggleConfirmPasswordVisibility,
+                    ),
                   ),
-                )),
+                ),
 
                 const SizedBox(height: 32),
 
                 // Reset Password Button
-                Obx(() => CustomButton(
-                  text: 'reset_password'.tr,
-                  onPressed: controller.resetPassword,
-                  isLoading: controller.isLoading.value,
-                  width: double.infinity,
-                )),
+                Obx(
+                  () => CustomButton(
+                    text: 'reset_password'.tr,
+                    onPressed: controller.resetPassword,
+                    isLoading: controller.isLoading.value,
+                    width: double.infinity,
+                  ),
+                ),
 
                 const Spacer(),
 

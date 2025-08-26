@@ -88,9 +88,9 @@ class _SuccessPageViewState extends State<SuccessPageView>
               // Success Title
               FadeTransition(
                 opacity: _fadeIn,
-                child: const Text(
-                  'Request Submitted Successfully!',
-                  style: TextStyle(
+                child: Text(
+                  'request_submitted_successfully'.tr,
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -105,7 +105,7 @@ class _SuccessPageViewState extends State<SuccessPageView>
               FadeTransition(
                 opacity: _fadeIn,
                 child: Text(
-                  'Your service request has been submitted and is being processed. We\'ll notify you once a provider accepts your request.',
+                  'request_submitted_message'.tr,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -139,7 +139,7 @@ class _SuccessPageViewState extends State<SuccessPageView>
                       // Booking ID
                       _buildDetailRow(
                         icon: Icons.receipt_long,
-                        label: 'Booking ID',
+                        label: 'booking_id'.tr,
                         value: bookingId,
                         isHighlighted: true,
                       ),
@@ -149,7 +149,7 @@ class _SuccessPageViewState extends State<SuccessPageView>
                       // Total Amount
                       _buildDetailRow(
                         icon: Icons.payment,
-                        label: 'Total Amount',
+                        label: 'total_amount'.tr,
                         value: '$totalAmount OMR',
                         isHighlighted: true,
                       ),
@@ -159,7 +159,7 @@ class _SuccessPageViewState extends State<SuccessPageView>
                       // Scheduled Date
                       _buildDetailRow(
                         icon: Icons.calendar_today,
-                        label: 'Scheduled Date',
+                        label: 'scheduled_date'.tr,
                         value: _formatDate(scheduledDate),
                         isHighlighted: false,
                       ),
@@ -189,9 +189,9 @@ class _SuccessPageViewState extends State<SuccessPageView>
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          'Back to Home',
-                          style: TextStyle(
+                        child: Text(
+                          'back_to_home'.tr,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -214,9 +214,9 @@ class _SuccessPageViewState extends State<SuccessPageView>
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'View My Requests',
-                          style: TextStyle(
+                        child: Text(
+                          'view_my_requests'.tr,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -252,7 +252,7 @@ class _SuccessPageViewState extends State<SuccessPageView>
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'You can track your request status and communicate with the provider through the app.',
+                          'tracking_info'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.blue[700],

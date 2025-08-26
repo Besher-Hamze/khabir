@@ -21,9 +21,9 @@ class AllProvidersView extends GetView<HomeController> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'All Providers',
-          style: TextStyle(
+        title: Text(
+          'all_providers'.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -65,10 +65,10 @@ class AllProvidersView extends GetView<HomeController> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'khabir',
-                      style: TextStyle(
+                      'app_name'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -115,7 +115,7 @@ class AllProvidersView extends GetView<HomeController> {
           TextField(
             onChanged: (value) => _filterProviders(value),
             decoration: InputDecoration(
-              hintText: 'Search providers...',
+              hintText: 'search_providers'.tr,
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -234,7 +234,7 @@ class AllProvidersView extends GetView<HomeController> {
                               ),
                               const SizedBox(width: 2),
                               Text(
-                                'Verified',
+                                'verified'.tr,
                                 style: TextStyle(
                                   fontSize: 8,
                                   color: Colors.green,
@@ -302,7 +302,7 @@ class AllProvidersView extends GetView<HomeController> {
                         ),
                       ),
                       Text(
-                        ' (${provider.totalRatings} reviews)',
+                        ' (${provider.totalRatings} ${'reviews'.tr})',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                       const Spacer(),
@@ -329,7 +329,7 @@ class AllProvidersView extends GetView<HomeController> {
           Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'No providers available',
+            'no_providers_available'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -338,7 +338,7 @@ class AllProvidersView extends GetView<HomeController> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Check back later for service providers',
+            'check_back_later'.tr,
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
@@ -346,7 +346,7 @@ class AllProvidersView extends GetView<HomeController> {
           ElevatedButton.icon(
             onPressed: () => controller.forceRefreshProviders(),
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('Try Again'),
+            label: Text('try_again'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

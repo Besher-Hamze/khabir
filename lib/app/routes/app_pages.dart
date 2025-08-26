@@ -276,9 +276,9 @@ class AppPages {
       binding: ProviderDetailBinding(),
     ),
 
-        // All Providers
+    // All Providers
     GetPage(
-      name: AppRoutes.allProviders, 
+      name: AppRoutes.allProviders,
       page: () => const AllProvidersView(),
       binding: AllProvidersBinding(),
     ),
@@ -296,120 +296,112 @@ class AppPages {
 class NotificationsView extends StatelessWidget {
   const NotificationsView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Notifications View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('notifications_under_development'.tr)));
 }
 
 class SubcategoriesView extends StatelessWidget {
   const SubcategoriesView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Subcategories View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('subcategories_under_development'.tr)));
 }
 
 class ProviderDetailsView extends StatelessWidget {
   const ProviderDetailsView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Provider Details View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('provider_details_under_development'.tr)),
   );
 }
 
 class BookServiceView extends StatelessWidget {
   const BookServiceView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Book Service View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('book_service_under_development'.tr)));
 }
 
 class BookingDetailsView extends StatelessWidget {
   const BookingDetailsView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Booking Details View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('booking_details_under_development'.tr)),
   );
 }
 
 class TrackProviderView extends StatelessWidget {
   const TrackProviderView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Track Provider View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('track_provider_under_development'.tr)),
   );
 }
 
 class RateServiceView extends StatelessWidget {
   const RateServiceView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Rate Service View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('rate_service_under_development'.tr)));
 }
 
 class EditProfileView extends StatelessWidget {
   const EditProfileView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Edit Profile View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('edit_profile_under_development'.tr)));
 }
 
 class AddressesView extends StatelessWidget {
   const AddressesView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Addresses View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('addresses_under_development'.tr)));
 }
 
 class AddAddressView extends StatelessWidget {
   const AddAddressView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Add Address View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('add_address_under_development'.tr)));
 }
 
 class SelectLocationView extends StatelessWidget {
   const SelectLocationView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Select Location View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('select_location_under_development'.tr)),
   );
 }
 
 class LanguageView extends StatelessWidget {
   const LanguageView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Language View - Under Development')),
-  );
+  Widget build(BuildContext context) =>
+      Scaffold(body: Center(child: Text('language_under_development'.tr)));
 }
 
 class TermsConditionsView extends StatelessWidget {
   const TermsConditionsView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Terms & Conditions View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('terms_conditions_under_development'.tr)),
   );
 }
 
 class PrivacyPolicyView extends StatelessWidget {
   const PrivacyPolicyView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Privacy Policy View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('privacy_policy_under_development'.tr)),
   );
 }
 
 class SearchResultsView extends StatelessWidget {
   const SearchResultsView({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Text('Search Results View - Under Development')),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: Text('search_results_under_development'.tr)),
   );
 }
 

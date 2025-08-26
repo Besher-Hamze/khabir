@@ -46,10 +46,10 @@ class ServiceProvidersView extends StatelessWidget {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'khabir',
-                      style: TextStyle(
+                      'app_name'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -113,7 +113,7 @@ class ServiceProvidersView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'No providers available for this service',
+                  'no_providers_available'.tr,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
@@ -241,9 +241,9 @@ class ServiceProvidersView extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       children: [
-                        const TextSpan(
-                          text: 'Price  ',
-                          style: TextStyle(
+                        TextSpan(
+                          text: 'price_label'.tr,
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
                             fontWeight: FontWeight.w400,
@@ -323,7 +323,7 @@ class ServiceProvidersView extends StatelessWidget {
                         Icon(Icons.verified, size: 14, color: Colors.green),
                         const SizedBox(width: 4),
                         Text(
-                          'Verified',
+                          'verified'.tr,
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.green,

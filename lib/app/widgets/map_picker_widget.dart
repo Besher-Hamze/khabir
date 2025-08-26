@@ -52,7 +52,7 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
           widget.initialLatitude!,
           widget.initialLongitude!,
         );
-        _selectedAddress = widget.initialAddress ?? 'Selected Location';
+        _selectedAddress = widget.initialAddress ?? 'selected_location'.tr;
       } else {
         // Try to get current location
         final position = await _getCurrentLocation();
@@ -65,7 +65,7 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
         } else {
           // Use default location
           _selectedLocation = _defaultLocation;
-          _selectedAddress = 'Muscat, Oman';
+          _selectedAddress = 'muscat_oman'.tr;
         }
       }
 
@@ -213,7 +213,7 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
               CircularProgressIndicator(),
               SizedBox(height: 16),
               Text(
-                'Loading map...',
+                'loading_map'.tr,
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ],
@@ -233,9 +233,9 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.map_outlined, size: 48, color: Colors.grey[400]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
-                'Map not available',
+                'map_not_available'.tr,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -244,7 +244,7 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Please check your connection',
+                'check_connection'.tr,
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
@@ -252,7 +252,7 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
               ElevatedButton.icon(
                 onPressed: _initializeLocation,
                 icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Retry'),
+                label: Text('retry'.tr),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[600],
                   foregroundColor: Colors.white,
@@ -273,10 +273,10 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
-            'No location available',
-            style: TextStyle(color: Colors.grey),
+            'no_location_available'.tr,
+            style: const TextStyle(color: Colors.grey),
           ),
         ),
       );
@@ -364,9 +364,9 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
                   color: Colors.black87.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
-                  'Tap or drag pin to select location',
-                  style: TextStyle(
+                child: Text(
+                  'tap_drag_pin'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.w500,

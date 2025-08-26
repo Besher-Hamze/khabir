@@ -27,7 +27,7 @@ class ServicesView extends StatelessWidget {
             Text(
               controller.categoryName.isNotEmpty
                   ? controller.categoryName
-                  : 'Services',
+                  : 'services'.tr,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,
@@ -95,7 +95,7 @@ class ServicesView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'No services available for this category',
+                  'no_services_available'.tr,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
@@ -227,7 +227,7 @@ class ServicesView extends StatelessWidget {
                             ),
                             onPressed: () =>
                                 controller.contactViaWhatsApp(service),
-                            tooltip: 'Contact via WhatsApp',
+                            tooltip: 'contact_via_whatsapp'.tr,
                           ),
                       ],
                     ),
