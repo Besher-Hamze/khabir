@@ -138,16 +138,16 @@ class RequestServiceView extends StatelessWidget {
                 _buildDurationLocationSection(controller),
                 const SizedBox(height: 16),
 
-                // Total Price Section
-                _buildTotalPriceSection(controller),
+                // Total Price Section - Make it reactive
+                Obx(() => _buildTotalPriceSection(controller)),
                 const SizedBox(height: 24),
 
                 // Notes Section
                 _buildNotesSection(controller),
                 const SizedBox(height: 24),
 
-                // Submit Button
-                _buildSubmitButton(controller),
+                // Submit Button - Make it reactive
+                Obx(() => _buildSubmitButton(controller)),
               ],
             ),
           ),
@@ -280,9 +280,6 @@ class RequestServiceView extends StatelessWidget {
     ProviderServiceItem service,
     RequestServiceController controller,
   ) {
-    final quantity = controller.getServiceQuantity(service.id);
-    final isSelected = quantity > 0;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -335,110 +332,123 @@ class RequestServiceView extends StatelessWidget {
                 ),
               ),
 
-              // Quantity Controls
-              Row(
-                children: [
-                  // Minus Button
-                  GestureDetector(
-                    onTap: () {
-                      if (quantity > 0) {
-                        controller.updateServiceQuantity(
-                          service.id,
-                          quantity - 1,
-                        );
-                      }
-                    },
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: quantity > 0
-                            ? AppColors.primary
-                            : Colors.grey[300],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.remove,
-                        size: 16,
-                        color: quantity > 0 ? Colors.white : Colors.grey[600],
-                      ),
-                    ),
-                  ),
+              // Quantity Controls - Wrap in Obx for reactivity
+              Obx(() {
+                final quantity = controller.getServiceQuantity(service.id);
 
-                  // Quantity Display
-                  Container(
-                    width: 40,
-                    child: Center(
-                      child: Text(
-                        '$quantity',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                return Row(
+                  children: [
+                    // Minus Button
+                    GestureDetector(
+                      onTap: () {
+                        if (quantity > 0) {
+                          controller.updateServiceQuantity(
+                            service.id,
+                            quantity - 1,
+                          );
+                        }
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: quantity > 0
+                              ? AppColors.primary
+                              : Colors.grey[300],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.remove,
+                          size: 16,
+                          color: quantity > 0 ? Colors.white : Colors.grey[600],
                         ),
                       ),
                     ),
-                  ),
 
-                  // Plus Button
-                  GestureDetector(
-                    onTap: () {
-                      controller.updateServiceQuantity(
-                        service.id,
-                        quantity + 1,
-                      );
-                    },
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        size: 16,
-                        color: Colors.white,
+                    // Quantity Display
+                    Container(
+                      width: 40,
+                      child: Center(
+                        child: Text(
+                          '$quantity',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+
+                    // Plus Button
+                    GestureDetector(
+                      onTap: () {
+                        controller.updateServiceQuantity(
+                          service.id,
+                          quantity + 1,
+                        );
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
 
-          // Total Price for this service
-          if (isSelected) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Total for this service:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
-                    ),
+          // Total Price for this service - Wrap in Obx for reactivity
+          Obx(() {
+            final quantity = controller.getServiceQuantity(service.id);
+            final isSelected = quantity > 0;
+
+            if (!isSelected) return const SizedBox.shrink();
+
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  Text(
-                    '${controller.getServiceTotalPrice(service.id).toStringAsFixed(2)} OMR',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total for this service:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        '${controller.getServiceTotalPrice(service.id).toStringAsFixed(2)} OMR',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );
@@ -490,14 +500,18 @@ class RequestServiceView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(child: _buildDurationButton('Now', controller)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildDurationButton('Tomorrow', controller)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildCalendarButton(controller)),
-                ],
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(child: _buildDurationButton('Now', controller)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildDurationButton('Tomorrow', controller),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildCalendarButton(controller)),
+                  ],
+                ),
               ),
             ],
           ),
@@ -537,52 +551,57 @@ class RequestServiceView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Location Display and Selection
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!, width: 1.5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            controller.selectedLocation.value?.address ??
-                                'No location selected',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
+              Obx(
+                () => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              controller.selectedLocation.value?.address ??
+                                  'No location selected',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () =>
-                              _showLocationPickerDialog(controller),
-                          icon: const Icon(
-                            Icons.edit_location,
-                            size: 20,
-                            color: Colors.red,
+                          IconButton(
+                            onPressed: () =>
+                                _showLocationPickerDialog(controller),
+                            icon: const Icon(
+                              Icons.edit_location,
+                              size: 20,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (controller.selectedLocation.value != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          '${controller.selectedLocation.value!.title} - ${controller.selectedLocation.value!.description}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
                           ),
                         ),
                       ],
-                    ),
-                    if (controller.selectedLocation.value != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        '${controller.selectedLocation.value!.title} - ${controller.selectedLocation.value!.description}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
               ),
             ],

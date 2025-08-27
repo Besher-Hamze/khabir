@@ -408,6 +408,34 @@ class AppTranslations extends Translations {
           'Tap on the map to select your service location or use your saved locations',
       'please_select_location': 'Please select a location on the map',
 
+      // Order Status
+      'pending': 'Pending',
+      'accepted': 'Accepted',
+      'approved': 'Approved',
+      'rejected': 'Rejected',
+      'in_progress': 'In Progress',
+      'completed': 'Completed',
+      'cancelled': 'Cancelled',
+
+      // Order Actions
+      'delete_order_confirmation_full':
+          'Are you sure you want to delete order #{order_id}?\nThis action cannot be undone.',
+      'failed_to_delete_order': 'Failed to delete order: {error}',
+      'failed_to_open_tracking': 'Failed to open tracking: {error}',
+      'failed_to_cancel_order': 'Failed to cancel order: {error}',
+      'cannot_rate': 'Cannot Rate',
+      'only_completed_orders_can_be_rated':
+          'Only completed orders can be rated',
+      'already_rated': 'Already Rated',
+      'already_rated_provider_message':
+          'You have already rated this provider for this order',
+      'rating_submitted': 'Rating Submitted',
+      'thank_you_feedback': 'Thank you for your feedback!',
+      'rating_failed': 'Rating Failed',
+      'failed_to_submit_rating': 'Failed to submit rating',
+      'failed_to_submit_rating_error': 'Failed to submit rating: {error}',
+      'failed_to_initialize': 'Failed to initialize: {error}',
+
       // Development Placeholders
       'notifications_under_development':
           'Notifications View - Under Development',
@@ -824,6 +852,32 @@ class AppTranslations extends Translations {
       'tap_map_select_location':
           'اضغط على الخريطة لاختيار موقع الخدمة أو استخدم المواقع المحفوظة',
       'please_select_location': 'يرجى اختيار موقع على الخريطة',
+
+      // Order Status
+      'pending': 'قيد الانتظار',
+      'accepted': 'مقبول',
+      'approved': 'موافق عليه',
+      'rejected': 'مرفوض',
+      'in_progress': 'قيد التنفيذ',
+      'completed': 'مكتمل',
+      'cancelled': 'ملغي',
+
+      // Order Actions
+      'delete_order_confirmation_full':
+          'هل أنت متأكد من حذف الطلب رقم {order_id}؟\nلا يمكن التراجع عن هذا الإجراء.',
+      'failed_to_delete_order': 'فشل في حذف الطلب: {error}',
+      'failed_to_open_tracking': 'فشل في فتح التتبع: {error}',
+      'failed_to_cancel_order': 'فشل في إلغاء الطلب: {error}',
+      'cannot_rate': 'لا يمكن التقييم',
+      'only_completed_orders_can_be_rated': 'يمكن تقييم الطلبات المكتملة فقط',
+      'already_rated': 'تم التقييم بالفعل',
+      'already_rated_provider_message': 'لقد قيمت هذا المزود لهذا الطلب بالفعل',
+      'rating_submitted': 'تم إرسال التقييم',
+      'thank_you_feedback': 'شكراً لك على ملاحظاتك!',
+      'rating_failed': 'فشل التقييم',
+      'failed_to_submit_rating': 'فشل في إرسال التقييم',
+      'failed_to_submit_rating_error': 'فشل في إرسال التقييم: {error}',
+      'failed_to_initialize': 'فشل في التهيئة: {error}',
 
       // Development Placeholders
       'notifications_under_development': 'عرض الإشعارات - قيد التطوير',

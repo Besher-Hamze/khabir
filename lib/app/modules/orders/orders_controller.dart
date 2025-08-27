@@ -3,10 +3,8 @@ import 'package:get/get.dart';
 import 'package:khabir/app/data/models/order_model.dart';
 import 'package:khabir/app/modules/track/track_binding.dart';
 import 'package:khabir/app/modules/track/track_screen.dart';
-import '../../data/models/provider_model.dart';
 import '../../data/repositories/orders_repository.dart';
 import '../../data/repositories/providers_repository.dart';
-import '../../routes/app_routes.dart';
 
 class OrdersController extends GetxController {
   late final OrdersRepository _ordersRepository;
@@ -31,7 +29,10 @@ class OrdersController extends GetxController {
     } catch (e) {
       print('OrdersController: Error finding repository: $e');
       hasError.value = true;
-      errorMessage.value = 'Failed to initialize: $e';
+      errorMessage.value = 'failed_to_initialize'.tr.replaceAll(
+        '{error}',
+        '$e',
+      );
     }
   }
 
@@ -72,7 +73,10 @@ class OrdersController extends GetxController {
         AlertDialog(
           title: Text('delete_order'.tr),
           content: Text(
-            'Are you sure you want to delete order #${order.id}?\nThis action cannot be undone.',
+            'delete_order_confirmation_full'.tr.replaceAll(
+              '{order_id}',
+              '${order.id}',
+            ),
           ),
           actions: [
             TextButton(
@@ -102,7 +106,7 @@ class OrdersController extends GetxController {
         orders.removeWhere((o) => o.id == order.id);
 
         Get.snackbar(
-          'Success',
+          'success'.tr,
           result['message'],
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
@@ -111,7 +115,7 @@ class OrdersController extends GetxController {
         );
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           result['message'],
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -121,8 +125,8 @@ class OrdersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to delete order: $e',
+        'error'.tr,
+        'failed_to_delete_order'.tr.replaceAll('{error}', '$e'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -158,8 +162,8 @@ class OrdersController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to open tracking: $e',
+        'error'.tr,
+        'failed_to_open_tracking'.tr.replaceAll('{error}', '$e'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -201,7 +205,7 @@ class OrdersController extends GetxController {
 
       if (result['success']) {
         Get.snackbar(
-          'Success',
+          'success'.tr,
           result['message'],
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.orange,
@@ -212,7 +216,7 @@ class OrdersController extends GetxController {
         await loadOrders();
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           result['message'],
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -222,8 +226,8 @@ class OrdersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to cancel order: $e',
+        'error'.tr,
+        'failed_to_cancel_order'.tr.replaceAll('{error}', '$e'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -259,19 +263,19 @@ class OrdersController extends GetxController {
   String getStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'Pending';
+        return 'pending'.tr;
       case 'accepted':
-        return 'Accepted';
+        return 'accepted'.tr;
       case 'approved':
-        return 'Approved';
+        return 'approved'.tr;
       case 'rejected':
-        return 'Rejected';
+        return 'rejected'.tr;
       case 'in_progress':
-        return 'In Progress';
+        return 'in_progress'.tr;
       case 'completed':
-        return 'Completed';
+        return 'completed'.tr;
       case 'cancelled':
-        return 'Cancelled';
+        return 'cancelled'.tr;
       default:
         return status.toUpperCase();
     }
@@ -331,8 +335,8 @@ class OrdersController extends GetxController {
     try {
       if (!canRateOrder(order.status)) {
         Get.snackbar(
-          'Cannot Rate',
-          'Only completed orders can be rated',
+          'cannot_rate'.tr,
+          'only_completed_orders_can_be_rated'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.orange,
           colorText: Colors.white,
@@ -344,8 +348,8 @@ class OrdersController extends GetxController {
       final hasRated = await hasRatedOrder(order.id);
       if (hasRated) {
         Get.snackbar(
-          'Already Rated',
-          'You have already rated this provider for this order',
+          'already_rated'.tr,
+          'already_rated_provider_message'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.blue,
           colorText: Colors.white,
@@ -364,8 +368,8 @@ class OrdersController extends GetxController {
 
       if (result['success']) {
         Get.snackbar(
-          'Rating Submitted',
-          'Thank you for your feedback!',
+          'rating_submitted'.tr,
+          'thank_you_feedback'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -376,8 +380,8 @@ class OrdersController extends GetxController {
         await loadOrders();
       } else {
         Get.snackbar(
-          'Rating Failed',
-          result['message'] ?? 'Failed to submit rating',
+          'rating_failed'.tr,
+          result['message'] ?? 'failed_to_submit_rating'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -386,8 +390,8 @@ class OrdersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to submit rating: $e',
+        'error'.tr,
+        'failed_to_submit_rating_error'.tr.replaceAll('{error}', '$e'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

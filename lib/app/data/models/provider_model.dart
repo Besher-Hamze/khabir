@@ -315,7 +315,8 @@ class ProviderServiceItem {
 
   factory ProviderServiceItem.fromJson(Map<String, dynamic> json) {
     // Handle nested service structure from API
-    final serviceData = json['service'] as Map<String, dynamic>?;
+    final serviceData =
+        json['service'] ?? json['providerService'] as Map<String, dynamic>?;
 
     // Check if this is a minimal service structure (like from providers by service API)
     final isMinimalStructure =
@@ -350,8 +351,22 @@ class ProviderServiceItem {
           json['image'] ??
           (isMinimalStructure ? '' : ''),
 
-      price: (json['price'] ?? 0.0).toDouble(),
-      offerPrice: json['offerPrice']?.toDouble(),
+      price:
+          (serviceData?['price'] ??
+                  json['price'] ??
+                  serviceData?['providerService']?['price'] ??
+                  0.0)
+              .toDouble(),
+      offerPrice:
+          (json['offerPrice'] ??
+                  json['activeOffer']?['offerPrice'] ??
+                  json['activeOffer']?['offer_price']) !=
+              null
+          ? (json['offerPrice'] ??
+                    json['activeOffer']?['offerPrice'] ??
+                    json['activeOffer']?['offer_price'])
+                .toDouble()
+          : null,
       isActive: json['isActive'] ?? json['is_active'] ?? true,
 
       // Get commission from nested service

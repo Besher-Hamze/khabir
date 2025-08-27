@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:khabir/app/data/models/provider_model.dart';
-import 'package:khabir/app/data/models/service_model.dart';
 import '../../data/models/provider_model.dart';
+import '../../data/models/service_model.dart';
 import '../../data/models/user_location_model.dart';
 import '../../data/repositories/providers_repository.dart';
 import '../../data/repositories/user_repository.dart';
@@ -16,8 +15,7 @@ class RequestServiceController extends GetxController {
   // Observable variables
   final RxList<ProviderServiceItem> services = <ProviderServiceItem>[].obs;
   final RxBool isLoading = false.obs;
-  final RxBool isSubmitting =
-      false.obs; // Separate loading state for submission
+  final RxBool isSubmitting = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
   final RxMap<int, int> serviceQuantities = <int, int>{}.obs;
@@ -36,7 +34,12 @@ class RequestServiceController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Get arguments passed from previous screen
+    _initializeFromArguments();
+    loadUserLocations();
+  }
+
+  // Initialize controller with arguments from navigation
+  void _initializeFromArguments() {
     final arguments = Get.arguments as Map<String, dynamic>?;
     if (arguments != null) {
       provider = arguments['provider'] as ProviderApiModel?;
@@ -47,9 +50,6 @@ class RequestServiceController extends GetxController {
         loadProviderServices(provider!.id, categoryId!);
       }
     }
-
-    // Load user locations
-    loadUserLocations();
   }
 
   // Load user locations
@@ -67,6 +67,7 @@ class RequestServiceController extends GetxController {
       }
     } catch (e) {
       print('Error loading user locations: $e');
+      // Don't show error to user for locations, just log it
     }
   }
 
@@ -83,23 +84,30 @@ class RequestServiceController extends GetxController {
       );
 
       services.value = response.services;
-
-      // Initialize quantities to 0
-      for (var service in response.services) {
-        serviceQuantities[service.id] = 0;
-      }
+      _initializeServiceQuantities();
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
+      errorMessage.value = _extractErrorMessage(e.toString());
       print('Error loading provider services: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Update service quantity
+  // Initialize service quantities to 0
+  void _initializeServiceQuantities() {
+    serviceQuantities.clear();
+    for (var service in services) {
+      serviceQuantities[service.id] = 0;
+    }
+  }
+
+  // Update service quantity with validation
   void updateServiceQuantity(int serviceId, int quantity) {
+    if (quantity < 0) return; // Don't allow negative quantities
+
     serviceQuantities[serviceId] = quantity;
+    serviceQuantities.refresh(); // Force UI update
   }
 
   // Get service quantity
@@ -107,16 +115,18 @@ class RequestServiceController extends GetxController {
     return serviceQuantities[serviceId] ?? 0;
   }
 
-  // Calculate total price for a specific service (price * quantity + commission)
+  // Calculate total price for a specific service (price * quantity) + (commission * quantity)
   double getServiceTotalPrice(int serviceId) {
     final service = services.firstWhereOrNull((s) => s.id == serviceId);
     if (service == null) return 0.0;
 
     final quantity = getServiceQuantity(serviceId);
-    final basePrice = service.price * quantity;
-    final commission = service.commission ?? 0;
+    if (quantity == 0) return 0.0;
 
-    return basePrice + commission;
+    final basePrice = service.price * quantity;
+    final totalCommission = service.commission ?? 0;
+
+    return basePrice + totalCommission;
   }
 
   // Calculate total price for all selected services
@@ -125,32 +135,60 @@ class RequestServiceController extends GetxController {
     for (var service in services) {
       final quantity = getServiceQuantity(service.id);
       if (quantity > 0) {
-        total += getServiceTotalPrice(service.id);
+        final servicePrice = service.price * quantity;
+        final serviceCommission = (service.commission ?? 0);
+        total += servicePrice + serviceCommission;
       }
     }
     return total;
   }
 
-  // Get selected services count
+  // Get selected services count - make it reactive
   int get selectedServicesCount {
     return serviceQuantities.values.where((quantity) => quantity > 0).length;
   }
 
-  // Check if any services are selected
+  // Check if any services are selected - make it reactive
   bool get hasSelectedServices {
-    return selectedServicesCount > 0;
+    return serviceQuantities.values.any((quantity) => quantity > 0);
   }
 
-  // Set duration
+  // Get list of selected services with their quantities
+  List<Map<String, dynamic>> get selectedServicesDetails {
+    final List<Map<String, dynamic>> selectedServices = [];
+
+    for (var service in services) {
+      final quantity = getServiceQuantity(service.id);
+      if (quantity > 0) {
+        selectedServices.add({
+          'service': service,
+          'quantity': quantity,
+          'totalPrice': getServiceTotalPrice(service.id),
+        });
+      }
+    }
+
+    return selectedServices;
+  }
+
+  // Set duration with validation
   void setDuration(String duration) {
+    final validDurations = ['Now', 'Tomorrow', 'Calendar'];
+    if (!validDurations.contains(duration)) return;
+
     selectedDuration.value = duration;
     if (duration != 'Calendar') {
       selectedDate.value = null;
     }
   }
 
-  // Set date
+  // Set date with validation
   void setDate(DateTime date) {
+    // Don't allow past dates
+    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
+      return;
+    }
+
     selectedDate.value = date;
     selectedDuration.value = 'Calendar';
   }
@@ -160,117 +198,175 @@ class RequestServiceController extends GetxController {
     selectedLocation.value = location;
   }
 
-  // Submit service request
-  Future<void> submitRequest() async {
+  // Validate request before submission
+  bool _validateRequest() {
     if (!hasSelectedServices) {
-      Get.snackbar(
-        'Error',
-        'Please select at least one service',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
+      _showErrorSnackbar('Please select at least one service');
+      return false;
     }
 
+    if (selectedLocation.value == null) {
+      _showErrorSnackbar('Please select a service location');
+      return false;
+    }
+
+    if (selectedDuration.value == 'Calendar' && selectedDate.value == null) {
+      _showErrorSnackbar('Please select a date for your service');
+      return false;
+    }
+
+    return true;
+  }
+
+  // Submit service request
+  Future<void> submitRequest() async {
+    if (!_validateRequest()) return;
+
     try {
-      // Show submission loading state
       isSubmitting.value = true;
 
-      // Prepare the request data according to the API structure
-      final request = ServiceRequestRequest(
-        providerId: provider?.id ?? 0,
-        services: services
-            .where((service) => getServiceQuantity(service.id) > 0)
-            .map(
-              (service) => ServiceRequestItem(
-                serviceId: service.id,
-                quantity: getServiceQuantity(service.id),
-              ),
-            )
-            .toList(),
-        scheduledDate: _getScheduledDate(),
-        location: selectedLocation.value?.title ?? "Home",
-        locationDetails:
-            selectedLocation.value?.address ?? "No location selected",
-        userLocation: UserLocation(
-          latitude: selectedLocation.value?.latitude ?? 0.0,
-          longitude: selectedLocation.value?.longitude ?? 0.0,
-          address: selectedLocation.value?.address ?? "No address",
-        ),
-        notes: notes.value.isNotEmpty
-            ? notes.value
-            : 'Service request from mobile app',
-      );
-
-      // Send the request to the API
+      final request = _buildServiceRequest();
       final response = await _providersRepository.createServiceRequest(request);
-
-      // Hide submission loading state
-      isSubmitting.value = false;
 
       // Reset form state
       resetForm();
 
-      // Navigate to success page with booking details
+      // Navigate to success page
       Get.offAllNamed(
         AppRoutes.successPage,
         arguments: {
           'bookingId': response.id,
           'totalAmount': response.totalAmount.toString(),
           'scheduledDate': response.scheduledDate.toString(),
+          'providerName': provider?.name ?? 'Provider',
+          'servicesCount': selectedServicesCount,
         },
       );
+
+      _showSuccessSnackbar('Service request submitted successfully');
     } catch (e) {
-      // Hide submission loading state
+      _handleSubmissionError(e);
+    } finally {
       isSubmitting.value = false;
-
-      // Show error message
-      String errorMsg = 'Failed to submit service request';
-      if (e.toString().contains('Exception:')) {
-        errorMsg = e.toString().split('Exception:').last.trim();
-      } else if (e.toString().contains('Error:')) {
-        errorMsg = e.toString().split('Error:').last.trim();
-      } else {
-        errorMsg = e.toString();
-      }
-
-      Get.snackbar(
-        'Error',
-        errorMsg,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 5),
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-        onTap: (_) {
-          // If user taps the snackbar, dismiss it
-          Get.closeCurrentSnackbar();
-        },
-      );
-
-      print('Error submitting service request: $e');
     }
   }
 
-  // Helper method to format the scheduled date
+  // Build service request object
+  ServiceRequestRequest _buildServiceRequest() {
+    return ServiceRequestRequest(
+      providerId: provider?.id ?? 0,
+      services: selectedServicesDetails
+          .map(
+            (serviceDetail) => ServiceRequestItem(
+              serviceId: serviceDetail['service'].id,
+              quantity: serviceDetail['quantity'],
+            ),
+          )
+          .toList(),
+      scheduledDate: _getScheduledDate(),
+      location: selectedLocation.value?.title ?? "Selected Location",
+      locationDetails: selectedLocation.value?.address ?? "No location details",
+      userLocation: UserLocation(
+        latitude: selectedLocation.value?.latitude ?? 0.0,
+        longitude: selectedLocation.value?.longitude ?? 0.0,
+        address: selectedLocation.value?.address ?? "No address",
+      ),
+      notes: notes.value.trim().isNotEmpty
+          ? notes.value.trim()
+          : 'Service request submitted from mobile app',
+    );
+  }
+
+  // Get formatted scheduled date
   String _getScheduledDate() {
     if (selectedDate.value != null) {
       return selectedDate.value!.toUtc().toIso8601String();
-    } else if (selectedDuration.value == 'Tomorrow') {
-      final tomorrow = DateTime.now().add(const Duration(days: 1));
-      return DateTime(
-        tomorrow.year,
-        tomorrow.month,
-        tomorrow.day,
-        10,
-        0,
-      ).toUtc().toIso8601String();
-    } else {
-      // Now - schedule for next hour
-      final nextHour = DateTime.now().add(const Duration(hours: 1));
-      return nextHour.toUtc().toIso8601String();
     }
+
+    switch (selectedDuration.value) {
+      case 'Tomorrow':
+        final tomorrow = DateTime.now().add(const Duration(days: 1));
+        return DateTime(
+          tomorrow.year,
+          tomorrow.month,
+          tomorrow.day,
+          10, // 10 AM default time
+          0,
+        ).toUtc().toIso8601String();
+
+      case 'Now':
+      default:
+        // Schedule for next hour
+        final nextHour = DateTime.now().add(const Duration(hours: 1));
+        return nextHour.toUtc().toIso8601String();
+    }
+  }
+
+  // Handle submission errors
+  void _handleSubmissionError(dynamic error) {
+    final String errorMsg = _extractErrorMessage(error.toString());
+
+    Get.snackbar(
+      'Submission Failed',
+      errorMsg,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 5),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+      icon: const Icon(Icons.error_outline, color: Colors.white),
+      onTap: (_) => Get.closeCurrentSnackbar(),
+    );
+
+    print('Error submitting service request: $error');
+  }
+
+  // Extract clean error message
+  String _extractErrorMessage(String error) {
+    if (error.contains('Exception:')) {
+      return error.split('Exception:').last.trim();
+    } else if (error.contains('Error:')) {
+      return error.split('Error:').last.trim();
+    } else if (error.contains('SocketException')) {
+      return 'Network connection error. Please check your internet connection.';
+    } else if (error.contains('TimeoutException')) {
+      return 'Request timed out. Please try again.';
+    } else if (error.contains('FormatException')) {
+      return 'Invalid data format. Please try again.';
+    }
+
+    return error.isNotEmpty ? error : 'An unexpected error occurred';
+  }
+
+  // Show error snackbar
+  void _showErrorSnackbar(String message) {
+    Get.snackbar(
+      'Error',
+      message,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: const Icon(Icons.error_outline, color: Colors.white),
+    );
+  }
+
+  // Show success snackbar
+  void _showSuccessSnackbar(String message) {
+    Get.snackbar(
+      'Success',
+      message,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: const Icon(Icons.check_circle, color: Colors.white),
+    );
   }
 
   // Refresh services
@@ -288,8 +384,67 @@ class RequestServiceController extends GetxController {
     notes.value = '';
 
     // Reinitialize quantities to 0
+    _initializeServiceQuantities();
+  }
+
+  // Increment service quantity
+  void incrementServiceQuantity(int serviceId) {
+    final currentQuantity = getServiceQuantity(serviceId);
+    updateServiceQuantity(serviceId, currentQuantity + 1);
+  }
+
+  // Decrement service quantity
+  void decrementServiceQuantity(int serviceId) {
+    final currentQuantity = getServiceQuantity(serviceId);
+    if (currentQuantity > 0) {
+      updateServiceQuantity(serviceId, currentQuantity - 1);
+    }
+  }
+
+  // Clear all selected services
+  void clearAllServices() {
     for (var service in services) {
       serviceQuantities[service.id] = 0;
     }
+    serviceQuantities.refresh();
+  }
+
+  // Set notes with validation
+  void setNotes(String value) {
+    // Limit notes to reasonable length
+    if (value.length <= 500) {
+      notes.value = value;
+    }
+  }
+
+  // Get formatted total price string
+  String get formattedTotalPrice {
+    return '${getTotalPrice().toStringAsFixed(2)} OMR';
+  }
+
+  // Get scheduled date display string
+  String get scheduledDateDisplay {
+    if (selectedDate.value != null) {
+      final date = selectedDate.value!;
+      return '${date.day}/${date.month}/${date.year}';
+    }
+    return selectedDuration.value;
+  }
+
+  // Check if service request can be submitted
+  bool get canSubmitRequest {
+    return hasSelectedServices &&
+        selectedLocation.value != null &&
+        !isSubmitting.value &&
+        (selectedDuration.value != 'Calendar' || selectedDate.value != null);
+  }
+
+  @override
+  void onClose() {
+    // Clean up resources
+    services.clear();
+    serviceQuantities.clear();
+    availableLocations.clear();
+    super.onClose();
   }
 }
