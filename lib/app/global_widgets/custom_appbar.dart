@@ -5,6 +5,7 @@ import 'package:khabir/app/modules/bookings/my_bookings_view.dart';
 import 'package:khabir/app/modules/notifications/notifications_view.dart';
 import 'package:khabir/app/modules/orders/orders_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../core/values/colors.dart';
 
@@ -13,7 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final bool showTitle;
   final bool showAction;
-  final int notificationCount;
+  final Rx<int> notificationCount;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onLocationTap;
   final VoidCallback? onWhatsAppTap;
@@ -23,7 +24,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.showBackButton = false,
     this.showTitle = false,
-    this.notificationCount = 3,
+    required this.notificationCount,
     this.onNotificationTap,
     this.onLocationTap,
     this.onWhatsAppTap,
@@ -110,39 +111,44 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 size: 20,
                               ),
                             ),
-                            if (notificationCount > 0)
-                              Positioned(
-                                right: 8,
-                                top: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEF4444),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 18,
-                                    minHeight: 18,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      notificationCount > 99
-                                          ? '99+'
-                                          : notificationCount.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        height: 1,
+                            Obx(
+                              () => notificationCount > 0
+                                  ? Positioned(
+                                      right: 8,
+                                      top: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEF4444),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 18,
+                                          minHeight: 18,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            notificationCount > 99
+                                                ? '99+'
+                                                : notificationCount.toString(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              height: 1,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
                           ],
                         ),
                       ),
@@ -150,35 +156,35 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                     const SizedBox(width: 16),
 
-                    // Location Icon with Circle Background
-                    GestureDetector(
-                      onTap:
-                          onLocationTap ??
-                          () {
-                            print('Location tapped');
-                          },
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey[200]!,
-                            width: 1,
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            LucideIcons.mapPin,
-                            color: Color(0xFF6B7280),
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // // Location Icon with Circle Background
+                    // GestureDetector(
+                    //   onTap:
+                    //       onLocationTap ??
+                    //       () {
+                    //         print('Location tapped');
+                    //       },
+                    //   child: Container(
+                    //     width: 50,
+                    //     height: 50,
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.grey[100],
+                    //       shape: BoxShape.circle,
+                    //       border: Border.all(
+                    //         color: Colors.grey[200]!,
+                    //         width: 1,
+                    //       ),
+                    //     ),
+                    //     child: const Center(
+                    //       child: Icon(
+                    //         LucideIcons.mapPin,
+                    //         color: Color(0xFF6B7280),
+                    //         size: 20,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
 
-                    const SizedBox(width: 16),
+                    // const SizedBox(width: 16),
 
                     // WhatsApp Icon with Circle Background
                     GestureDetector(
@@ -231,19 +237,28 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 // 1. Simple AppBar (for main pages like Home)
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final int notificationCount;
+  final Rx<int> notificationCount;
+  final Rx<String> whatsAppNumber;
 
-  const HomeAppBar({Key? key, this.notificationCount = 3}) : super(key: key);
+  const HomeAppBar({
+    Key? key,
+    required this.notificationCount,
+    required this.whatsAppNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print('=====================notificationCount: ${notificationCount.value}');
     return CustomAppBar(
       showBackButton: false,
       showTitle: false,
       showAction: true,
       notificationCount: notificationCount,
+      onWhatsAppTap: () {
+        launchUrl(Uri.parse(whatsAppNumber.value));
+      },
       onNotificationTap: () {
-        Get.to(const MyBookingsView());
+        Get.to(const MyBookingsView(showAppBar: true, title: 'Notifications'));
       },
     );
   }
@@ -255,12 +270,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 // 2. AppBar with title and back button (for detail pages)
 class DetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final int notificationCount;
+  final Rx<int> notificationCount;
 
   const DetailAppBar({
     Key? key,
     required this.title,
-    this.notificationCount = 0,
+    required this.notificationCount,
   }) : super(key: key);
 
   @override

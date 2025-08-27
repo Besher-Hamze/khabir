@@ -200,13 +200,6 @@ class OrdersController extends GetxController {
       final result = await _ordersRepository.cancelOrder(order.id);
 
       if (result['success']) {
-        // Update order in local list
-        final updatedOrder = result['order'] as OrderModel;
-        final index = orders.indexWhere((o) => o.id == order.id);
-        if (index != -1) {
-          orders[index] = updatedOrder;
-        }
-
         Get.snackbar(
           'Success',
           result['message'],
@@ -215,6 +208,8 @@ class OrdersController extends GetxController {
           colorText: Colors.white,
           icon: const Icon(Icons.check_circle, color: Colors.white),
         );
+        // refresh orders
+        await loadOrders();
       } else {
         Get.snackbar(
           'Error',

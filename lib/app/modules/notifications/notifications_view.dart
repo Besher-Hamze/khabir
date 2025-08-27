@@ -11,9 +11,10 @@ class NotificationsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: const DetailAppBar(
+      appBar: DetailAppBar(
         title: 'Notifications',
-        notificationCount: 0, // Hide notification badge on notification screen
+        notificationCount:
+            0.obs, // Hide notification badge on notification screen
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

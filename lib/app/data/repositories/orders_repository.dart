@@ -55,7 +55,7 @@ class OrdersRepository {
         return {
           'success': true,
           'message': 'Order cancelled successfully',
-          'order': OrderModel.fromJson(response.data['order']),
+          // 'order': OrderModel.fromJson(response.data['order']),
         };
       } else {
         return {

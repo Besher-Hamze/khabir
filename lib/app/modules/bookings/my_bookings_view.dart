@@ -553,6 +553,62 @@ class MyBookingsView extends GetView<OrdersController> {
     );
   }
 
+  // Static method to create a full page version with AppBar
+  static Widget createFullPage({
+    Key? key,
+    String? title,
+    List<Widget>? actions,
+    bool automaticallyImplyLeading = true,
+  }) {
+    return MyBookingsView(
+      key: key,
+      showAppBar: true,
+      title: title,
+      actions: actions,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+    );
+  }
+
+  // Static method to create a page with search functionality
+  static Widget createSearchablePage({
+    Key? key,
+    String? title,
+    bool automaticallyImplyLeading = true,
+  }) {
+    return MyBookingsView(
+      key: key,
+      showAppBar: true,
+      title: title,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            // TODO: Implement search functionality
+            Get.snackbar(
+              'Search',
+              'Search functionality coming soon!',
+              backgroundColor: AppColors.primary,
+              colorText: Colors.white,
+            );
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.filter_list),
+          onPressed: () {
+            // TODO: Implement filter functionality
+            Get.snackbar(
+              'Filter',
+              'Filter functionality coming soon!',
+              backgroundColor: AppColors.primary,
+              colorText: Colors.white,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   // void _contactProvider(OrderModel order) {
   //   Get.bottomSheet(
   //     Container(

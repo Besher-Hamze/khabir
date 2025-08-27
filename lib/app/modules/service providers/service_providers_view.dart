@@ -291,7 +291,7 @@ class ServiceProvidersView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      provider.rate
+                      (provider.rate ?? 0)
                           .toString(), // Default rating since API doesn't provide it
                       style: const TextStyle(
                         fontSize: 16,

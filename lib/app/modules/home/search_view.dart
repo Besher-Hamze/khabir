@@ -84,8 +84,11 @@ class _SearchViewState extends State<SearchView> {
         showCitySuggestions = false;
       } else {
         filteredCities = cities
-            .where((city) =>
-                city.toLowerCase().contains(cityController.text.toLowerCase()))
+            .where(
+              (city) => city.toLowerCase().contains(
+                cityController.text.toLowerCase(),
+              ),
+            )
             .toList();
         showCitySuggestions = cityFocusNode.hasFocus;
       }
@@ -99,9 +102,11 @@ class _SearchViewState extends State<SearchView> {
         showServiceSuggestions = false;
       } else {
         filteredServices = services
-            .where((service) => service
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase()))
+            .where(
+              (service) => service.toLowerCase().contains(
+                searchController.text.toLowerCase(),
+              ),
+            )
             .toList();
         showServiceSuggestions = searchFocusNode.hasFocus;
       }
@@ -121,10 +126,7 @@ class _SearchViewState extends State<SearchView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: const DetailAppBar(
-        title: 'Search',
-        notificationCount: 0,
-      ),
+      appBar: DetailAppBar(title: 'Search', notificationCount: 0.obs),
       body: GestureDetector(
         onTap: () {
           // Hide suggestions when tapping outside
@@ -205,11 +207,7 @@ class _SearchViewState extends State<SearchView> {
           controller: controller,
           focusNode: focusNode,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              icon,
-              size: 20,
-              color: Colors.grey[600],
-            ),
+            prefixIcon: Icon(icon, size: 20, color: Colors.grey[600]),
             hintText: hintText,
             hintStyle: TextStyle(
               fontSize: 16,
@@ -264,10 +262,7 @@ class _SearchViewState extends State<SearchView> {
                   ),
                   title: Text(
                     suggestions[index],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                   trailing: const Icon(
                     LucideIcons.arrowUpLeft,
@@ -312,8 +307,10 @@ class _SearchViewState extends State<SearchView> {
             return GestureDetector(
               onTap: () => _searchForService(search),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -376,8 +373,10 @@ class _SearchViewState extends State<SearchView> {
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
               tileColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -390,10 +389,7 @@ class _SearchViewState extends State<SearchView> {
               ),
               title: Text(
                 search,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
               ),
               trailing: Icon(
                 LucideIcons.arrowUpLeft,

@@ -15,7 +15,10 @@ class MainView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const HomeAppBar(),
+      appBar: HomeAppBar(
+        notificationCount: controller.notificationCount,
+        whatsAppNumber: controller.whatsAppNumber,
+      ),
       body: Obx(
         () => IndexedStack(
           index: controller.currentIndex.value,
