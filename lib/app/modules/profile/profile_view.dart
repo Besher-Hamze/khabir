@@ -286,7 +286,7 @@ class ProfileView extends GetView<UserController> {
         _buildMenuItem(
           icon: LucideIcons.globe,
           iconColor: Colors.red,
-          title: 'Language',
+          title: 'language'.tr,
           subtitle: Get.locale?.languageCode == 'ar' ? 'العربية' : 'English',
           hasArrow: true,
           onTap: () => _showLanguageDialog(),
@@ -295,8 +295,8 @@ class ProfileView extends GetView<UserController> {
         _buildMenuItem(
           icon: LucideIcons.mapPin,
           iconColor: Colors.red,
-          title: 'My Locations',
-          subtitle: '${controller.userLocations.length} saved',
+          title: 'my_locations'.tr,
+          subtitle: '${controller.userLocations.length} ${'saved'.tr}',
           hasArrow: true,
           onTap: () => _showLocationsDialog(),
         ),
@@ -311,7 +311,7 @@ class ProfileView extends GetView<UserController> {
           return _buildMenuItem(
             icon: LucideIcons.fileText,
             iconColor: Colors.red,
-            title: 'Terms and Conditions',
+            title: 'terms_and_conditions'.tr,
             onTap: termsUrl != null && termsUrl.isNotEmpty
                 ? () => _openDocument("${AppConstants.baseUrlImage}$termsUrl")
                 : () => _showUnavailableDocument('Terms and Conditions'),
@@ -328,7 +328,7 @@ class ProfileView extends GetView<UserController> {
           return _buildMenuItem(
             icon: LucideIcons.shield,
             iconColor: Colors.red,
-            title: 'Privacy Policy',
+            title: 'privacy_policy'.tr,
             onTap: privacyUrl != null && privacyUrl.isNotEmpty
                 ? () => _openDocument("${AppConstants.baseUrlImage}$privacyUrl")
                 : () => _showUnavailableDocument('Privacy Policy'),
@@ -342,7 +342,7 @@ class ProfileView extends GetView<UserController> {
           return _buildMenuItem(
             icon: LucideIcons.headphones,
             iconColor: Colors.red,
-            title: 'Support',
+            title: 'support'.tr,
             onTap: supportUrl != null && supportUrl.isNotEmpty
                 ? () => _openSupport(supportUrl)
                 : () => _showUnavailableSupport(),
@@ -352,14 +352,14 @@ class ProfileView extends GetView<UserController> {
         _buildMenuItem(
           icon: LucideIcons.trash2,
           iconColor: Colors.red,
-          title: 'Delete Account',
+          title: 'delete_account'.tr,
           onTap: () => _showDeleteAccountDialog(),
         ),
 
         _buildMenuItem(
           icon: LucideIcons.logOut,
           iconColor: Colors.red,
-          title: 'Log Out',
+          title: 'log_out'.tr,
           onTap: () => _showLogoutDialog(),
         ),
       ],
@@ -615,9 +615,9 @@ class ProfileView extends GetView<UserController> {
                   children: [
                     Icon(Icons.location_on, color: AppColors.primary, size: 24),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'My Saved Locations',
+                        'my_saved_locations'.tr,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -652,7 +652,7 @@ class ProfileView extends GetView<UserController> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Failed to load locations',
+                            'failed_to_load_locations'.tr,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -873,7 +873,7 @@ class ProfileView extends GetView<UserController> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'Default Location',
+                              'default_location'.tr,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.amber[800],
@@ -2215,11 +2215,7 @@ class ProfileView extends GetView<UserController> {
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.offAllNamed(AppRoutes.login);
-              Get.snackbar('Info', 'Logged out successfully');
-            },
+            onPressed: () => controller.logout(),
             child: Text('log_out'.tr),
           ),
         ],

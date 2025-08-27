@@ -350,7 +350,7 @@ class AuthController extends GetxController {
 
   // Verify OTP (simplified - just phone and OTP)
   Future<void> verifyOTP() async {
-    if (otpCode.value.length != 4) {
+    if (otpCode.value.length != 6) {
       Get.snackbar(
         'error'.tr,
         'enter_valid_otp'.tr,

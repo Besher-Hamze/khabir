@@ -187,79 +187,10 @@ class AppPages {
     //   binding: BookingBinding(),
     // ),
     GetPage(
-      name: AppRoutes.bookingDetails,
-      page: () => const BookingDetailsView(),
-      binding: BookingBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.trackProvider,
-      page: () => const TrackProviderView(),
-      binding: BookingBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.rateService,
-      page: () => const RateServiceView(),
-      binding: BookingBinding(),
-    ),
-
-    // Profile Routes
-    GetPage(
-      name: AppRoutes.editProfile,
-      page: () => const EditProfileView(),
-      binding: ProfileBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.addresses,
-      page: () => const AddressesView(),
-      binding: ProfileBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.addAddress,
-      page: () => const AddAddressView(),
-      binding: ProfileBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.selectLocation,
-      page: () => const SelectLocationView(),
-      binding: ProfileBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.language,
-      page: () => const LanguageView(),
-      binding: ProfileBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.termsConditions,
-      page: () => const TermsConditionsView(),
-      binding: ProfileBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.privacyPolicy,
-      page: () => const PrivacyPolicyView(),
-      binding: ProfileBinding(),
-    ),
-
-    // Search
-    GetPage(
       name: AppRoutes.search,
       page: () => const SearchView(),
-      binding: SearchBinding(),
+      binding: HomeBinding(),
     ),
-
-    GetPage(
-      name: AppRoutes.searchResults,
-      page: () => const SearchResultsView(),
-      binding: SearchBinding(),
-    ),
-
     // Provider Detail
     GetPage(
       name: AppRoutes.providerDetail,

@@ -303,7 +303,7 @@ class AppTranslations extends Translations {
       'log_in': 'Log in',
       'forgot_password_title': 'Forgot your Password?',
       'otp_sent_message':
-          'We sent you a 4 digit code to verify\nyour mobile number',
+          'We sent you a 6 digit code to verify\nyour mobile number',
       'enter_otp_instruction': 'Enter in the field below.',
 
       // My Bookings
@@ -482,6 +482,28 @@ class AppTranslations extends Translations {
       'no_services_available': 'No services available',
       'provider_no_services_message':
           'This provider has no services in this category',
+
+      // Search
+      'search': 'Search',
+      'search_providers': 'Search Providers',
+      'search_a_city': 'Search a City',
+      'search_for_services': 'Search for services',
+      'popular_searches': 'Popular Searches',
+      'recent_searches': 'Recent Searches',
+      'all_providers': 'All Providers',
+      'no_providers_found': 'No providers found',
+      'no_providers_message': 'Try adjusting your search criteria',
+      'provider_search': 'Provider Search',
+      'service_search': 'Service Search',
+      'searching_in_city': 'Searching for services in',
+      'searching_for_service': 'Searching for',
+      'verified': 'Verified',
+      'clear': 'Clear',
+      'saved': 'saved',
+      'default_location': 'Default Location',
+      'my_saved_locations': 'My Saved Locations',
+      'failed_to_load_locations': 'Failed to load locations',
+      'save_changes': 'Save Changes',
     },
 
     'ar': {
@@ -772,7 +794,7 @@ class AppTranslations extends Translations {
       'log_in': 'تسجيل الدخول',
       'forgot_password_title': 'نسيت كلمة المرور؟',
       'otp_sent_message':
-          'لقد أرسلنا لك رمز مكون من 4 أرقام للتحقق\nمن رقم هاتفك المحمول',
+          'لقد أرسلنا لك رمز مكون من 6 أرقام للتحقق\nمن رقم هاتفك المحمول',
       'enter_otp_instruction': 'أدخل في الحقل أدناه.',
 
       // Additional Auth
@@ -905,32 +927,35 @@ class AppTranslations extends Translations {
       // Request Service
       'request_for_service': 'طلب خدمة',
       'available_services': 'الخدمات المتاحة',
-      'price': 'السعر',
       'total_for_this_service': 'المجموع لهذه الخدمة',
-      'duration': 'المدة',
       'now': 'الآن',
       'tomorrow': 'غداً',
       'calendar': 'التقويم',
-      'location': 'الموقع',
       'no_location_selected': 'لم يتم اختيار موقع',
       'additional_notes': 'ملاحظات إضافية',
       'add_special_instructions':
           'أضف أي تعليمات خاصة أو ملاحظات لمقدم الخدمة...',
       'selected_services': 'الخدمات المختارة',
-      'total_amount': 'المبلغ الإجمالي',
       'date': 'التاريخ',
       'submitting': 'جاري الإرسال...',
       'submit_request': 'إرسال الطلب',
-      'services': 'خدمات',
-      'select_service_location': 'اختر موقع الخدمة',
-      'tap_map_select_location':
-          'اضغط على الخريطة لاختيار موقع الخدمة أو استخدم المواقع المحفوظة',
-      'confirm_location': 'تأكيد الموقع',
-      'error': 'خطأ',
-      'please_select_location': 'يرجى اختيار موقع على الخريطة',
-      'retry': 'إعادة المحاولة',
-      'no_services_available': 'لا توجد خدمات متاحة',
-      'provider_no_services_message': 'هذا المزود ليس لديه خدمات في هذه الفئة',
+
+      'search_a_city': 'البحث عن مدينة',
+      'search_for_services': 'البحث عن الخدمات',
+      'popular_searches': 'البحث الشائع',
+      'recent_searches': 'البحث الأخير',
+      'no_providers_found': 'لم يتم العثور على مزودين',
+      'no_providers_message': 'حاول تعديل معايير البحث',
+      'provider_search': 'البحث عن المزود',
+      'service_search': 'البحث عن الخدمة',
+      'searching_in_city': 'البحث عن الخدمات في',
+      'searching_for_service': 'البحث عن',
+      'clear': 'مسح',
+      'saved': 'محفوظ',
+      'default_location': 'الموقع الافتراضي',
+      'my_saved_locations': 'المواقع المحفوظة',
+      'failed_to_load_locations': 'فشل في تحميل المواقع',
+      'save_changes': 'حفظ التغييرات',
     },
   };
 }

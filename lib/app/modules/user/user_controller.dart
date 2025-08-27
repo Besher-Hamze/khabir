@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/services/storage_service.dart';
+import 'package:khabir/app/routes/app_routes.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../data/models/user_profile_model.dart';
 import '../../data/models/user_location_model.dart';
 
 class UserController extends GetxController {
   final UserRepository _userRepository = Get.find<UserRepository>();
-
+  final StorageService _storageService = Get.find<StorageService>();
   // Profile observables
   final Rx<UserProfileModel?> userProfile = Rx<UserProfileModel?>(null);
   final Rx<SystemInfoModel?> systemInfoModel = Rx<SystemInfoModel?>(null);
@@ -287,6 +289,17 @@ class UserController extends GetxController {
         icon: const Icon(Icons.error, color: Colors.white),
       );
       return false;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await _storageService.removeToken();
+      await _storageService.removeUser();
+      Get.offAllNamed(AppRoutes.login);
+      Get.snackbar('Success', 'Logged out successfully');
+    } catch (e) {
+      print('Logout error: $e');
     }
   }
 }

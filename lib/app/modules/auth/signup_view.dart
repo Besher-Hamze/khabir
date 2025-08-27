@@ -80,14 +80,7 @@ class SignupView extends GetView<AuthController> {
                         : controller.selectedState.value,
                     decoration: InputDecoration(
                       labelText: 'choose_state'.tr,
-                      prefixIcon: const Icon(
-                        Icons.language,
-                        color: AppColors.textLight,
-                      ),
-                      suffixIcon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.textLight,
-                      ),
+
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(

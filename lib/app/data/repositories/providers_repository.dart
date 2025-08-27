@@ -10,6 +10,52 @@ import '../../core/constants/app_constants.dart';
 class ProvidersRepository {
   final ApiService _apiService = Get.find<ApiService>();
 
+  // Get all providers
+  Future<List<Provider>> getAllProviders() async {
+    try {
+      print('Fetching all providers');
+
+      final response = await _apiService.get('/providers');
+      print('All providers API response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        if (response.data == null) {
+          print('Warning: All providers API returned null data');
+          return [];
+        }
+
+        print('All providers response: ${response.data}');
+
+        final List<dynamic> providersData = response.data ?? [];
+        final List<Provider> providers = [];
+
+        for (var providerData in providersData) {
+          try {
+            final provider = Provider.fromJson(
+              providerData as Map<String, dynamic>,
+            );
+            providers.add(provider);
+          } catch (e) {
+            print('Error parsing provider: $e');
+            print('Provider data: $providerData');
+            // Continue with other providers instead of failing completely
+          }
+        }
+
+        print('Successfully parsed ${providers.length} providers from API');
+        return providers;
+      } else {
+        throw Exception('Failed to load all providers: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('Dio error in getAllProviders: ${e.message}');
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      print('Unexpected error in getAllProviders: $e');
+      throw Exception('Error fetching all providers: $e');
+    }
+  }
+
   // Get providers by service ID
   Future<ProviderResponse> getProvidersByService(int serviceId) async {
     try {

@@ -216,7 +216,6 @@ class AuthRepository {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final authResponse = AuthResponse.fromJson(response.data);
-
         if (authResponse.success && authResponse.accessToken != null) {
           // Save user and token
           if (authResponse.user != null) {

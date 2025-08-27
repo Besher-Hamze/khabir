@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/routes/app_routes.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../global_widgets/custom_appbar.dart';
+import '../../data/models/provider_model.dart';
+import '../../core/utils/helpers.dart';
+import '../../core/values/colors.dart';
+import 'search_controller.dart' as search;
 
 class SearchView extends StatefulWidget {
   const SearchView({Key? key}) : super(key: key);
@@ -14,109 +19,26 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   final TextEditingController cityController = TextEditingController();
-  final TextEditingController searchController = TextEditingController();
+  final TextEditingController searchTextController = TextEditingController();
   final FocusNode cityFocusNode = FocusNode();
   final FocusNode searchFocusNode = FocusNode();
 
-  // Sample data for search suggestions
-  List<String> cities = [
-    'Muscat',
-    'Salalah',
-    'Nizwa',
-    'Sur',
-    'Sohar',
-    'Rustaq',
-    'Bahla',
-    'Ibri',
-    'Samail',
-    'Buraimi',
-  ];
-
-  List<String> services = [
-    'Electrical Services',
-    'Plumbing',
-    'Air Conditioning',
-    'Cleaning Services',
-    'Painting',
-    'Carpentry',
-    'Gardening',
-    'Home Repairs',
-    'Appliance Repair',
-    'Pest Control',
-  ];
+  late final search.SearchController searchControllerGetx;
 
   List<String> filteredCities = [];
   List<String> filteredServices = [];
-  bool showCitySuggestions = false;
-  bool showServiceSuggestions = false;
 
   @override
   void initState() {
     super.initState();
 
-    cityController.addListener(() {
-      _filterCities();
-    });
-
-    searchController.addListener(() {
-      _filterServices();
-    });
-
-    cityFocusNode.addListener(() {
-      setState(() {
-        showCitySuggestions =
-            cityFocusNode.hasFocus && cityController.text.isNotEmpty;
-      });
-    });
-
-    searchFocusNode.addListener(() {
-      setState(() {
-        showServiceSuggestions =
-            searchFocusNode.hasFocus && searchController.text.isNotEmpty;
-      });
-    });
-  }
-
-  void _filterCities() {
-    setState(() {
-      if (cityController.text.isEmpty) {
-        filteredCities = [];
-        showCitySuggestions = false;
-      } else {
-        filteredCities = cities
-            .where(
-              (city) => city.toLowerCase().contains(
-                cityController.text.toLowerCase(),
-              ),
-            )
-            .toList();
-        showCitySuggestions = cityFocusNode.hasFocus;
-      }
-    });
-  }
-
-  void _filterServices() {
-    setState(() {
-      if (searchController.text.isEmpty) {
-        filteredServices = [];
-        showServiceSuggestions = false;
-      } else {
-        filteredServices = services
-            .where(
-              (service) => service.toLowerCase().contains(
-                searchController.text.toLowerCase(),
-              ),
-            )
-            .toList();
-        showServiceSuggestions = searchFocusNode.hasFocus;
-      }
-    });
+    searchControllerGetx = Get.put(search.SearchController());
   }
 
   @override
   void dispose() {
     cityController.dispose();
-    searchController.dispose();
+    searchTextController.dispose();
     cityFocusNode.dispose();
     searchFocusNode.dispose();
     super.dispose();
@@ -126,66 +48,60 @@ class _SearchViewState extends State<SearchView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: DetailAppBar(title: 'Search', notificationCount: 0.obs),
+      appBar: DetailAppBar(title: 'search'.tr, notificationCount: 0.obs),
       body: GestureDetector(
         onTap: () {
           // Hide suggestions when tapping outside
           FocusScope.of(context).unfocus();
-          setState(() {
-            showCitySuggestions = false;
-            showServiceSuggestions = false;
-          });
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // Search a City Field
-              _buildSearchField(
-                controller: cityController,
-                focusNode: cityFocusNode,
-                hintText: 'Search a City',
-                icon: LucideIcons.mapPin,
-                showSuggestions: showCitySuggestions,
-                suggestions: filteredCities,
-                onSuggestionTap: (city) {
-                  cityController.text = city;
-                  setState(() {
-                    showCitySuggestions = false;
-                  });
-                  FocusScope.of(context).unfocus();
-                  _searchInCity(city);
-                },
-              ),
+        child: RefreshIndicator(
+          onRefresh: searchControllerGetx.refresh,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // Search a City Field
+                _buildSearchField(
+                  controller: cityController,
+                  focusNode: cityFocusNode,
+                  hintText: 'search_a_city'.tr,
+                  icon: LucideIcons.mapPin,
+                  showSuggestions: false,
+                  suggestions: filteredCities,
+                  onSuggestionTap: (city) {
+                    cityController.text = city;
 
-              const SizedBox(height: 20),
+                    FocusScope.of(context).unfocus();
+                    searchControllerGetx.filterByCity(city);
+                  },
+                ),
 
-              // General Search Field
-              _buildSearchField(
-                controller: searchController,
-                focusNode: searchFocusNode,
-                hintText: 'Search',
-                icon: LucideIcons.search,
-                showSuggestions: showServiceSuggestions,
-                suggestions: filteredServices,
-                onSuggestionTap: (service) {
-                  searchController.text = service;
-                  setState(() {
-                    showServiceSuggestions = false;
-                  });
-                  FocusScope.of(context).unfocus();
-                  _searchForService(service);
-                },
-              ),
+                const SizedBox(height: 20),
 
-              const SizedBox(height: 40),
+                // General Search Field
+                _buildSearchField(
+                  controller: searchTextController,
+                  focusNode: searchFocusNode,
+                  hintText: 'search'.tr,
+                  icon: LucideIcons.search,
+                  showSuggestions: false,
+                  suggestions: filteredServices,
+                  onSuggestionTap: (service) {
+                    searchTextController.text = service;
 
-              // Popular Searches Section
-              if (!showCitySuggestions && !showServiceSuggestions) ...[
-                // Recent Searches Section
-                _buildRecentSearches(),
+                    FocusScope.of(context).unfocus();
+                    searchControllerGetx.searchProviders(service);
+                  },
+                ),
+
+                const SizedBox(height: 40),
+
+                // Providers List Section
+                _buildProvidersList(),
+
+                const SizedBox(height: 20),
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -224,10 +140,10 @@ class _SearchViewState extends State<SearchView> {
           ),
           onSubmitted: (value) {
             if (value.isNotEmpty) {
-              if (hintText == 'Search a City') {
-                _searchInCity(value);
+              if (hintText == 'search_a_city'.tr) {
+                searchControllerGetx.filterByCity(value);
               } else {
-                _searchForService(value);
+                searchControllerGetx.searchProviders(value);
               }
             }
           },
@@ -291,9 +207,9 @@ class _SearchViewState extends State<SearchView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Popular Searches',
-          style: TextStyle(
+        Text(
+          'popular_searches'.tr,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -360,9 +276,9 @@ class _SearchViewState extends State<SearchView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recent Searches',
-          style: TextStyle(
+        Text(
+          'recent_searches'.tr,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -407,8 +323,8 @@ class _SearchViewState extends State<SearchView> {
   void _searchInCity(String city) {
     print('Searching in city: $city');
     Get.snackbar(
-      'City Search',
-      'Searching for services in $city',
+      'provider_search'.tr,
+      'searching_in_city'.tr + ' $city',
       backgroundColor: Colors.blue,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
@@ -419,12 +335,238 @@ class _SearchViewState extends State<SearchView> {
   void _searchForService(String service) {
     print('Searching for service: $service');
     Get.snackbar(
-      'Service Search',
-      'Searching for $service',
+      'service_search'.tr,
+      'searching_for_service'.tr + ' $service',
       backgroundColor: Colors.green,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
     );
     // Implement your service search logic here
+  }
+
+  Widget _buildProvidersList() {
+    return Obx(() {
+      if (searchControllerGetx.isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      if (searchControllerGetx.hasError.value) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                const SizedBox(height: 16),
+                Text(
+                  'error'.tr,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  searchControllerGetx.errorMessage.value,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: searchControllerGetx.refresh,
+                  child: Text('retry'.tr),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      if (searchControllerGetx.filteredProviders.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'no_providers_found'.tr,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'no_providers_message'.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'all_providers'.tr,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              if (searchControllerGetx.searchQuery.value.isNotEmpty ||
+                  searchControllerGetx.selectedCity.value.isNotEmpty)
+                TextButton(
+                  onPressed: searchControllerGetx.clearFilters,
+                  child: Text('clear'.tr),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...searchControllerGetx.filteredProviders
+              .map((provider) => _buildProviderCard(provider))
+              .toList(),
+        ],
+      );
+    });
+  }
+
+  Widget _buildProviderCard(Provider provider) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.providerDetail, arguments: provider),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 2),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Provider Image
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                image: DecorationImage(
+                  image: provider.image.isNotEmpty
+                      ? NetworkImage(getImageUrl(provider.image))
+                      : const AssetImage('assets/images/logo-04.png')
+                            as ImageProvider,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+
+            // Provider Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    provider.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    provider.description,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        provider.state,
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                      if (provider.city != null) ...[
+                        Text(
+                          ', ${provider.city}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.star, size: 16, color: Colors.amber),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${provider.averageRating.toStringAsFixed(1)} (${provider.totalRatings})',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Verification Badge
+            if (provider.isVerified)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.verified, size: 14, color: Colors.green),
+                    const SizedBox(width: 4),
+                    Text(
+                      'verified'.tr,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

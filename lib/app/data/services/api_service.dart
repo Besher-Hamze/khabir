@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response, FormData, MultipartFile;
 import 'package:khabir/app/data/services/storage_service.dart';
+import 'package:khabir/app/routes/app_routes.dart';
 
 import '../../core/constants/app_constants.dart';
 
@@ -85,21 +86,21 @@ class ApiService extends GetxService {
           final responseData = error.response?.data;
           if (responseData is Map<String, dynamic>) {
             final message = responseData['message'] ?? 'data_error'.tr;
-            Get.snackbar('error'.tr, message);
+            // Get.snackbar('error'.tr, message);
           } else {
-            Get.snackbar('error'.tr, 'data_error'.tr);
+            // Get.snackbar('error'.tr, 'data_error'.tr);
           }
         } else if (error.response?.statusCode == 500) {
-          Get.snackbar('error'.tr, 'server_error_message'.tr);
+          // Get.snackbar('error'.tr, 'server_error_message'.tr);
         } else {
-          Get.snackbar('error'.tr, 'unexpected_error'.tr);
+          // Get.snackbar('error'.tr, 'unexpected_error'.tr);
         }
         break;
       case DioExceptionType.connectionError:
-        Get.snackbar('error'.tr, 'connection_failed'.tr);
+        // Get.snackbar('error'.tr, 'connection_failed'.tr);
         break;
       default:
-        Get.snackbar('error'.tr, 'unexpected_error'.tr);
+      // Get.snackbar('error'.tr, 'unexpected_error'.tr);
     }
   }
 
@@ -108,7 +109,7 @@ class ApiService extends GetxService {
       // Clear token and redirect to login
       await _storageService.removeToken();
       await _storageService.removeUser();
-      Get.offAllNamed('/login');
+      Get.offAllNamed(AppRoutes.login);
     } catch (e) {
       print('Error handling unauthorized: $e');
     }

@@ -64,7 +64,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                 textDirection: TextDirection.ltr,
                 child: PinCodeTextField(
                   appContext: context,
-                  length: 4,
+                  length: 6,
                   onChanged: (value) {
                     controller.otpCode.value = value;
                   },
@@ -153,13 +153,13 @@ class VerifyPhoneView extends GetView<AuthController> {
               // Confirmation Button
               Obx(
                 () => CustomButton(
-                  text: '▶ Confirmation',
-                  onPressed: controller.otpCode.value.length == 4
+                  text: 'confirmation'.tr,
+                  onPressed: controller.otpCode.value.length == 6
                       ? controller.verifyOTP
                       : null,
                   isLoading: controller.isLoading.value,
                   width: double.infinity,
-                  enabled: controller.otpCode.value.length == 4,
+                  enabled: controller.otpCode.value.length == 6,
                 ),
               ),
 
