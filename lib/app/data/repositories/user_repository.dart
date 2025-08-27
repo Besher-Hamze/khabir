@@ -116,4 +116,26 @@ class UserRepository {
       throw Exception('Error deleting location: $e');
     }
   }
+
+  // Update user profile
+  Future<UserProfileModel> updateUserProfile(
+    int userId,
+    UpdateProfileRequest request,
+  ) async {
+    try {
+      final path = AppConstants.updateUserProfile.replaceAll(
+        '{userId}',
+        userId.toString(),
+      );
+      final response = await _apiService.put(path, data: request.toJson());
+
+      if (response.statusCode == 200) {
+        return UserProfileModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to update profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating profile: $e');
+    }
+  }
 }

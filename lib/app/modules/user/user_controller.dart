@@ -9,6 +9,7 @@ class UserController extends GetxController {
 
   // Profile observables
   final Rx<UserProfileModel?> userProfile = Rx<UserProfileModel?>(null);
+  final Rx<SystemInfoModel?> systemInfoModel = Rx<SystemInfoModel?>(null);
   final RxBool isProfileLoading = false.obs;
   final RxBool hasProfileError = false.obs;
   final RxString profileErrorMessage = ''.obs;
@@ -39,6 +40,7 @@ class UserController extends GetxController {
 
       final response = await _userRepository.getUserProfile();
       userProfile.value = response.user;
+      systemInfoModel.value = response.systemInfo;
     } catch (e) {
       hasProfileError.value = true;
       profileErrorMessage.value = e.toString();
@@ -244,5 +246,47 @@ class UserController extends GetxController {
   // Get location coordinates for service request
   Map<String, double> getLocationCoordinates(UserLocationModel location) {
     return {'latitude': location.latitude, 'longitude': location.longitude};
+  }
+
+  // Update user profile
+  Future<bool> updateProfile(UpdateProfileRequest request) async {
+    try {
+      if (userProfile.value == null) {
+        Get.snackbar(
+          'Error',
+          'User profile not loaded',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return false;
+      }
+
+      final updatedProfile = await _userRepository.updateUserProfile(
+        userProfile.value!.id,
+        request,
+      );
+
+      // Update the local profile
+      userProfile.value = updatedProfile;
+
+      Get.snackbar(
+        'Success',
+        'Profile updated successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+      );
+
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update profile: ${e.toString()}',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+      return false;
+    }
   }
 }

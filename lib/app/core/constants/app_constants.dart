@@ -23,6 +23,7 @@ class AppConstants {
   static const String userLocations = '/users/locations';
   static const String userLocationById = '/users/locations/{id}';
   static const String setDefaultLocation = '/users/locations/{id}/set-default';
+  static const String updateUserProfile = '/users/{userId}';
 
   // Orders Endpoints
   static const String orders = '/orders';

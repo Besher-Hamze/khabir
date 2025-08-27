@@ -61,9 +61,11 @@ class LocationTrackingController extends GetxController {
     // Listen for location updates
     _locationRepository.onLocationUpdated((data) {
       try {
-        final latitude = data['latitude'] as double?;
-        final longitude = data['longitude'] as double?;
-        final accuracyValue = data['accuracy'] as double?;
+        final latitude = data['location']['latitude'] as double?;
+        final longitude = data['location']['longitude'] as double?;
+        final accuracyValue = (data['location']['accuracy'] is int)
+            ? (data['location']['accuracy'] as int).toDouble()
+            : (data['location']['accuracy'] as double?);
         final status = data['status'] as String?;
 
         if (latitude != null && longitude != null) {

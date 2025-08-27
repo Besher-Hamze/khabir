@@ -206,7 +206,7 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

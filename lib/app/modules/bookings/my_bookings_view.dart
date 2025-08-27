@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/data/models/order_model.dart';
+import 'package:khabir/app/global_widgets/rating_dialog.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/helpers.dart' as Helpers;
 import '../orders/orders_controller.dart';
 import '../../data/models/provider_model.dart';
 
 class MyBookingsView extends GetView<OrdersController> {
-  const MyBookingsView({Key? key}) : super(key: key);
+  final bool showAppBar;
+  final String? title;
+  final List<Widget>? actions;
+  final bool automaticallyImplyLeading;
+
+  const MyBookingsView({
+    Key? key,
+    this.showAppBar = false,
+    this.title,
+    this.actions,
+    this.automaticallyImplyLeading = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
+    final content = Obx(() {
       if (controller.isLoading.value) {
         return const Center(
           child: CircularProgressIndicator(
@@ -41,6 +53,25 @@ class MyBookingsView extends GetView<OrdersController> {
         ),
       );
     });
+
+    // If showAppBar is true, wrap in Scaffold with AppBar
+    if (showAppBar) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(title ?? 'My Bookings'),
+          automaticallyImplyLeading: automaticallyImplyLeading,
+          actions: actions,
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        body: content,
+      );
+    }
+
+    // Otherwise, return just the content
+    return content;
   }
 
   Widget _buildErrorWidget() {
@@ -301,6 +332,9 @@ class MyBookingsView extends GetView<OrdersController> {
           ),
         ),
       );
+    } else if (controller.canRateOrder(order.status)) {
+      // Show rate button for completed orders
+      buttons.add(Expanded(child: _buildRatingButton(order)));
     }
 
     // Always show status info button
@@ -319,26 +353,6 @@ class MyBookingsView extends GetView<OrdersController> {
         ),
       ),
     );
-
-    // // Add contact provider button for active orders
-    // if (![
-    //   'rejected',
-    //   'cancelled',
-    //   'completed',
-    // ].contains(order.status.toLowerCase())) {
-    //   buttons.add(const SizedBox(width: 8));
-    //   buttons.add(
-    //     Expanded(
-    //       child: _buildActionButton(
-    //         'Contact',
-    //         Colors.green,
-    //         order,
-    //         onTap: () => _contactProvider(order),
-    //         icon: Icons.phone,
-    //       ),
-    //     ),
-    //   );
-    // }
 
     return Row(children: buttons);
   }
@@ -458,6 +472,84 @@ class MyBookingsView extends GetView<OrdersController> {
           child: Text(value, style: const TextStyle(color: Colors.black87)),
         ),
       ],
+    );
+  }
+
+  Widget _buildRatingButton(OrderModel order) {
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: controller.getExistingRating(order.id),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          // Already rated - show rating details
+          final rating = snapshot.data!;
+          final ratingValue = rating['rating']?.toDouble() ?? 0.0;
+          final comment = rating['comment'] as String?;
+
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.amber.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.star, size: 14, color: Colors.amber),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${ratingValue.toInt()} ${ratingValue == 1 ? 'star' : 'stars'}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.amber,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                if (comment != null && comment.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    comment.length > 20
+                        ? '${comment.substring(0, 20)}...'
+                        : comment,
+                    style: const TextStyle(
+                      fontSize: 9,
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
+          );
+        } else {
+          // Not rated yet - show rate button
+          return _buildActionButton(
+            'Rate',
+            Colors.green,
+            order,
+            onTap: () => _showRatingDialog(order, context),
+            icon: Icons.star,
+          );
+        }
+      },
+    );
+  }
+
+  void _showRatingDialog(OrderModel order, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => RatingDialog(
+        order: order,
+        onSubmit: (order, rating, comment) {
+          controller.rateProvider(order, rating, comment);
+        },
+      ),
     );
   }
 

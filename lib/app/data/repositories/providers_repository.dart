@@ -241,4 +241,97 @@ class ProvidersRepository {
     print('Provider by ID: ${response.data}');
     return Provider.fromJson(response.data);
   }
+
+  // Rate a provider
+  Future<Map<String, dynamic>> rateProvider({
+    required int providerId,
+    required int orderId,
+    required double rating,
+    String? comment,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        AppConstants.providerRatings,
+        data: {
+          'providerId': providerId,
+          'orderId': orderId,
+          'rating': rating,
+          'comment': comment,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return {
+          'success': true,
+          'message': 'Rating submitted successfully',
+          'data': response.data,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.data['message'] ?? 'Failed to submit rating',
+        };
+      }
+    } catch (e) {
+      print('Rate provider error: $e');
+      return {'success': false, 'message': 'Error submitting rating: $e'};
+    }
+  }
+
+  // Check if user has already rated a provider for a specific order
+  Future<bool> hasUserRatedProvider(int orderId) async {
+    try {
+      final response = await _apiService.get(AppConstants.providerRatingsMy);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> ratings = response.data ?? [];
+
+        // Check if any rating exists for this order
+        return ratings.any((rating) => rating['orderId'] == orderId);
+      }
+      return false;
+    } catch (e) {
+      print('Check rating error: $e');
+      return false;
+    }
+  }
+
+  // Get user's rating for a specific order
+  Future<Map<String, dynamic>?> getUserRating(int orderId) async {
+    try {
+      final response = await _apiService.get(AppConstants.providerRatingsMy);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> ratings = response.data ?? [];
+
+        // Find rating for this specific order
+        final rating = ratings.firstWhere(
+          (rating) => rating['orderId'] == orderId,
+          orElse: () => null,
+        );
+
+        return rating;
+      }
+      return null;
+    } catch (e) {
+      print('Get user rating error: $e');
+      return null;
+    }
+  }
+
+  // Get all user ratings
+  Future<List<Map<String, dynamic>>> getAllUserRatings() async {
+    try {
+      final response = await _apiService.get(AppConstants.providerRatingsMy);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> ratings = response.data ?? [];
+        return ratings.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      print('Get all user ratings error: $e');
+      return [];
+    }
+  }
 }

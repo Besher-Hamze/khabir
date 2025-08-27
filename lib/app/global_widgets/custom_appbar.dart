@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/modules/bookings/my_bookings_view.dart';
 import 'package:khabir/app/modules/notifications/notifications_view.dart';
+import 'package:khabir/app/modules/orders/orders_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../core/values/colors.dart';
@@ -241,7 +243,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       showAction: true,
       notificationCount: notificationCount,
       onNotificationTap: () {
-        Get.to(const NotificationsView());
+        Get.to(const MyBookingsView());
       },
     );
   }

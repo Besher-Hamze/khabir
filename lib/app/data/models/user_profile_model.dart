@@ -160,3 +160,20 @@ class SupportModel {
     return SupportModel(whatsappSupport: json['whatsapp_support']);
   }
 }
+
+// Request model for updating user profile
+class UpdateProfileRequest {
+  final String? name;
+  final String? state;
+
+  UpdateProfileRequest({this.name, this.state});
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+
+    if (name != null) data['name'] = name;
+    if (state != null) data['state'] = state;
+
+    return data;
+  }
+}

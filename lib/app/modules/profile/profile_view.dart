@@ -237,30 +237,6 @@ class ProfileView extends GetView<UserController> {
 
                       const SizedBox(height: 8),
 
-                      // Phone with edit icon
-                      Row(
-                        children: [
-                          Text(
-                            user.phone,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => _showEditPhoneDialog(user),
-                            child: const Icon(
-                              LucideIcons.edit,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
-
                       // State
                       Text(
                         user.state,
@@ -311,7 +287,7 @@ class ProfileView extends GetView<UserController> {
           icon: LucideIcons.globe,
           iconColor: Colors.red,
           title: 'Language',
-          subtitle: 'English',
+          subtitle: Get.locale?.languageCode == 'ar' ? 'العربية' : 'English',
           hasArrow: true,
           onTap: () => _showLanguageDialog(),
         ),
@@ -320,31 +296,58 @@ class ProfileView extends GetView<UserController> {
           icon: LucideIcons.mapPin,
           iconColor: Colors.red,
           title: 'My Locations',
-          subtitle: 'Manage saved locations',
+          subtitle: '${controller.userLocations.length} saved',
           hasArrow: true,
           onTap: () => _showLocationsDialog(),
         ),
 
-        _buildMenuItem(
-          icon: LucideIcons.fileText,
-          iconColor: Colors.red,
-          title: 'Terms and Conditions',
-          onTap: () => _openTermsAndConditions(),
-        ),
+        Obx(() {
+          final systemInfo = controller.systemInfoModel.value;
+          final isArabic = Get.locale?.languageCode == 'ar';
+          final termsUrl = isArabic
+              ? systemInfo?.legalDocuments.termsAr
+              : systemInfo?.legalDocuments.termsEn;
 
-        _buildMenuItem(
-          icon: LucideIcons.shield,
-          iconColor: Colors.red,
-          title: 'Privacy Policy',
-          onTap: () => _openPrivacyPolicy(),
-        ),
+          return _buildMenuItem(
+            icon: LucideIcons.fileText,
+            iconColor: Colors.red,
+            title: 'Terms and Conditions',
+            onTap: termsUrl != null && termsUrl.isNotEmpty
+                ? () => _openDocument("${AppConstants.baseUrlImage}$termsUrl")
+                : () => _showUnavailableDocument('Terms and Conditions'),
+          );
+        }),
 
-        _buildMenuItem(
-          icon: LucideIcons.headphones,
-          iconColor: Colors.red,
-          title: 'Support',
-          onTap: () => _openSupport(),
-        ),
+        Obx(() {
+          final systemInfo = controller.systemInfoModel.value;
+          final isArabic = Get.locale?.languageCode == 'ar';
+          final privacyUrl = isArabic
+              ? systemInfo?.legalDocuments.privacyAr
+              : systemInfo?.legalDocuments.privacyEn;
+
+          return _buildMenuItem(
+            icon: LucideIcons.shield,
+            iconColor: Colors.red,
+            title: 'Privacy Policy',
+            onTap: privacyUrl != null && privacyUrl.isNotEmpty
+                ? () => _openDocument("${AppConstants.baseUrlImage}$privacyUrl")
+                : () => _showUnavailableDocument('Privacy Policy'),
+          );
+        }),
+
+        Obx(() {
+          final systemInfo = controller.systemInfoModel.value;
+          final supportUrl = systemInfo?.support.whatsappSupport;
+
+          return _buildMenuItem(
+            icon: LucideIcons.headphones,
+            iconColor: Colors.red,
+            title: 'Support',
+            onTap: supportUrl != null && supportUrl.isNotEmpty
+                ? () => _openSupport(supportUrl)
+                : () => _showUnavailableSupport(),
+          );
+        }),
 
         _buildMenuItem(
           icon: LucideIcons.trash2,
@@ -436,34 +439,84 @@ class ProfileView extends GetView<UserController> {
   }
 
   Widget _buildSocialMediaSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.whatsapp,
-          color: Colors.green,
-          onTap: () => _openWhatsApp(),
-        ),
-        const SizedBox(width: 24),
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.instagram,
-          color: Colors.pink,
-          onTap: () => _openInstagram(),
-        ),
-        const SizedBox(width: 24),
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.snapchat,
-          color: Colors.yellow[600]!,
-          onTap: () => _openSnapchat(),
-        ),
-        const SizedBox(width: 24),
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.tiktok,
-          color: Colors.black,
-          onTap: () => _openTikTok(),
-        ),
-      ],
-    );
+    return Obx(() {
+      final systemInfo = controller.systemInfoModel.value;
+      if (systemInfo == null) {
+        return const SizedBox.shrink();
+      }
+
+      final socialMedia = systemInfo.socialMedia;
+      final socialIcons = <Widget>[];
+
+      // WhatsApp
+      if (socialMedia.whatsapp?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.whatsapp,
+            color: Colors.green,
+            onTap: () => _openSocialLink(socialMedia.whatsapp!),
+          ),
+        );
+      }
+
+      // Instagram
+      if (socialMedia.instagram?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.instagram,
+            color: Colors.pink,
+            onTap: () => _openSocialLink(socialMedia.instagram!),
+          ),
+        );
+      }
+
+      // Snapchat
+      if (socialMedia.snapchat?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.snapchat,
+            color: Colors.yellow[600]!,
+            onTap: () => _openSocialLink(socialMedia.snapchat!),
+          ),
+        );
+      }
+
+      // TikTok
+      if (socialMedia.tiktok?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.tiktok,
+            color: Colors.black,
+            onTap: () => _openSocialLink(socialMedia.tiktok!),
+          ),
+        );
+      }
+
+      // Facebook (if available)
+      if (socialMedia.facebook?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.facebook,
+            color: Colors.blue[700]!,
+            onTap: () => _openSocialLink(socialMedia.facebook!),
+          ),
+        );
+      }
+
+      if (socialIcons.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:
+            socialIcons
+                .map((icon) => [icon, const SizedBox(width: 24)])
+                .expand((i) => i)
+                .toList()
+              ..removeLast(), // Remove the last SizedBox
+      );
+    });
   }
 
   Widget _buildSocialIcon({
@@ -486,6 +539,55 @@ class ProfileView extends GetView<UserController> {
     );
   }
 
+  // Helper Methods
+  void _openDocument(String url) async {
+    try {
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar('Error', 'Could not open document');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to open document: ${e.toString()}');
+    }
+  }
+
+  void _openSupport(String supportUrl) async {
+    try {
+      if (await canLaunchUrl(Uri.parse(supportUrl))) {
+        await launchUrl(
+          Uri.parse(supportUrl),
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        Get.snackbar('Error', 'Could not open support link');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to open support: ${e.toString()}');
+    }
+  }
+
+  void _openSocialLink(String url) async {
+    try {
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar('Error', 'Could not open social media link');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to open link: ${e.toString()}');
+    }
+  }
+
+  void _showUnavailableDocument(String documentName) {
+    Get.snackbar('Info', '$documentName is currently unavailable');
+  }
+
+  void _showUnavailableSupport() {
+    Get.snackbar('Info', 'Support is currently unavailable');
+  }
+
+  // Existing methods remain the same...
   void _showLocationsDialog() {
     Get.dialog(
       Dialog(
@@ -1772,48 +1874,33 @@ class ProfileView extends GetView<UserController> {
     );
   }
 
-  // Other existing methods remain the same...
   void _showEditNameDialog(UserProfileModel user) {
+    final nameController = TextEditingController(text: user.name);
+
     Get.dialog(
       AlertDialog(
         title: Text('edit_name'.tr),
-        content: const TextField(
+        content: TextField(
+          controller: nameController,
           decoration: InputDecoration(
             hintText: 'Enter your name',
             border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.person_outline),
           ),
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.snackbar('Success', 'Name updated successfully');
-            },
-            child: Text('save'.tr),
-          ),
-        ],
-      ),
-    );
-  }
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) {
+                Get.snackbar('Error', 'Name cannot be empty');
+                return;
+              }
 
-  void _showEditPhoneDialog(UserProfileModel user) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('edit_phone_number'.tr),
-        content: const TextField(
-          decoration: InputDecoration(
-            hintText: 'Enter your phone number',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.phone,
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
-          ElevatedButton(
-            onPressed: () {
               Get.back();
-              Get.snackbar('Success', 'Phone number updated successfully');
+              final success = await controller.updateProfile(
+                UpdateProfileRequest(name: nameController.text.trim()),
+              );
             },
             child: Text('save'.tr),
           ),
@@ -1823,38 +1910,205 @@ class ProfileView extends GetView<UserController> {
   }
 
   void _showEditProfileDialog(UserProfileModel user) {
+    final nameController = TextEditingController(text: user.name);
+    String selectedState = user.state;
+
     Get.dialog(
-      AlertDialog(
-        title: Text('edit_profile'.tr),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.snackbar('Success', 'Profile updated successfully');
-            },
-            child: Text('save'.tr),
+      Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: Get.width * 0.9,
+          height: Get.height * 0.8,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
           ),
-        ],
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.05),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.edit,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close, size: 24),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Name
+                      Text(
+                        'Full Name',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your full name',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.person_outline,
+                            size: 20,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // State
+                      Text(
+                        'State/Governorate',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: selectedState,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
+                        items: AppConstants.OMAN_GOVERNORATES.map((
+                          governorate,
+                        ) {
+                          return DropdownMenuItem<String>(
+                            value: governorate['value'],
+                            child: Text(
+                              governorate['label']!,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) => selectedState = value!,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Footer Actions
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text('cancel'.tr),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (nameController.text.trim().isEmpty) {
+                            Get.snackbar('Error', 'Name cannot be empty');
+                            return;
+                          }
+
+                          final request = UpdateProfileRequest(
+                            name: nameController.text.trim(),
+                            state: selectedState,
+                          );
+
+                          final success = await controller.updateProfile(
+                            request,
+                          );
+                          if (success) {
+                            Get.back();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text('save_changes'.tr),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1869,7 +2123,9 @@ class ProfileView extends GetView<UserController> {
             ListTile(
               leading: const Icon(Icons.language),
               title: Text('english'.tr),
-              trailing: const Icon(Icons.check, color: Colors.green),
+              trailing: Get.locale?.languageCode == 'en'
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
               onTap: () {
                 Get.updateLocale(const Locale('en', 'US'));
                 Get.back();
@@ -1879,6 +2135,9 @@ class ProfileView extends GetView<UserController> {
             ListTile(
               leading: const Icon(Icons.language),
               title: Text('arabic'.tr),
+              trailing: Get.locale?.languageCode == 'ar'
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
               onTap: () {
                 Get.updateLocale(const Locale('ar', 'AE'));
                 Get.back();
@@ -1894,16 +2153,45 @@ class ProfileView extends GetView<UserController> {
   void _showDeleteAccountDialog() {
     Get.dialog(
       AlertDialog(
-        title: Text('delete_account'.tr),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
+            const SizedBox(width: 8),
+            Text('delete_account'.tr),
+          ],
+        ),
         content: const Text(
           'Are you sure you want to delete your account? This action cannot be undone.',
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
-              Get.snackbar('Warning', 'Account deletion initiated');
+              // Show loading
+              Get.dialog(
+                const Center(child: CircularProgressIndicator()),
+                barrierDismissible: false,
+              );
+
+              // Simulate API call delay
+              await Future.delayed(const Duration(seconds: 2));
+
+              Get.back(); // Close loading dialog
+
+              // Show success message
+              Get.snackbar(
+                'Success',
+                'Account deleted successfully',
+                backgroundColor: Colors.green,
+                colorText: Colors.white,
+                icon: const Icon(Icons.check_circle, color: Colors.white),
+                duration: const Duration(seconds: 2),
+              );
+
+              // Navigate to login screen after delay
+              await Future.delayed(const Duration(seconds: 2));
+              Get.offAllNamed(AppRoutes.login);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: Text('delete'.tr, style: TextStyle(color: Colors.white)),
@@ -1916,7 +2204,13 @@ class ProfileView extends GetView<UserController> {
   void _showLogoutDialog() {
     Get.dialog(
       AlertDialog(
-        title: Text('log_out'.tr),
+        title: Row(
+          children: [
+            Icon(Icons.logout, color: Colors.orange, size: 24),
+            const SizedBox(width: 8),
+            Text('log_out'.tr),
+          ],
+        ),
         content: Text('log_out_confirmation'.tr),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
@@ -1931,45 +2225,5 @@ class ProfileView extends GetView<UserController> {
         ],
       ),
     );
-  }
-
-  void _openTermsAndConditions() {
-    Get.snackbar('Info', 'Opening Terms and Conditions...');
-  }
-
-  void _openPrivacyPolicy() {
-    Get.snackbar('Info', 'Opening Privacy Policy...');
-  }
-
-  void _openSupport() {
-    Get.snackbar('Support', 'Opening Support Center...');
-  }
-
-  void _openWhatsApp() async {
-    const url = 'https://wa.me/96812345678';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  void _openInstagram() async {
-    const url = 'https://instagram.com/khabir_app';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  void _openSnapchat() async {
-    const url = 'https://snapchat.com/add/khabir_app';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  void _openTikTok() async {
-    const url = 'https://tiktok.com/@khabir_app';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
   }
 }

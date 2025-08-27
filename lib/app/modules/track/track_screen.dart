@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -30,18 +30,34 @@ class _TrackingViewState extends State<TrackingView>
 
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
-  Timer? _mapUpdateTimer;
+  Timer? _locationUpdateTimer;
+  Timer? _routeUpdateTimer;
+  Timer? _userInteractionTimer;
+
+  // User interaction state
+  bool _userIsInteracting = false;
+  bool _hasInitializedCamera = false;
+  double _currentZoom = 14.0;
+  LatLng? _lastUserLocation;
+  LatLng? _lastProviderLocation;
+
+  // Card expansion state
+  bool _isCardExpanded = true;
+  double _dragPosition = 0.0;
 
   // Animation controllers
   late AnimationController _pulseController;
-  late AnimationController _markerController;
+  late AnimationController _statusController;
+  late AnimationController _cardAnimationController;
+  late Animation<double> _cardAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _initializeTracking();
-    _startMapUpdateTimer();
+    _startUpdateTimers();
   }
 
   void _initializeAnimations() {
@@ -50,32 +66,90 @@ class _TrackingViewState extends State<TrackingView>
       vsync: this,
     )..repeat();
 
-    _markerController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+    _statusController = AnimationController(
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
+    _cardAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+
+    _cardAnimation = CurvedAnimation(
+      parent: _cardAnimationController,
+      curve: Curves.easeInOutCubic,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _cardAnimationController,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
+    // Start with card expanded
+    _cardAnimationController.value = 1.0;
   }
 
   void _initializeTracking() {
-    // Start tracking for this booking
     final orderId = int.tryParse(widget.booking.id) ?? 0;
     _trackingController.startTracking(orderId);
   }
 
-  void _startMapUpdateTimer() {
-    _mapUpdateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      _updateMapMarkers();
-      _updateRoute();
+  void _startUpdateTimers() {
+    _locationUpdateTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      _updateMarkersIfNeeded();
+    });
+
+    _routeUpdateTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _updateRouteIfNeeded();
     });
   }
 
   @override
   void dispose() {
-    _mapUpdateTimer?.cancel();
+    _locationUpdateTimer?.cancel();
+    _routeUpdateTimer?.cancel();
+    _userInteractionTimer?.cancel();
     _pulseController.dispose();
-    _markerController.dispose();
+    _statusController.dispose();
+    _cardAnimationController.dispose();
     _trackingController.stopTracking();
     super.dispose();
+  }
+
+  void _updateMarkersIfNeeded() {
+    final userLocation = _trackingController.userLocation.value;
+    final providerLocation = _trackingController.providerLocation.value;
+
+    bool shouldUpdate = false;
+
+    if (userLocation != _lastUserLocation) {
+      _lastUserLocation = userLocation;
+      shouldUpdate = true;
+    }
+
+    if (providerLocation != _lastProviderLocation) {
+      _lastProviderLocation = providerLocation;
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      _updateMapMarkers();
+    }
+  }
+
+  void _updateRouteIfNeeded() {
+    final userLocation = _trackingController.userLocation.value;
+    final providerLocation = _trackingController.providerLocation.value;
+
+    if (userLocation != null && providerLocation != null) {
+      final distance = _calculateDistance(userLocation, providerLocation);
+      if (distance > 50) {
+        _getRoute(userLocation, providerLocation);
+      }
+    }
   }
 
   Future<void> _updateMapMarkers() async {
@@ -87,7 +161,6 @@ class _TrackingViewState extends State<TrackingView>
     setState(() {
       _markers.clear();
 
-      // User location marker
       _markers.add(
         Marker(
           markerId: const MarkerId("user_location"),
@@ -97,7 +170,6 @@ class _TrackingViewState extends State<TrackingView>
         ),
       );
 
-      // Provider location marker with animation
       _markers.add(
         Marker(
           markerId: const MarkerId("provider_location"),
@@ -111,34 +183,55 @@ class _TrackingViewState extends State<TrackingView>
           ),
         ),
       );
+    });
 
-      // Add accuracy circle if available
-      final accuracy = _trackingController.accuracy.value;
-      if (accuracy > 0) {
-        _markers.add(
-          Marker(
-            markerId: const MarkerId("accuracy_indicator"),
-            position: providerLocation,
-            infoWindow: InfoWindow(title: "Accuracy: ${accuracy.toInt()}m"),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueYellow,
-            ),
+    _updatePolylines(userLocation, providerLocation);
+
+    if (!_userIsInteracting && !_hasInitializedCamera) {
+      _fitBothLocationsOnMap(userLocation, providerLocation);
+      _hasInitializedCamera = true;
+    }
+  }
+
+  void _updatePolylines(LatLng userLocation, LatLng providerLocation) {
+    setState(() {
+      _polylines.clear();
+
+      final distance = _calculateDistance(userLocation, providerLocation);
+
+      if (distance > 10) {
+        _polylines.add(
+          Polyline(
+            polylineId: const PolylineId("user_to_provider"),
+            points: [userLocation, providerLocation],
+            color: Colors.blue.withOpacity(0.6),
+            width: 3,
+            patterns: [PatternItem.dash(15), PatternItem.gap(10)],
+          ),
+        );
+      }
+
+      final locationHistory = _trackingController.locationHistory;
+      if (locationHistory.isNotEmpty && locationHistory.length > 1) {
+        _polylines.add(
+          Polyline(
+            polylineId: const PolylineId("provider_trail"),
+            points: locationHistory,
+            color: Colors.green.withOpacity(0.7),
+            width: 4,
           ),
         );
       }
     });
-
-    // Animate to show both locations
-    _animateToFitRoute();
   }
 
-  Future<void> _updateRoute() async {
-    final userLocation = _trackingController.userLocation.value;
-    final providerLocation = _trackingController.providerLocation.value;
-
-    if (userLocation == null || providerLocation == null) return;
-
-    await _getRoute(userLocation, providerLocation);
+  double _calculateDistance(LatLng point1, LatLng point2) {
+    return Geolocator.distanceBetween(
+      point1.latitude,
+      point1.longitude,
+      point2.latitude,
+      point2.longitude,
+    );
   }
 
   Future<void> _getRoute(LatLng start, LatLng end) async {
@@ -146,7 +239,7 @@ class _TrackingViewState extends State<TrackingView>
         "https://api.mapbox.com/directions/v5/mapbox/driving/"
         "${start.longitude},${start.latitude};"
         "${end.longitude},${end.latitude}"
-        "?alternatives=true&geometries=geojson&steps=true&access_token=$mapboxAccessToken";
+        "?alternatives=false&geometries=geojson&steps=false&access_token=$mapboxAccessToken";
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -158,7 +251,6 @@ class _TrackingViewState extends State<TrackingView>
           final distance = route['distance'] as double;
           final duration = route['duration'] as double;
 
-          // Update controller with route info
           _trackingController.routeDistance.value = (distance / 1000)
               .toStringAsFixed(1);
           _trackingController.routeDuration.value = _formatDuration(
@@ -170,32 +262,19 @@ class _TrackingViewState extends State<TrackingView>
               .toList();
 
           setState(() {
-            _polylines.clear();
+            _polylines.removeWhere(
+              (polyline) => polyline.polylineId.value == "main_route",
+            );
 
-            // Main route
             _polylines.add(
               Polyline(
                 polylineId: const PolylineId("main_route"),
                 points: routePoints,
                 color: Colors.blue,
-                width: 6,
+                width: 5,
                 patterns: [],
               ),
             );
-
-            // Add route history from location tracking
-            final locationHistory = _trackingController.locationHistory;
-            if (locationHistory.isNotEmpty) {
-              _polylines.add(
-                Polyline(
-                  polylineId: const PolylineId("provider_path"),
-                  points: locationHistory,
-                  color: Colors.green,
-                  width: 4,
-                  patterns: [PatternItem.dash(10), PatternItem.gap(5)],
-                ),
-              );
-            }
           });
         }
       }
@@ -204,30 +283,142 @@ class _TrackingViewState extends State<TrackingView>
     }
   }
 
-  Future<void> _animateToFitRoute() async {
-    final userLocation = _trackingController.userLocation.value;
-    final providerLocation = _trackingController.providerLocation.value;
+  void _fitBothLocationsOnMap(
+    LatLng userLocation,
+    LatLng providerLocation,
+  ) async {
+    try {
+      final GoogleMapController controller = await _mapController.future;
+      final distance = _calculateDistance(userLocation, providerLocation);
 
-    if (userLocation == null || providerLocation == null) return;
+      if (distance < 100) {
+        controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(target: providerLocation, zoom: 16.0),
+          ),
+        );
+        return;
+      }
 
-    final GoogleMapController controller = await _mapController.future;
+      double minLat = math.min(
+        userLocation.latitude,
+        providerLocation.latitude,
+      );
+      double maxLat = math.max(
+        userLocation.latitude,
+        providerLocation.latitude,
+      );
+      double minLng = math.min(
+        userLocation.longitude,
+        providerLocation.longitude,
+      );
+      double maxLng = math.max(
+        userLocation.longitude,
+        providerLocation.longitude,
+      );
 
-    double minLat = min(userLocation.latitude, providerLocation.latitude);
-    double maxLat = max(userLocation.latitude, providerLocation.latitude);
-    double minLng = min(userLocation.longitude, providerLocation.longitude);
-    double maxLng = max(userLocation.longitude, providerLocation.longitude);
+      double padding = math.max(0.002, (maxLat - minLat) * 0.3);
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(minLat - 0.005, minLng - 0.005),
-      northeast: LatLng(maxLat + 0.005, maxLng + 0.005),
-    );
+      final bounds = LatLngBounds(
+        southwest: LatLng(minLat - padding, minLng - padding),
+        northeast: LatLng(maxLat + padding, maxLng + padding),
+      );
 
-    controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
+      controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
+    } catch (e) {
+      debugPrint('Error fitting locations on map: $e');
+    }
   }
 
   String _formatDuration(int seconds) {
+    if (seconds < 60) return '$seconds sec';
     final minutes = seconds ~/ 60;
-    return '$minutes min';
+    if (minutes < 60) return '$minutes min';
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    return '${hours}h ${remainingMinutes}m';
+  }
+
+  void _onCameraMoveStarted() {
+    setState(() {
+      _userIsInteracting = true;
+    });
+    _userInteractionTimer?.cancel();
+  }
+
+  void _onCameraMove(CameraPosition position) {
+    _currentZoom = position.zoom;
+  }
+
+  void _onCameraIdle() {
+    _userInteractionTimer?.cancel();
+    _userInteractionTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _userIsInteracting = false;
+        });
+      }
+    });
+  }
+
+  // Card expansion methods
+  void _toggleCardExpansion() {
+    setState(() {
+      _isCardExpanded = !_isCardExpanded;
+    });
+
+    if (_isCardExpanded) {
+      _cardAnimationController.forward();
+    } else {
+      _cardAnimationController.reverse();
+    }
+  }
+
+  void _handlePanStart(DragStartDetails details) {
+    _dragPosition = 0.0;
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details) {
+    setState(() {
+      _dragPosition += details.delta.dy;
+    });
+
+    const double sensitivity = 200.0;
+    double progress = (-_dragPosition / sensitivity).clamp(0.0, 1.0);
+
+    if (!_isCardExpanded) {
+      progress = 1.0 - progress;
+    }
+
+    _cardAnimationController.value = progress;
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    const double threshold = 100.0;
+    double velocity = details.velocity.pixelsPerSecond.dy;
+
+    bool shouldExpand;
+
+    if (velocity.abs() > 500) {
+      shouldExpand = velocity < 0;
+    } else {
+      if (_isCardExpanded) {
+        shouldExpand = _dragPosition < threshold;
+      } else {
+        shouldExpand = _dragPosition < -threshold;
+      }
+    }
+
+    setState(() {
+      _isCardExpanded = shouldExpand;
+      _dragPosition = 0.0;
+    });
+
+    if (_isCardExpanded) {
+      _cardAnimationController.forward();
+    } else {
+      _cardAnimationController.reverse();
+    }
   }
 
   @override
@@ -244,20 +435,11 @@ class _TrackingViewState extends State<TrackingView>
 
         return Stack(
           children: [
-            // Map
             _buildMap(),
-
-            // Custom AppBar
             _buildCustomAppBar(),
-
-            // Connection status indicator
             _buildConnectionStatus(),
-
-            // Service Details Card
             _buildServiceDetailsCard(),
-
-            // Status Updates
-            _buildStatusUpdates(),
+            _buildControlButtons(),
           ],
         );
       }),
@@ -281,18 +463,28 @@ class _TrackingViewState extends State<TrackingView>
     }
 
     return GoogleMap(
-      initialCameraPosition: CameraPosition(target: userLocation, zoom: 14.0),
+      initialCameraPosition: CameraPosition(
+        target: userLocation,
+        zoom: _currentZoom,
+      ),
       markers: _markers,
       polylines: _polylines,
       onMapCreated: (controller) {
         _mapController.complete(controller);
       },
+      onCameraMoveStarted: _onCameraMoveStarted,
+      onCameraMove: _onCameraMove,
+      onCameraIdle: _onCameraIdle,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       mapToolbarEnabled: false,
-      compassEnabled: true,
+      compassEnabled: false,
       trafficEnabled: true,
+      zoomGesturesEnabled: true,
+      scrollGesturesEnabled: true,
+      tiltGesturesEnabled: false,
+      rotateGesturesEnabled: false,
     );
   }
 
@@ -312,10 +504,13 @@ class _TrackingViewState extends State<TrackingView>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            _trackingController.errorMessage.value,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _trackingController.errorMessage.value,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -337,7 +532,7 @@ class _TrackingViewState extends State<TrackingView>
 
   Widget _buildConnectionStatus() {
     return Positioned(
-      top: 80,
+      top: 100,
       left: 16,
       child: Obx(() {
         final isConnected = _trackingController.isConnected.value;
@@ -346,7 +541,9 @@ class _TrackingViewState extends State<TrackingView>
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isConnected ? Colors.green : Colors.red,
+            color: isConnected
+                ? Colors.green.withOpacity(0.9)
+                : Colors.red.withOpacity(0.9),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -359,13 +556,23 @@ class _TrackingViewState extends State<TrackingView>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
+              AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: isConnected
+                        ? (1.0 + _pulseController.value * 0.2)
+                        : 1.0,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: 8),
               Text(
@@ -390,7 +597,14 @@ class _TrackingViewState extends State<TrackingView>
       right: 0,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.95),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.white.withOpacity(0.95),
+              Colors.white.withOpacity(0.8),
+            ],
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -416,15 +630,25 @@ class _TrackingViewState extends State<TrackingView>
                     ),
                   ),
                 ),
-
+                const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'live_tracking'.tr,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'live_tracking'.tr,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        'Order #${widget.booking.id}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -436,228 +660,245 @@ class _TrackingViewState extends State<TrackingView>
   }
 
   Widget _buildServiceDetailsCard() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              offset: const Offset(0, -4),
-              blurRadius: 12,
+    return AnimatedBuilder(
+      animation: _cardAnimation,
+      builder: (context, child) {
+        const double collapsedHeight = 100.0;
+        const double expandedHeight = 320.0;
+
+        double currentHeight =
+            collapsedHeight +
+            (_cardAnimation.value * (expandedHeight - collapsedHeight));
+
+        return Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: GestureDetector(
+            onTap: _isCardExpanded ? null : _toggleCardExpansion,
+            onPanStart: _handlePanStart,
+            // onPanUpdate: _handlePanUpdate,
+            onPanEnd: _handlePanEnd,
+            child: Container(
+              margin: const EdgeInsets.all(16),
+              constraints: BoxConstraints(
+                minHeight: collapsedHeight + 32,
+                maxHeight: currentHeight + 32,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    offset: const Offset(0, -4),
+                    blurRadius: 20,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Drag handle
+                  Container(
+                    margin: const EdgeInsets.only(top: 8, bottom: 4),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: _isCardExpanded
+                          ? Colors.grey[400]
+                          : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Always visible: Provider summary
+                            _buildProviderSummary(),
+
+                            // Expandable content
+                            AnimatedBuilder(
+                              animation: _fadeAnimation,
+                              builder: (context, child) {
+                                return Opacity(
+                                  opacity: _fadeAnimation.value,
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 16 * _fadeAnimation.value,
+                                      ),
+                                      if (_fadeAnimation.value > 0.1) ...[
+                                        _buildServiceDetailsSection(),
+                                        const SizedBox(height: 16),
+                                        _buildLiveStatusSection(),
+                                      ],
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProviderSummary() {
+    return Row(
+      children: [
+        // Provider Avatar
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: Colors.grey[300],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: widget.booking.providerImage.startsWith('http')
+                ? Image.network(
+                    widget.booking.providerImage,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.person,
+                        size: 26,
+                        color: Colors.white,
+                      );
+                    },
+                  )
+                : Image.asset(
+                    widget.booking.providerImage,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.person,
+                        size: 26,
+                        color: Colors.white,
+                      );
+                    },
+                  ),
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Service Details Row
-            Row(
-              children: [
-                _buildDetailColumn('category'.tr, widget.booking.category),
-                _buildDetailColumn('type'.tr, widget.booking.type),
-                _buildDetailColumn(
-                  'number'.tr,
-                  widget.booking.number.toString(),
+
+        const SizedBox(width: 14),
+
+        // Provider info
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.booking.providerName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
                 ),
-                _buildDetailColumn('duration'.tr, widget.booking.duration),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // Provider Info Row
-            Row(
-              children: [
-                // Provider Image
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[300],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: widget.booking.providerImage.startsWith('http')
-                        ? Image.network(
-                            widget.booking.providerImage,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.person,
-                                size: 25,
-                                color: Colors.white,
-                              );
-                            },
-                          )
-                        : Image.asset(
-                            widget.booking.providerImage,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.person,
-                                size: 25,
-                                color: Colors.white,
-                              );
-                            },
-                          ),
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                // Provider Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.booking.providerName,
-                        style: const TextStyle(
-                          fontSize: 16,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Obx(
+                () => Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: _trackingController.getStatusColor(),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        _trackingController.trackingStatus.value,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: _trackingController.getStatusColor(),
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-
-                      const SizedBox(height: 4),
-
-                      Obx(
-                        () => Text(
-                          _trackingController.providerStatus.value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color:
-                                _trackingController.providerStatus.value
-                                        .toLowerCase() ==
-                                    'online'.tr
-                                ? Colors.green
-                                : Colors.grey[600],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ID and Price
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'id'.tr + ' ${widget.booking.id}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'price'.tr,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${widget.booking.price} OMR',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.red,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Real-time Status and ETA
-            Obx(
-              () => Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue[100]!),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: _trackingController.getStatusColor(),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _trackingController.trackingStatus.value,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (_trackingController
-                            .estimatedArrival
-                            .value
-                            .isNotEmpty)
-                          Text(
-                            'ETA: ${_trackingController.estimatedArrival.value}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        if (_trackingController.routeDistance.value.isNotEmpty)
-                          Text(
-                            '${_trackingController.routeDistance.value} km',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                      ],
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+
+        // Price and expand indicator
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '${widget.booking.price} OMR',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.red,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            AnimatedBuilder(
+              animation: _cardAnimation,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _cardAnimation.value * math.pi,
+                  child: Icon(
+                    Icons.keyboard_arrow_up,
+                    color: Colors.grey[600],
+                    size: 18,
+                  ),
+                );
+              },
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildServiceDetailsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          _buildDetailColumn('category'.tr, widget.booking.category),
+          _buildDetailColumn('type'.tr, widget.booking.type),
+          _buildDetailColumn('duration'.tr, widget.booking.duration),
+        ],
       ),
     );
   }
@@ -665,23 +906,134 @@ class _TrackingViewState extends State<TrackingView>
   Widget _buildDetailColumn(String label, String value) {
     return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Colors.black54,
-              fontWeight: FontWeight.w400,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveStatusSection() {
+    return Obx(() {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue[50]!, Colors.blue[100]!],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blue[200]!),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                AnimatedBuilder(
+                  animation: _pulseController,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: 1.0 + _pulseController.value * 0.3,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: _trackingController.getStatusColor(),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _trackingController.trackingStatus.value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            if (_trackingController.estimatedArrival.value.isNotEmpty ||
+                _trackingController.routeDistance.value.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (_trackingController.estimatedArrival.value.isNotEmpty)
+                    _buildInfoChip(
+                      'ETA',
+                      _trackingController.estimatedArrival.value,
+                    ),
+                  if (_trackingController.routeDistance.value.isNotEmpty)
+                    _buildInfoChip(
+                      'Distance',
+                      '${_trackingController.routeDistance.value} km',
+                    ),
+                  if (_trackingController.routeDuration.value.isNotEmpty)
+                    _buildInfoChip(
+                      'Duration',
+                      _trackingController.routeDuration.value,
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildInfoChip(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 2),
           Text(
             value,
             style: const TextStyle(
               fontSize: 12,
               color: Colors.black87,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -689,56 +1041,70 @@ class _TrackingViewState extends State<TrackingView>
     );
   }
 
-  Widget _buildStatusUpdates() {
+  Widget _buildControlButtons() {
     return Positioned(
-      top: 120,
+      top: 140,
       right: 16,
       child: Column(
         children: [
-          // My Location Button
-          FloatingActionButton(
-            mini: true,
+          _buildControlButton(
+            icon: Icons.my_location,
             onPressed: _animateToCurrentLocation,
-            backgroundColor: Colors.white,
-            child: const Icon(Icons.my_location, color: Colors.blue),
+            color: Colors.blue,
           ),
-
           const SizedBox(height: 12),
-
-          // Refresh Button
-          FloatingActionButton(
-            mini: true,
+          _buildControlButton(
+            icon: Icons.refresh,
             onPressed: () => _trackingController.refreshTracking(),
-            backgroundColor: Colors.white,
-            child: const Icon(Icons.refresh, color: Colors.green),
+            color: Colors.green,
           ),
-
           const SizedBox(height: 12),
-
-          // Connection Check Button
-          Obx(
-            () => FloatingActionButton(
-              mini: true,
-              onPressed: () {
-                _trackingController.checkConnection();
-                // _trackingController.startTracking(
-                //   int.tryParse(widget.booking.id) ?? 0,
-                // );
-              },
-              backgroundColor: _trackingController.isConnected.value
-                  ? Colors.green[100]
-                  : Colors.red[100],
-              child: Icon(
-                _trackingController.isConnected.value
-                    ? Icons.wifi
-                    : Icons.wifi_off,
-                color: _trackingController.isConnected.value
-                    ? Colors.green
-                    : Colors.red,
-              ),
-            ),
+          _buildControlButton(
+            icon: Icons.crop_free,
+            onPressed: () {
+              final userLoc = _trackingController.userLocation.value;
+              final providerLoc = _trackingController.providerLocation.value;
+              if (userLoc != null && providerLoc != null) {
+                setState(() {
+                  _userIsInteracting = false;
+                });
+                _fitBothLocationsOnMap(userLoc, providerLoc);
+              }
+            },
+            color: Colors.orange,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required Color color,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            offset: const Offset(0, 2),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onPressed,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            child: Icon(icon, color: color, size: 22),
+          ),
+        ),
       ),
     );
   }
@@ -747,6 +1113,10 @@ class _TrackingViewState extends State<TrackingView>
     final userLocation = _trackingController.userLocation.value;
     if (userLocation == null) return;
 
+    setState(() {
+      _userIsInteracting = false;
+    });
+
     final GoogleMapController controller = await _mapController.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -754,20 +1124,9 @@ class _TrackingViewState extends State<TrackingView>
       ),
     );
   }
-
-  void _callProvider() {
-    Get.snackbar(
-      'Calling Provider',
-      'Calling ${widget.booking.providerName}...',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-    );
-    // TODO: Implement actual phone call functionality
-  }
 }
 
-// Service Booking Model (updated for compatibility)
+// Service Booking Model
 class ServiceBooking {
   final String id;
   final String category;

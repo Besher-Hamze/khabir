@@ -5,10 +5,12 @@ import 'package:khabir/app/modules/track/track_binding.dart';
 import 'package:khabir/app/modules/track/track_screen.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/orders_repository.dart';
+import '../../data/repositories/providers_repository.dart';
 import '../../routes/app_routes.dart';
 
 class OrdersController extends GetxController {
   late final OrdersRepository _ordersRepository;
+  late final ProvidersRepository _providersRepository;
 
   // Observable variables
   final RxList<OrderModel> orders = <OrderModel>[].obs;
@@ -23,6 +25,7 @@ class OrdersController extends GetxController {
     print('OrdersController: onInit called');
     try {
       _ordersRepository = Get.find<OrdersRepository>();
+      _providersRepository = Get.find<ProvidersRepository>();
       print('OrdersController: Repository found successfully');
       loadOrders();
     } catch (e) {
@@ -297,6 +300,107 @@ class OrdersController extends GetxController {
   // Check if order can be cancelled
   bool canCancelOrder(String status) {
     return status.toLowerCase() == 'pending';
+  }
+
+  // Check if order can be rated (only completed orders)
+  bool canRateOrder(String status) {
+    return status.toLowerCase() == 'completed';
+  }
+
+  // Check if user has already rated this order
+  Future<bool> hasRatedOrder(int orderId) async {
+    try {
+      return await _providersRepository.hasUserRatedProvider(orderId);
+    } catch (e) {
+      print('Error checking if order rated: $e');
+      return false;
+    }
+  }
+
+  // Get user's existing rating for an order
+  Future<Map<String, dynamic>?> getExistingRating(int orderId) async {
+    try {
+      return await _providersRepository.getUserRating(orderId);
+    } catch (e) {
+      print('Error getting existing rating: $e');
+      return null;
+    }
+  }
+
+  // Rate a provider for a completed order
+  Future<void> rateProvider(
+    OrderModel order,
+    double rating,
+    String? comment,
+  ) async {
+    try {
+      if (!canRateOrder(order.status)) {
+        Get.snackbar(
+          'Cannot Rate',
+          'Only completed orders can be rated',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Check if already rated
+      final hasRated = await hasRatedOrder(order.id);
+      if (hasRated) {
+        Get.snackbar(
+          'Already Rated',
+          'You have already rated this provider for this order',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.blue,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      isLoading.value = true;
+
+      final result = await _providersRepository.rateProvider(
+        providerId: order.provider.id,
+        orderId: order.id,
+        rating: rating,
+        comment: comment,
+      );
+
+      if (result['success']) {
+        Get.snackbar(
+          'Rating Submitted',
+          'Thank you for your feedback!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          icon: const Icon(Icons.star, color: Colors.white),
+        );
+
+        // Refresh orders to get updated data
+        await loadOrders();
+      } else {
+        Get.snackbar(
+          'Rating Failed',
+          result['message'] ?? 'Failed to submit rating',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to submit rating: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // Format date

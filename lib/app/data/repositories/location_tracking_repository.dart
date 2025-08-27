@@ -143,6 +143,13 @@ class LocationTrackingRepository {
       _socket!.on('tracking_status_changed', (data) {
         print('Tracking status changed: $data');
       });
+      _socket!.on('order_status_changed', (data) {
+        print('Order status changed: $data');
+      });
+      _socket!.on('provider_status_changed', (data) {
+        print('Provider status changed: $data');
+      });
+
       return _socket!;
     } catch (e) {
       print('Socket initialization error: $e');
@@ -193,13 +200,13 @@ class LocationTrackingRepository {
       throw Exception('Socket not connected');
     }
 
-    _socket!.emit('update_location', {
-      'orderId': orderId,
-      'latitude': latitude,
-      'longitude': longitude,
-      'accuracy': accuracy,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+    // _socket!.emit('update_location', {
+    //   'orderId': orderId,
+    //   'latitude': latitude,
+    //   'longitude': longitude,
+    //   'accuracy': accuracy,
+    //   'timestamp': DateTime.now().toIso8601String(),
+    // });
 
     print('Updated location for order: $orderId');
   }
