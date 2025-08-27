@@ -420,7 +420,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Check back later for top service providers',
+                    'check_back_later'.tr,
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
@@ -428,7 +428,7 @@ class HomeView extends GetView<HomeController> {
                   ElevatedButton.icon(
                     onPressed: () => controller.forceRefreshProviders(),
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Try Again'),
+                    label: Text('try_again'.tr),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,

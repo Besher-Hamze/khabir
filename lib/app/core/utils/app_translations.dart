@@ -72,6 +72,8 @@ class AppTranslations extends Translations {
       'cancel_order': 'Cancel Order',
       'cancel_order_confirmation': 'Are you sure you want to cancel order #',
       'delete_notification': 'Delete Notification',
+      'delete_notification_confirmation':
+          'Are you sure you want to delete this notification?',
       'order_details': 'Order Details',
       'call': 'Call',
       'send_message': 'Send Message',
@@ -304,6 +306,133 @@ class AppTranslations extends Translations {
       'otp_sent_message':
           'We sent you a 4 digit code to verify\nyour mobile number',
       'enter_otp_instruction': 'Enter in the field below.',
+
+      // Additional Auth
+      'didnt_receive_code': 'Didn\'t receive the code? ',
+
+      // My Bookings
+      'my_bookings_title': 'My Bookings',
+      'something_went_wrong': 'Something went wrong',
+      'no_bookings_yet': 'No Bookings Yet',
+      'no_bookings_message':
+          'You haven\'t made any bookings yet.\nStart by requesting a service!',
+      'category': 'Category',
+      'type': 'Type',
+      'number': 'Number',
+      'duration': 'Duration',
+      'total_price': 'Total Price',
+      'rate': 'Rate',
+      'rated': 'Rated',
+      'stars': 'stars',
+      'star': 'star',
+      'tap_to_rate': 'Tap to rate',
+      'comment_optional': 'Comment (optional)',
+      'share_experience': 'Share your experience...',
+      'submit': 'Submit',
+
+      // Rating Dialog
+      'rate_provider': 'Rate {provider_name}',
+      'how_was_experience': 'How was your experience?',
+      'excellent': 'Excellent',
+      'very_good': 'Very Good',
+      'good': 'Good',
+      'fair': 'Fair',
+      'poor': 'Poor',
+
+      // Profile
+      'language': 'Language',
+      'my_locations': 'My Locations',
+      'manage_saved_locations': 'Manage saved locations',
+      'terms_and_conditions': 'Terms and Conditions',
+      'privacy_policy': 'Privacy Policy',
+      'support': 'Support',
+      'contact_support': 'Contact Support',
+      'need_help': 'Need help? Contact our support team via WhatsApp:',
+      'whatsapp_support': 'WhatsApp Support',
+      'open_whatsapp': 'Open WhatsApp',
+      'could_not_open_whatsapp': 'Could not open WhatsApp',
+      'failed_to_open_whatsapp': 'Failed to open WhatsApp: {error}',
+      'account_deleted_successfully': 'Account deleted successfully',
+      'account_deletion_initiated': 'Account deletion initiated',
+      'opening_terms': 'Opening Terms and Conditions...',
+      'opening_privacy': 'Opening Privacy Policy...',
+      'opening_support': 'Opening Support Center...',
+      'contact_provider': 'Contact {provider_name}',
+      'calling': 'Calling',
+      'calling_provider': 'Calling {provider_name}...',
+      'opening_chat': 'Opening chat with {provider_name}...',
+      'message': 'Message',
+      'opening_chat_with_provider': 'Opening chat with {provider_name}...',
+
+      // Home
+      'try_again': 'Try Again',
+      'special_offers': 'Special Offers',
+      'get_discount': 'Get 20% off on your first booking',
+
+      // Map Picker
+      'selected_location': 'Selected Location',
+      'muscat_oman': 'Muscat, Oman',
+      'loading_map': 'Loading map...',
+      'map_not_available': 'Map not available',
+      'check_connection': 'Please check your connection',
+      'no_location_available': 'No location available',
+      'tap_drag_pin': 'Tap or drag pin to select location',
+
+      // Camera and Gallery
+      'camera': 'Camera',
+      'gallery': 'Gallery',
+
+      // Success Messages
+      'request_submitted': 'Request Submitted Successfully!',
+      'request_processing':
+          'Your service request has been submitted and is being processed. We\'ll notify you once a provider accepts your request.',
+      'back_to_home': 'Back to Home',
+      'view_my_requests': 'View My Requests',
+      'tracking_info':
+          'You can track your request status and communicate with the provider through the app.',
+
+      // Status Messages
+      'nothing_here_yet': 'Nothing here yet',
+      'check_connection_message': 'Please check your connection and try again',
+
+      // Offers
+      'failed_to_load_offers': 'Failed to load offers',
+      'no_offers_available': 'No offers available',
+      'check_back_later_offers':
+          'Check back later for special deals and discounts',
+      'offer_selected': 'Offer Selected',
+      'offer_selected_message': 'You selected: {service_title}',
+
+      // Request Service
+      'tap_map_select_location':
+          'Tap on the map to select your service location or use your saved locations',
+      'please_select_location': 'Please select a location on the map',
+
+      // Development Placeholders
+      'notifications_under_development':
+          'Notifications View - Under Development',
+      'subcategories_under_development':
+          'Subcategories View - Under Development',
+      'provider_details_under_development':
+          'Provider Details View - Under Development',
+      'book_service_under_development': 'Book Service View - Under Development',
+      'booking_details_under_development':
+          'Booking Details View - Under Development',
+      'track_provider_under_development':
+          'Track Provider View - Under Development',
+      'rate_service_under_development': 'Rate Service View - Under Development',
+      'edit_profile_under_development': 'Edit Profile View - Under Development',
+      'addresses_under_development': 'Addresses View - Under Development',
+      'add_address_under_development': 'Add Address View - Under Development',
+      'select_location_under_development':
+          'Select Location View - Under Development',
+      'language_under_development': 'Language View - Under Development',
+      'terms_conditions_under_development':
+          'Terms & Conditions View - Under Development',
+      'privacy_policy_under_development':
+          'Privacy Policy View - Under Development',
+      'search_results_under_development':
+          'Search Results View - Under Development',
     },
 
     'ar': {
@@ -374,6 +503,7 @@ class AppTranslations extends Translations {
       'cancel_order': 'إلغاء الطلب',
       'cancel_order_confirmation': 'هل أنت متأكد من إلغاء الطلب رقم ',
       'delete_notification': 'حذف الإشعار',
+      'delete_notification_confirmation': 'هل أنت متأكد من حذف هذا الإشعار؟',
       'order_details': 'تفاصيل الطلب',
       'call': 'اتصال',
       'send_message': 'إرسال رسالة',
@@ -595,6 +725,122 @@ class AppTranslations extends Translations {
       'otp_sent_message':
           'لقد أرسلنا لك رمز مكون من 4 أرقام للتحقق\nمن رقم هاتفك المحمول',
       'enter_otp_instruction': 'أدخل في الحقل أدناه.',
+
+      // Additional Auth
+      'didnt_receive_code': 'لم تستلم الرمز؟ ',
+
+      // My Bookings
+      'my_bookings_title': 'حجزي',
+      'something_went_wrong': 'حدث خطأ ما',
+      'no_bookings_yet': 'لا توجد حجوزات بعد',
+      'no_bookings_message': 'لم تقم بأي حجوزات بعد.\nابدأ بطلب خدمة!',
+      'category': 'الفئة',
+      'type': 'النوع',
+      'number': 'الرقم',
+      'duration': 'المدة',
+      'total_price': 'السعر الإجمالي',
+      'rate': 'تقييم',
+      'rated': 'تم التقييم',
+      'stars': 'نجوم',
+      'star': 'نجمة',
+      'tap_to_rate': 'اضغط للتقييم',
+      'comment_optional': 'تعليق (اختياري)',
+      'share_experience': 'شارك تجربتك...',
+      'submit': 'إرسال',
+
+      // Rating Dialog
+      'rate_provider': 'قيّم {provider_name}',
+      'how_was_experience': 'كيف كانت تجربتك؟',
+      'excellent': 'ممتاز',
+      'very_good': 'جيد جداً',
+      'good': 'جيد',
+      'fair': 'مقبول',
+      'poor': 'ضعيف',
+
+      // Profile
+      'language': 'اللغة',
+      'my_locations': 'مواقعي',
+      'manage_saved_locations': 'إدارة المواقع المحفوظة',
+      'terms_and_conditions': 'الشروط والأحكام',
+      'privacy_policy': 'سياسة الخصوصية',
+      'support': 'الدعم',
+      'contact_support': 'اتصل بالدعم',
+      'need_help': 'تحتاج مساعدة؟ اتصل بفريق الدعم عبر واتساب:',
+      'whatsapp_support': 'دعم واتساب',
+      'open_whatsapp': 'فتح واتساب',
+      'could_not_open_whatsapp': 'لا يمكن فتح واتساب',
+      'failed_to_open_whatsapp': 'فشل في فتح واتساب: {error}',
+      'account_deleted_successfully': 'تم حذف الحساب بنجاح',
+      'account_deletion_initiated': 'تم بدء حذف الحساب',
+      'opening_terms': 'فتح الشروط والأحكام...',
+      'opening_privacy': 'فتح سياسة الخصوصية...',
+      'opening_support': 'فتح مركز الدعم...',
+      'contact_provider': 'اتصال بـ {provider_name}',
+      'calling': 'اتصال',
+      'calling_provider': 'اتصال بـ {provider_name}...',
+      'opening_chat': 'فتح محادثة مع {provider_name}...',
+      'message': 'رسالة',
+      'opening_chat_with_provider': 'فتح محادثة مع {provider_name}...',
+
+      // Home
+      'try_again': 'حاول مرة أخرى',
+      'special_offers': 'عروض خاصة',
+      'get_discount': 'احصل على خصم 20% على أول حجز',
+
+      // Map Picker
+      'selected_location': 'الموقع المحدد',
+      'muscat_oman': 'مسقط، عمان',
+      'loading_map': 'جاري تحميل الخريطة...',
+      'map_not_available': 'الخريطة غير متاحة',
+      'check_connection': 'يرجى التحقق من اتصالك',
+      'no_location_available': 'لا يوجد موقع متاح',
+      'tap_drag_pin': 'اضغط أو اسحب الدبوس لاختيار الموقع',
+
+      // Camera and Gallery
+      'camera': 'الكاميرا',
+      'gallery': 'المعرض',
+
+      // Success Messages
+      'request_submitted': 'تم إرسال الطلب بنجاح!',
+      'request_processing':
+          'تم إرسال طلب الخدمة الخاص بك وهو قيد المعالجة. سنخطرك بمجرد قبول مزود الخدمة لطلبك.',
+      'back_to_home': 'العودة للرئيسية',
+      'view_my_requests': 'عرض طلباتي',
+      'tracking_info':
+          'يمكنك تتبع حالة طلبك والتواصل مع مزود الخدمة من خلال التطبيق.',
+
+      // Status Messages
+      'nothing_here_yet': 'لا يوجد شيء هنا بعد',
+      'check_connection_message': 'يرجى التحقق من اتصالك والمحاولة مرة أخرى',
+
+      // Offers
+      'failed_to_load_offers': 'فشل في تحميل العروض',
+      'no_offers_available': 'لا توجد عروض متاحة',
+      'check_back_later_offers': 'عد لاحقاً للعروض الخاصة والخصومات',
+      'offer_selected': 'تم اختيار العرض',
+      'offer_selected_message': 'لقد اخترت: {service_title}',
+
+      // Request Service
+      'tap_map_select_location':
+          'اضغط على الخريطة لاختيار موقع الخدمة أو استخدم المواقع المحفوظة',
+      'please_select_location': 'يرجى اختيار موقع على الخريطة',
+
+      // Development Placeholders
+      'notifications_under_development': 'عرض الإشعارات - قيد التطوير',
+      'subcategories_under_development': 'عرض الفئات الفرعية - قيد التطوير',
+      'provider_details_under_development': 'تفاصيل مقدم الخدمة - قيد التطوير',
+      'book_service_under_development': 'حجز الخدمة - قيد التطوير',
+      'booking_details_under_development': 'تفاصيل الحجز - قيد التطوير',
+      'track_provider_under_development': 'تتبع مقدم الخدمة - قيد التطوير',
+      'rate_service_under_development': 'تقييم الخدمة - قيد التطوير',
+      'edit_profile_under_development': 'تعديل الملف الشخصي - قيد التطوير',
+      'addresses_under_development': 'العناوين - قيد التطوير',
+      'add_address_under_development': 'إضافة عنوان - قيد التطوير',
+      'select_location_under_development': 'اختيار الموقع - قيد التطوير',
+      'language_under_development': 'اللغة - قيد التطوير',
+      'terms_conditions_under_development': 'الشروط والأحكام - قيد التطوير',
+      'privacy_policy_under_development': 'سياسة الخصوصية - قيد التطوير',
+      'search_results_under_development': 'نتائج البحث - قيد التطوير',
     },
   };
 }

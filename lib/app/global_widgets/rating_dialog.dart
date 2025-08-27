@@ -45,10 +45,15 @@ class _RatingDialogState extends State<RatingDialog>
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Column(
         children: [
-          Text('Rate ${widget.order.provider.name}'),
+          Text(
+            'rate_provider'.tr.replaceAll(
+              '{provider_name}',
+              widget.order.provider.name,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
-            'How was your experience?',
+            'how_was_experience'.tr,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.normal,
@@ -101,7 +106,9 @@ class _RatingDialogState extends State<RatingDialog>
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              rating == 0 ? 'Tap to rate' : '${_getRatingText(rating.toInt())}',
+              rating == 0
+                  ? 'tap_to_rate'.tr
+                  : '${_getRatingText(rating.toInt())}',
               key: ValueKey(rating),
               style: TextStyle(
                 fontSize: 16,
@@ -117,11 +124,11 @@ class _RatingDialogState extends State<RatingDialog>
           TextField(
             controller: commentController,
             decoration: InputDecoration(
-              labelText: 'Comment (optional)',
+              labelText: 'comment_optional'.tr,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              hintText: 'Share your experience...',
+              hintText: 'share_experience'.tr,
               counterText: '',
             ),
             maxLines: 3,
@@ -166,15 +173,15 @@ class _RatingDialogState extends State<RatingDialog>
   String _getRatingText(int stars) {
     switch (stars) {
       case 1:
-        return '1 star - Poor';
+        return '1 ${'star'.tr} - ${'poor'.tr}';
       case 2:
-        return '2 stars - Fair';
+        return '2 ${'stars'.tr} - ${'fair'.tr}';
       case 3:
-        return '3 stars - Good';
+        return '3 ${'stars'.tr} - ${'good'.tr}';
       case 4:
-        return '4 stars - Very Good';
+        return '4 ${'stars'.tr} - ${'very_good'.tr}';
       case 5:
-        return '5 stars - Excellent';
+        return '5 ${'stars'.tr} - ${'excellent'.tr}';
       default:
         return '';
     }

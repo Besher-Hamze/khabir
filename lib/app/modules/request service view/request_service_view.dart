@@ -894,7 +894,7 @@ class RequestServiceView extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Tap on the map to select your service location or use your saved locations',
+                        'tap_map_select_location'.tr,
                         style: TextStyle(color: Colors.blue[700], fontSize: 14),
                       ),
                     ),
@@ -955,8 +955,8 @@ class RequestServiceView extends StatelessWidget {
                 Get.back();
               } else {
                 Get.snackbar(
-                  'Error',
-                  'Please select a location on the map',
+                  'error'.tr,
+                  'please_select_location'.tr,
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
                 );

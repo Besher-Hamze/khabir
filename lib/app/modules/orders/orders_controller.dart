@@ -175,7 +175,7 @@ class OrdersController extends GetxController {
       bool? confirmCancel = await Get.dialog<bool>(
         AlertDialog(
           title: Text('cancel_order'.tr),
-          content: Text('Are you sure you want to cancel order #${order.id}?'),
+          content: Text('cancel_order_confirmation'.tr + '${order.id}?'),
           actions: [
             TextButton(
               onPressed: () => Get.back(result: false),

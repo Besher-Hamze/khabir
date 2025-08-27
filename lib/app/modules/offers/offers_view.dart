@@ -356,7 +356,7 @@ class OffersView extends GetView<OffersController> {
           Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
           const SizedBox(height: 16),
           Text(
-            'Failed to load offers',
+            'failed_to_load_offers'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -395,7 +395,7 @@ class OffersView extends GetView<OffersController> {
           Icon(Icons.local_offer_outlined, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'No offers available',
+            'no_offers_available'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -404,7 +404,7 @@ class OffersView extends GetView<OffersController> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Check back later for special deals and discounts',
+            'check_back_later_offers'.tr,
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
@@ -427,8 +427,11 @@ class OffersView extends GetView<OffersController> {
   void _onOfferTap(OfferModel offer) {
     // Navigate to service request or provider detail
     Get.snackbar(
-      'Offer Selected',
-      'You selected: ${offer.service.title}',
+      'offer_selected'.tr,
+      'offer_selected_message'.tr.replaceAll(
+        '{service_title}',
+        offer.service.title,
+      ),
       backgroundColor: AppColors.primary,
       colorText: Colors.white,
       duration: const Duration(seconds: 2),

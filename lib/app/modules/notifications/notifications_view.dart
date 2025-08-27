@@ -296,9 +296,7 @@ class NotificationsView extends StatelessWidget {
             Get.dialog(
               AlertDialog(
                 title: Text('delete_notification'.tr),
-                content: const Text(
-                  'Are you sure you want to delete this notification?',
-                ),
+                content: Text('delete_notification_confirmation'.tr),
                 actions: [
                   TextButton(
                     onPressed: () => Get.back(),
@@ -318,8 +316,8 @@ class NotificationsView extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
-                    child: const Text(
-                      'Delete',
+                    child: Text(
+                      'delete'.tr,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

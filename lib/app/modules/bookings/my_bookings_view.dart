@@ -58,7 +58,7 @@ class MyBookingsView extends GetView<OrdersController> {
     if (showAppBar) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(title ?? 'My Bookings'),
+          title: Text(title ?? 'my_bookings_title'.tr),
           automaticallyImplyLeading: automaticallyImplyLeading,
           actions: actions,
           backgroundColor: AppColors.primary,
@@ -82,7 +82,7 @@ class MyBookingsView extends GetView<OrdersController> {
           Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
           const SizedBox(height: 16),
           Text(
-            'Something went wrong',
+            'something_went_wrong'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -121,7 +121,7 @@ class MyBookingsView extends GetView<OrdersController> {
           Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'No Bookings Yet',
+            'no_bookings_yet'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -130,7 +130,7 @@ class MyBookingsView extends GetView<OrdersController> {
           ),
           const SizedBox(height: 8),
           Text(
-            'You haven\'t made any bookings yet.\nStart by requesting a service!',
+            'no_bookings_message'.tr,
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
@@ -217,7 +217,7 @@ class MyBookingsView extends GetView<OrdersController> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'ID ${order.id}',
+                    'id'.tr + ' ${order.id}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.black54,
@@ -239,15 +239,15 @@ class MyBookingsView extends GetView<OrdersController> {
           // Details Section
           Row(
             children: [
-              _buildDetailColumn('Category', order.service.title),
-              _buildDetailColumn('Type', order.service.description),
-              _buildDetailColumn('Number', order.quantity.toString()),
+              _buildDetailColumn('category'.tr, order.service.title),
+              _buildDetailColumn('type'.tr, order.service.description),
+              _buildDetailColumn('number'.tr, order.quantity.toString()),
               _buildDetailColumn(
-                'Duration',
+                'duration'.tr,
                 controller.formatDate(order.scheduledDate),
               ),
               _buildDetailColumn(
-                'Total Price',
+                'total_price'.tr,
                 controller.formatCurrency(order.totalAmount),
               ),
             ],
@@ -501,7 +501,7 @@ class MyBookingsView extends GetView<OrdersController> {
                     Icon(Icons.star, size: 14, color: Colors.amber),
                     const SizedBox(width: 4),
                     Text(
-                      '${ratingValue.toInt()} ${ratingValue == 1 ? 'star' : 'stars'}',
+                      '${ratingValue.toInt()} ${ratingValue == 1 ? 'star'.tr : 'stars'.tr}',
                       style: const TextStyle(
                         fontSize: 11,
                         color: Colors.amber,

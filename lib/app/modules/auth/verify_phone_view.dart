@@ -101,7 +101,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Didn't get the code? ",
+                    'didnt_receive_code'.tr,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 14,
@@ -110,7 +110,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                   GestureDetector(
                     onTap: controller.resendOTP,
                     child: Text(
-                      'Resend',
+                      'resend_otp'.tr,
                       style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
