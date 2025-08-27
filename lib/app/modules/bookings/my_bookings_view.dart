@@ -239,8 +239,6 @@ class MyBookingsView extends GetView<OrdersController> {
           // Details Section
           Row(
             children: [
-              _buildDetailColumn('category'.tr, order.service.title),
-              _buildDetailColumn('type'.tr, order.service.description),
               _buildDetailColumn('number'.tr, order.quantity.toString()),
               _buildDetailColumn(
                 'duration'.tr,
@@ -252,6 +250,13 @@ class MyBookingsView extends GetView<OrdersController> {
               ),
             ],
           ),
+
+          // Services Breakdown Summary (if multiple services)
+          if (order.isMultipleServices &&
+              order.servicesBreakdown.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildServicesSummary(order),
+          ],
 
           const SizedBox(height: 20),
 
@@ -324,7 +329,7 @@ class MyBookingsView extends GetView<OrdersController> {
       buttons.add(
         Expanded(
           child: _buildActionButton(
-            'Cancel',
+            'cancel'.tr,
             Colors.orange,
             order,
             onTap: () => controller.cancelOrder(order),
@@ -345,7 +350,7 @@ class MyBookingsView extends GetView<OrdersController> {
     buttons.add(
       Expanded(
         child: _buildActionButton(
-          'Details',
+          'details'.tr,
           Colors.grey[600]!,
           order,
           onTap: () => _showOrderDetails(order),
@@ -412,46 +417,372 @@ class MyBookingsView extends GetView<OrdersController> {
 
   void _showOrderDetails(OrderModel order) {
     Get.dialog(
-      AlertDialog(
-        title: Text('order_details'.tr + ' #${order.id}'),
-        content: SingleChildScrollView(
+      Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          width: double.maxFinite,
+          constraints: BoxConstraints(
+            maxHeight: Get.height * 0.85, // Max 85% of screen height
+            maxWidth: Get.width - 32, // Full width minus padding
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailRow('Status', controller.getStatusText(order.status)),
-              const SizedBox(height: 8),
-              _buildDetailRow('Service', order.service.title),
-              const SizedBox(height: 8),
-              _buildDetailRow('Provider', order.provider.name),
-              const SizedBox(height: 8),
-              _buildDetailRow('Phone', order.provider.phone),
-              const SizedBox(height: 8),
-              _buildDetailRow('Quantity', order.quantity.toString()),
-              const SizedBox(height: 8),
-              _buildDetailRow(
-                'Total Amount',
-                controller.formatCurrency(order.totalAmount),
+              // Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.receipt_long,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'order_details'.tr,
+                            style: Get.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '#${order.id}',
+                            style: Get.textTheme.bodyMedium?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
-              _buildDetailRow(
-                'Scheduled Date',
-                controller.formatDate(order.scheduledDate),
+
+              // Content
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Status Card
+                      _buildStatusCard(order),
+                      const SizedBox(height: 16),
+
+                      // Service Information Card
+                      _buildInfoCard(
+                        title: 'service_information'.tr,
+                        icon: Icons.build,
+                        children: [
+                          _buildDetailRow(
+                            'quantity'.tr,
+                            order.quantity.toString(),
+                          ),
+                          _buildAmountRow(
+                            'total_amount'.tr,
+                            controller.formatCurrency(order.totalAmount),
+                          ),
+                          _buildDetailRow(
+                            'scheduled_date'.tr,
+                            controller.formatDate(order.scheduledDate),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Provider Information Card
+                      _buildInfoCard(
+                        title: 'provider_information'.tr,
+                        icon: Icons.person,
+                        children: [
+                          _buildDetailRow('provider'.tr, order.provider.name),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Location Information Card
+                      _buildInfoCard(
+                        title: 'location_information'.tr,
+                        icon: Icons.location_on,
+                        children: [
+                          _buildDetailRow(
+                            'location'.tr,
+                            order.location ?? 'no_location'.tr,
+                          ),
+                          if (order.locationDetails != null &&
+                              order.locationDetails!.isNotEmpty)
+                            _buildDetailRow(
+                              'location_details'.tr,
+                              order.locationDetails!,
+                            ),
+                        ],
+                      ),
+
+                      // Services Breakdown Card
+                      if (order.servicesBreakdown.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        _buildInfoCard(
+                          title: 'services_breakdown'.tr,
+                          icon: Icons.list_alt,
+                          children: [_buildServicesBreakdownSection(order)],
+                        ),
+                      ],
+
+                      // Invoice Card
+                      if (order.invoice != null) ...[
+                        const SizedBox(height: 16),
+                        _buildInfoCard(
+                          title: 'invoice_information'.tr,
+                          icon: Icons.receipt,
+                          children: [_buildInvoiceSection(order.invoice!)],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 8),
-              _buildDetailRow('Location', order.location),
-              if (order.locationDetails.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _buildDetailRow('Location Details', order.locationDetails),
-              ],
+
+              // Footer
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                  border: Border(
+                    top: BorderSide(color: Colors.grey[300]!, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.close),
+                        label: Text('close'.tr),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: BorderSide(color: Colors.grey[400]!),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('close'.tr)),
+      ),
+    );
+  }
+
+  // Helper methods for the improved dialog
+  Widget _buildStatusCard(OrderModel order) {
+    Color statusColor = _getStatusColor(order.status);
+    IconData statusIcon = _getStatusIcon(order.status);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: statusColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(statusIcon, color: statusColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'status'.tr,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  controller.getStatusText(order.status),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildInfoCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(icon, color: AppColors.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 1, color: Colors.grey[300]),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(children: children),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhoneRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper methods
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'confirmed':
+        return Colors.blue;
+      case 'in_progress':
+        return Colors.indigo;
+      case 'completed':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Icons.schedule;
+      case 'confirmed':
+        return Icons.check_circle_outline;
+      case 'in_progress':
+        return Icons.work_outline;
+      case 'completed':
+        return Icons.check_circle;
+      case 'cancelled':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.info_outline;
+    }
   }
 
   Widget _buildDetailRow(String label, String value) {
@@ -472,6 +803,245 @@ class MyBookingsView extends GetView<OrdersController> {
           child: Text(value, style: const TextStyle(color: Colors.black87)),
         ),
       ],
+    );
+  }
+
+  Widget _buildServicesBreakdownSection(OrderModel order) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'services_breakdown'.tr,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...order.servicesBreakdown.map(
+          (service) => _buildServiceBreakdownItem(service),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServiceBreakdownItem(ServiceBreakdown service) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  service.serviceTitle,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              Text(
+                'quantity'.tr + ': ${service.quantity}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            service.serviceDescription,
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'unit_price'.tr +
+                    ': ${service.unitPrice.toStringAsFixed(2)} OMR',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              Text(
+                'total'.tr + ': ${service.totalPrice.toStringAsFixed(2)} OMR',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          if (service.category != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'category'.tr + ': ${service.category!.titleEn}',
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey[500],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServicesSummary(OrderModel order) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.list_alt, size: 16, color: Colors.blue[700]),
+              const SizedBox(width: 8),
+              Text(
+                'multiple_services'.tr + ' (${order.servicesBreakdown.length})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ...order.servicesBreakdown
+              .take(2)
+              .map(
+                (service) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Text(
+                        '• ${service.serviceTitle}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${service.quantity}x ${service.unitPrice.toStringAsFixed(2)} OMR',
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          if (order.servicesBreakdown.length > 2) ...[
+            Text(
+              'and_more_services'.tr.replaceAll(
+                '{count}',
+                '${order.servicesBreakdown.length - 2}',
+              ),
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.grey[500],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvoiceSection(OrderInvoice invoice) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.green[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.receipt, size: 16, color: Colors.green[700]),
+              const SizedBox(width: 8),
+              Text(
+                'invoice'.tr + ' #${invoice.id}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'payment_status'.tr,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: invoice.paymentStatus == 'paid'
+                      ? Colors.green[100]
+                      : Colors.orange[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  invoice.paymentStatus.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: invoice.paymentStatus == 'paid'
+                        ? Colors.green[700]
+                        : Colors.orange[700],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'total_amount'.tr,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              Text(
+                '${invoice.totalAmount.toStringAsFixed(2)} OMR',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -530,7 +1100,7 @@ class MyBookingsView extends GetView<OrdersController> {
         } else {
           // Not rated yet - show rate button
           return _buildActionButton(
-            'Rate',
+            'rate'.tr,
             Colors.green,
             order,
             onTap: () => _showRatingDialog(order, context),
@@ -608,57 +1178,4 @@ class MyBookingsView extends GetView<OrdersController> {
       ],
     );
   }
-
-  // void _contactProvider(OrderModel order) {
-  //   Get.bottomSheet(
-  //     Container(
-  //       padding: const EdgeInsets.all(20),
-  //       decoration: const BoxDecoration(
-  //         color: Colors.white,
-  //         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //       ),
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           Text(
-  //             'Contact ${order.provider.name}',
-  //             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //           ),
-  //           const SizedBox(height: 20),
-  //           ListTile(
-  //             leading: const Icon(Icons.phone, color: Colors.green),
-  //             title: const Text('Call'),
-  //             subtitle: Text(order.provider.phone),
-  //             onTap: () {
-  //               Get.back();
-  //               // TODO: Implement phone call functionality
-  //               Get.snackbar(
-  //                 'Calling',
-  //                 'Calling ${order.provider.name}...',
-  //                 backgroundColor: Colors.green,
-  //                 colorText: Colors.white,
-  //               );
-  //             },
-  //           ),
-  //           ListTile(
-  //             leading: const Icon(Icons.message, color: Colors.blue),
-  //             title: const Text('Send Message'),
-  //             subtitle: const Text('Send a message to provider'),
-  //             onTap: () {
-  //               Get.back();
-  //               // TODO: Implement messaging functionality
-  //               Get.snackbar(
-  //                 'Message',
-  //                 'Opening chat with ${order.provider.name}...',
-  //                 backgroundColor: Colors.blue,
-  //                 colorText: Colors.white,
-  //               );
-  //             },
-  //           ),
-  //           const SizedBox(height: 20),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 }

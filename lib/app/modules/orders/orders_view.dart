@@ -360,7 +360,7 @@ class OrdersView extends GetView<OrdersController> {
                 _buildDetailRow(
                   icon: Icons.location_on_outlined,
                   label: 'Location',
-                  value: order.locationDetails,
+                  value: order.location ?? 'No location',
                 ),
                 const SizedBox(height: 8),
                 _buildDetailRow(

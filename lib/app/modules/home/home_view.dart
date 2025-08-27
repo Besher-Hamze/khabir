@@ -226,8 +226,8 @@ class HomeView extends GetView<HomeController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Categories',
+            Text(
+              'categories'.tr,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -237,7 +237,7 @@ class HomeView extends GetView<HomeController> {
             GestureDetector(
               onTap: () => controller.goToCategories(),
               child: Text(
-                'View All',
+                'view_all'.tr,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.red[400],
@@ -366,8 +366,8 @@ class HomeView extends GetView<HomeController> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Best Providers',
+                Text(
+                  'best_providers'.tr,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -379,7 +379,7 @@ class HomeView extends GetView<HomeController> {
             GestureDetector(
               onTap: () => _navigateToAllProviders(),
               child: Text(
-                'View All',
+                'view_all'.tr,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.primary,
@@ -411,7 +411,7 @@ class HomeView extends GetView<HomeController> {
                   Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'No providers available',
+                    'no_providers_available'.tr,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -530,7 +530,7 @@ class HomeView extends GetView<HomeController> {
                   Text(
                     provider.description.isNotEmpty
                         ? provider.description
-                        : 'Professional Service Provider',
+                        : 'professional_service_provider'.tr,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -579,7 +579,7 @@ class HomeView extends GetView<HomeController> {
                         Icon(Icons.verified, size: 10, color: Colors.green),
                         const SizedBox(width: 2),
                         Text(
-                          'Verified',
+                          'verified'.tr,
                           style: TextStyle(
                             fontSize: 8,
                             color: Colors.green,

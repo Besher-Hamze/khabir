@@ -24,9 +24,9 @@ class RequestServiceView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Request for service',
-          style: TextStyle(
+        title: Text(
+          'request_for_service'.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -76,7 +76,7 @@ class RequestServiceView extends StatelessWidget {
                 Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                 const SizedBox(height: 16),
                 Text(
-                  'Error',
+                  'error'.tr,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -105,13 +105,16 @@ class RequestServiceView extends StatelessWidget {
               children: [
                 Icon(Icons.build_outlined, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
-                const Text(
-                  'No services available',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  'no_services_available'.tr,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'This provider has no services in this category',
+                  'provider_no_services_message'.tr,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
@@ -260,9 +263,9 @@ class RequestServiceView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Available Services',
-          style: TextStyle(
+        Text(
+          'available_services'.tr,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -321,7 +324,8 @@ class RequestServiceView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Price: ${service.price + (service.commission ?? 0)} OMR',
+                      'price'.tr +
+                          ': ${service.price + (service.commission ?? 0)} OMR',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -428,7 +432,7 @@ class RequestServiceView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Total for this service:',
+                        'total_for_this_service'.tr + ':',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -489,9 +493,9 @@ class RequestServiceView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Duration',
-                    style: TextStyle(
+                  Text(
+                    'duration'.tr,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -503,10 +507,10 @@ class RequestServiceView extends StatelessWidget {
               Obx(
                 () => Row(
                   children: [
-                    Expanded(child: _buildDurationButton('Now', controller)),
+                    Expanded(child: _buildDurationButton('now'.tr, controller)),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildDurationButton('Tomorrow', controller),
+                      child: _buildDurationButton('tomorrow'.tr, controller),
                     ),
                     const SizedBox(width: 8),
                     Expanded(child: _buildCalendarButton(controller)),
@@ -539,9 +543,9 @@ class RequestServiceView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Location',
-                    style: TextStyle(
+                  Text(
+                    'location'.tr,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -648,7 +652,7 @@ class RequestServiceView extends StatelessWidget {
         controller.selectedDate.value != null;
     String displayText = controller.selectedDate.value != null
         ? '${controller.selectedDate.value!.day}/${controller.selectedDate.value!.month}/${controller.selectedDate.value!.year}'
-        : 'Calendar';
+        : 'calendar'.tr;
 
     return GestureDetector(
       onTap: () async {

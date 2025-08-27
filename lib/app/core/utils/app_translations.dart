@@ -159,7 +159,6 @@ class AppTranslations extends Translations {
       'offers': 'Offers',
       'profile': 'Profile',
       'notifications': 'Notifications',
-      'retry': 'Retry',
 
       // Home
       'good_morning': 'Good Morning',
@@ -307,19 +306,11 @@ class AppTranslations extends Translations {
           'We sent you a 4 digit code to verify\nyour mobile number',
       'enter_otp_instruction': 'Enter in the field below.',
 
-      // Additional Auth
-      'didnt_receive_code': 'Didn\'t receive the code? ',
-
       // My Bookings
       'my_bookings_title': 'My Bookings',
-      'something_went_wrong': 'Something went wrong',
       'no_bookings_yet': 'No Bookings Yet',
       'no_bookings_message':
           'You haven\'t made any bookings yet.\nStart by requesting a service!',
-      'category': 'Category',
-      'type': 'Type',
-      'number': 'Number',
-      'duration': 'Duration',
       'total_price': 'Total Price',
       'rate': 'Rate',
       'rated': 'Rated',
@@ -343,8 +334,6 @@ class AppTranslations extends Translations {
       'language': 'Language',
       'my_locations': 'My Locations',
       'manage_saved_locations': 'Manage saved locations',
-      'terms_and_conditions': 'Terms and Conditions',
-      'privacy_policy': 'Privacy Policy',
       'support': 'Support',
       'contact_support': 'Contact Support',
       'need_help': 'Need help? Contact our support team via WhatsApp:',
@@ -365,18 +354,10 @@ class AppTranslations extends Translations {
       'opening_chat_with_provider': 'Opening chat with {provider_name}...',
 
       // Home
-      'try_again': 'Try Again',
       'special_offers': 'Special Offers',
       'get_discount': 'Get 20% off on your first booking',
 
       // Map Picker
-      'selected_location': 'Selected Location',
-      'muscat_oman': 'Muscat, Oman',
-      'loading_map': 'Loading map...',
-      'map_not_available': 'Map not available',
-      'check_connection': 'Please check your connection',
-      'no_location_available': 'No location available',
-      'tap_drag_pin': 'Tap or drag pin to select location',
 
       // Camera and Gallery
       'camera': 'Camera',
@@ -386,14 +367,8 @@ class AppTranslations extends Translations {
       'request_submitted': 'Request Submitted Successfully!',
       'request_processing':
           'Your service request has been submitted and is being processed. We\'ll notify you once a provider accepts your request.',
-      'back_to_home': 'Back to Home',
-      'view_my_requests': 'View My Requests',
-      'tracking_info':
-          'You can track your request status and communicate with the provider through the app.',
 
       // Status Messages
-      'nothing_here_yet': 'Nothing here yet',
-      'check_connection_message': 'Please check your connection and try again',
 
       // Offers
       'failed_to_load_offers': 'Failed to load offers',
@@ -436,31 +411,77 @@ class AppTranslations extends Translations {
       'failed_to_submit_rating_error': 'Failed to submit rating: {error}',
       'failed_to_initialize': 'Failed to initialize: {error}',
 
+      // Services Breakdown
+      'services_breakdown': 'Services Breakdown',
+      'multiple_services': 'Multiple Services',
+      'and_more_services': '... and {count} more services',
+
+      // Invoice
+      'invoice': 'Invoice',
+      'payment_status': 'Payment Status:',
+
+      // Service Details
+      'quantity': 'Qty',
+      'unit_price': 'Unit Price',
+      'total': 'Total',
+
       // Development Placeholders
-      'notifications_under_development':
-          'Notifications View - Under Development',
-      'subcategories_under_development':
-          'Subcategories View - Under Development',
-      'provider_details_under_development':
-          'Provider Details View - Under Development',
-      'book_service_under_development': 'Book Service View - Under Development',
-      'booking_details_under_development':
-          'Booking Details View - Under Development',
-      'track_provider_under_development':
-          'Track Provider View - Under Development',
-      'rate_service_under_development': 'Rate Service View - Under Development',
-      'edit_profile_under_development': 'Edit Profile View - Under Development',
-      'addresses_under_development': 'Addresses View - Under Development',
-      'add_address_under_development': 'Add Address View - Under Development',
-      'select_location_under_development':
-          'Select Location View - Under Development',
-      'language_under_development': 'Language View - Under Development',
-      'terms_conditions_under_development':
-          'Terms & Conditions View - Under Development',
-      'privacy_policy_under_development':
-          'Privacy Policy View - Under Development',
-      'search_results_under_development':
-          'Search Results View - Under Development',
+      'status': 'Status',
+      'location': 'Location',
+      'location_details': 'Location Details',
+      'provider': 'Provider',
+      'phone': 'Phone',
+      'service': 'Service',
+      'details': 'Details',
+      'no_location': 'No Location',
+      'service_title': 'Service Title',
+      'service_description': 'Service Description',
+      'service_price': 'Service Price',
+      'service_quantity': 'Service Quantity',
+      'service_total': 'Service Total',
+      'service_category': 'Service Category',
+      'service_type': 'Service Type',
+      'service_number': 'Service Number',
+      'service_duration': 'Service Duration',
+      'service_total_price': 'Service Total Price',
+      'service_rate': 'Service Rate',
+      'service_rated': 'Service Rated',
+      'service_stars': 'Service Stars',
+      'service_star': 'Service Star',
+      'provider_information': 'Provider Information',
+      'location_information': 'Location Information',
+      'service_information': 'Service Information',
+
+      // Request Service
+      'request_for_service': 'Request for service',
+      'available_services': 'Available Services',
+      'price': 'Price',
+      'total_for_this_service': 'Total for this service',
+      'duration': 'Duration',
+      'now': 'Now',
+      'tomorrow': 'Tomorrow',
+      'calendar': 'Calendar',
+      'location': 'Location',
+      'no_location_selected': 'No location selected',
+      'additional_notes': 'Additional Notes',
+      'add_special_instructions':
+          'Add any special instructions or notes for the provider...',
+      'selected_services': 'Selected Services',
+      'total_amount': 'Total Amount',
+      'date': 'Date',
+      'submitting': 'Submitting...',
+      'submit_request': 'Submit Request',
+      'services': 'services',
+      'select_service_location': 'Select Service Location',
+      'tap_map_select_location':
+          'Tap on the map to select your service location or use your saved locations',
+      'confirm_location': 'Confirm Location',
+      'error': 'Error',
+      'please_select_location': 'Please select a location on the map',
+      'retry': 'Retry',
+      'no_services_available': 'No services available',
+      'provider_no_services_message':
+          'This provider has no services in this category',
     },
 
     'ar': {
@@ -755,17 +776,12 @@ class AppTranslations extends Translations {
       'enter_otp_instruction': 'أدخل في الحقل أدناه.',
 
       // Additional Auth
-      'didnt_receive_code': 'لم تستلم الرمز؟ ',
 
       // My Bookings
       'my_bookings_title': 'حجزي',
-      'something_went_wrong': 'حدث خطأ ما',
       'no_bookings_yet': 'لا توجد حجوزات بعد',
       'no_bookings_message': 'لم تقم بأي حجوزات بعد.\nابدأ بطلب خدمة!',
-      'category': 'الفئة',
-      'type': 'النوع',
-      'number': 'الرقم',
-      'duration': 'المدة',
+
       'total_price': 'السعر الإجمالي',
       'rate': 'تقييم',
       'rated': 'تم التقييم',
@@ -789,8 +805,6 @@ class AppTranslations extends Translations {
       'language': 'اللغة',
       'my_locations': 'مواقعي',
       'manage_saved_locations': 'إدارة المواقع المحفوظة',
-      'terms_and_conditions': 'الشروط والأحكام',
-      'privacy_policy': 'سياسة الخصوصية',
       'support': 'الدعم',
       'contact_support': 'اتصل بالدعم',
       'need_help': 'تحتاج مساعدة؟ اتصل بفريق الدعم عبر واتساب:',
@@ -811,18 +825,8 @@ class AppTranslations extends Translations {
       'opening_chat_with_provider': 'فتح محادثة مع {provider_name}...',
 
       // Home
-      'try_again': 'حاول مرة أخرى',
       'special_offers': 'عروض خاصة',
       'get_discount': 'احصل على خصم 20% على أول حجز',
-
-      // Map Picker
-      'selected_location': 'الموقع المحدد',
-      'muscat_oman': 'مسقط، عمان',
-      'loading_map': 'جاري تحميل الخريطة...',
-      'map_not_available': 'الخريطة غير متاحة',
-      'check_connection': 'يرجى التحقق من اتصالك',
-      'no_location_available': 'لا يوجد موقع متاح',
-      'tap_drag_pin': 'اضغط أو اسحب الدبوس لاختيار الموقع',
 
       // Camera and Gallery
       'camera': 'الكاميرا',
@@ -832,14 +836,6 @@ class AppTranslations extends Translations {
       'request_submitted': 'تم إرسال الطلب بنجاح!',
       'request_processing':
           'تم إرسال طلب الخدمة الخاص بك وهو قيد المعالجة. سنخطرك بمجرد قبول مزود الخدمة لطلبك.',
-      'back_to_home': 'العودة للرئيسية',
-      'view_my_requests': 'عرض طلباتي',
-      'tracking_info':
-          'يمكنك تتبع حالة طلبك والتواصل مع مزود الخدمة من خلال التطبيق.',
-
-      // Status Messages
-      'nothing_here_yet': 'لا يوجد شيء هنا بعد',
-      'check_connection_message': 'يرجى التحقق من اتصالك والمحاولة مرة أخرى',
 
       // Offers
       'failed_to_load_offers': 'فشل في تحميل العروض',
@@ -879,22 +875,62 @@ class AppTranslations extends Translations {
       'failed_to_submit_rating_error': 'فشل في إرسال التقييم: {error}',
       'failed_to_initialize': 'فشل في التهيئة: {error}',
 
-      // Development Placeholders
-      'notifications_under_development': 'عرض الإشعارات - قيد التطوير',
-      'subcategories_under_development': 'عرض الفئات الفرعية - قيد التطوير',
-      'provider_details_under_development': 'تفاصيل مقدم الخدمة - قيد التطوير',
-      'book_service_under_development': 'حجز الخدمة - قيد التطوير',
-      'booking_details_under_development': 'تفاصيل الحجز - قيد التطوير',
-      'track_provider_under_development': 'تتبع مقدم الخدمة - قيد التطوير',
-      'rate_service_under_development': 'تقييم الخدمة - قيد التطوير',
-      'edit_profile_under_development': 'تعديل الملف الشخصي - قيد التطوير',
-      'addresses_under_development': 'العناوين - قيد التطوير',
-      'add_address_under_development': 'إضافة عنوان - قيد التطوير',
-      'select_location_under_development': 'اختيار الموقع - قيد التطوير',
-      'language_under_development': 'اللغة - قيد التطوير',
-      'terms_conditions_under_development': 'الشروط والأحكام - قيد التطوير',
-      'privacy_policy_under_development': 'سياسة الخصوصية - قيد التطوير',
-      'search_results_under_development': 'نتائج البحث - قيد التطوير',
+      // Services Breakdown
+      'services_breakdown': 'تفاصيل الخدمات',
+      'multiple_services': 'خدمات متعددة',
+      'and_more_services': '... و {count} خدمات أخرى',
+
+      // Invoice
+      'invoice': 'فاتورة',
+      'payment_status': 'حالة الدفع:',
+
+      // Service Details
+      'quantity': 'الكمية',
+      'unit_price': 'سعر الوحدة',
+      'total': 'المجموع',
+
+      'location_details': 'تفاصيل الموقع',
+      'location': 'الموقع',
+      'service': 'الخدمة',
+      'status': 'الحالة',
+      'provider': 'المزود',
+      'phone': 'الهاتف',
+      'no_location': 'لا يوجد موقع',
+      'details': 'التفاصيل',
+      'professional_service_provider': 'مزود خدمات محترف',
+      'provider_information': 'تفاصيل المزود',
+      'location_information': 'تفاصيل الموقع',
+      'service_information': 'تفاصيل الخدمة',
+
+      // Request Service
+      'request_for_service': 'طلب خدمة',
+      'available_services': 'الخدمات المتاحة',
+      'price': 'السعر',
+      'total_for_this_service': 'المجموع لهذه الخدمة',
+      'duration': 'المدة',
+      'now': 'الآن',
+      'tomorrow': 'غداً',
+      'calendar': 'التقويم',
+      'location': 'الموقع',
+      'no_location_selected': 'لم يتم اختيار موقع',
+      'additional_notes': 'ملاحظات إضافية',
+      'add_special_instructions':
+          'أضف أي تعليمات خاصة أو ملاحظات لمقدم الخدمة...',
+      'selected_services': 'الخدمات المختارة',
+      'total_amount': 'المبلغ الإجمالي',
+      'date': 'التاريخ',
+      'submitting': 'جاري الإرسال...',
+      'submit_request': 'إرسال الطلب',
+      'services': 'خدمات',
+      'select_service_location': 'اختر موقع الخدمة',
+      'tap_map_select_location':
+          'اضغط على الخريطة لاختيار موقع الخدمة أو استخدم المواقع المحفوظة',
+      'confirm_location': 'تأكيد الموقع',
+      'error': 'خطأ',
+      'please_select_location': 'يرجى اختيار موقع على الخريطة',
+      'retry': 'إعادة المحاولة',
+      'no_services_available': 'لا توجد خدمات متاحة',
+      'provider_no_services_message': 'هذا المزود ليس لديه خدمات في هذه الفئة',
     },
   };
 }

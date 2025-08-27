@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/modules/notifications/notifications_view.dart';
 import 'package:khabir/app/modules/services/services_view.dart';
 import 'package:khabir/app/modules/user/user_binding.dart';
 import '../modules/home/search_view.dart';
@@ -150,13 +151,6 @@ class AppPages {
       binding: NotificationsBinding(),
     ),
 
-    // Service Routes - Placeholder for now
-    GetPage(
-      name: AppRoutes.subcategories,
-      page: () => const SubcategoriesView(),
-      binding: ServiceBinding(),
-    ),
-
     GetPage(
       name: AppRoutes.providers,
       page: () => const ServiceProvidersView(),
@@ -181,18 +175,17 @@ class AppPages {
       binding: OrdersBinding(),
     ),
 
-    GetPage(
-      name: AppRoutes.providerDetails,
-      page: () => const ProviderDetailsView(),
-      binding: ServiceBinding(),
-    ),
+    // GetPage(
+    //   name: AppRoutes.providerDetails,
+    //   page: () => const ProviderDetailsView(),
+    //   binding: ServiceBinding(),
+    // ),
 
-    GetPage(
-      name: AppRoutes.bookService,
-      page: () => const BookServiceView(),
-      binding: BookingBinding(),
-    ),
-
+    // GetPage(
+    //   name: AppRoutes.bookService,
+    //   page: () => const BookServiceView(),
+    //   binding: BookingBinding(),
+    // ),
     GetPage(
       name: AppRoutes.bookingDetails,
       page: () => const BookingDetailsView(),
@@ -290,134 +283,4 @@ class AppPages {
       binding: OffersBinding(),
     ),
   ];
-}
-
-// Placeholder classes - these will be replaced with actual implementations
-class NotificationsView extends StatelessWidget {
-  const NotificationsView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('notifications_under_development'.tr)));
-}
-
-class SubcategoriesView extends StatelessWidget {
-  const SubcategoriesView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('subcategories_under_development'.tr)));
-}
-
-class ProviderDetailsView extends StatelessWidget {
-  const ProviderDetailsView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('provider_details_under_development'.tr)),
-  );
-}
-
-class BookServiceView extends StatelessWidget {
-  const BookServiceView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('book_service_under_development'.tr)));
-}
-
-class BookingDetailsView extends StatelessWidget {
-  const BookingDetailsView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('booking_details_under_development'.tr)),
-  );
-}
-
-class TrackProviderView extends StatelessWidget {
-  const TrackProviderView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('track_provider_under_development'.tr)),
-  );
-}
-
-class RateServiceView extends StatelessWidget {
-  const RateServiceView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('rate_service_under_development'.tr)));
-}
-
-class EditProfileView extends StatelessWidget {
-  const EditProfileView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('edit_profile_under_development'.tr)));
-}
-
-class AddressesView extends StatelessWidget {
-  const AddressesView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('addresses_under_development'.tr)));
-}
-
-class AddAddressView extends StatelessWidget {
-  const AddAddressView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('add_address_under_development'.tr)));
-}
-
-class SelectLocationView extends StatelessWidget {
-  const SelectLocationView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('select_location_under_development'.tr)),
-  );
-}
-
-class LanguageView extends StatelessWidget {
-  const LanguageView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(body: Center(child: Text('language_under_development'.tr)));
-}
-
-class TermsConditionsView extends StatelessWidget {
-  const TermsConditionsView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('terms_conditions_under_development'.tr)),
-  );
-}
-
-class PrivacyPolicyView extends StatelessWidget {
-  const PrivacyPolicyView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('privacy_policy_under_development'.tr)),
-  );
-}
-
-class SearchResultsView extends StatelessWidget {
-  const SearchResultsView({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(child: Text('search_results_under_development'.tr)),
-  );
-}
-
-// Placeholder bindings - these will be replaced with actual implementations
-
-class ServiceBinding extends Bindings {
-  @override
-  void dependencies() {}
-}
-
-class BookingBinding extends Bindings {
-  @override
-  void dependencies() {}
-}
-
-class SearchBinding extends Bindings {
-  @override
-  void dependencies() {}
 }

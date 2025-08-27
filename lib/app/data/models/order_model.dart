@@ -44,6 +44,75 @@ class OrderService {
   }
 }
 
+class ServiceBreakdown {
+  final int quantity;
+  final int serviceId;
+  final double unitPrice;
+  final double commission;
+  final double totalPrice;
+  final String serviceImage;
+  final String serviceTitle;
+  final double commissionAmount;
+  final String serviceDescription;
+  final ServiceCategory? category;
+
+  ServiceBreakdown({
+    required this.quantity,
+    required this.serviceId,
+    required this.unitPrice,
+    required this.commission,
+    required this.totalPrice,
+    required this.serviceImage,
+    required this.serviceTitle,
+    required this.commissionAmount,
+    required this.serviceDescription,
+    this.category,
+  });
+
+  factory ServiceBreakdown.fromJson(Map<String, dynamic> json) {
+    return ServiceBreakdown(
+      quantity: json['quantity'] ?? 0,
+      serviceId: json['serviceId'] ?? 0,
+      unitPrice: (json['unitPrice'] ?? 0).toDouble(),
+      commission: (json['commission'] ?? 0).toDouble(),
+      totalPrice: (json['totalPrice'] ?? 0).toDouble(),
+      serviceImage: json['serviceImage'] ?? '',
+      serviceTitle: json['serviceTitle'] ?? '',
+      commissionAmount: (json['commissionAmount'] ?? 0).toDouble(),
+      serviceDescription: json['serviceDescription'] ?? '',
+      category: json['category'] != null
+          ? ServiceCategory.fromJson(json['category'])
+          : null,
+    );
+  }
+}
+
+class ServiceCategory {
+  final int id;
+  final String image;
+  final String titleAr;
+  final String titleEn;
+  final String state;
+
+  ServiceCategory({
+    required this.id,
+    required this.image,
+    required this.titleAr,
+    required this.titleEn,
+    required this.state,
+  });
+
+  factory ServiceCategory.fromJson(Map<String, dynamic> json) {
+    return ServiceCategory(
+      id: json['id'] ?? 0,
+      image: json['image'] ?? '',
+      titleAr: json['titleAr'] ?? '',
+      titleEn: json['titleEn'] ?? '',
+      state: json['state'] ?? '',
+    );
+  }
+}
+
 class OrderInvoice {
   final int id;
   final int orderId;
@@ -52,11 +121,8 @@ class OrderInvoice {
   final double discount;
   final String? paymentMethod;
   final String paymentStatus;
-  final bool isVerified;
   final String? payoutDate;
   final String payoutStatus;
-  final String? verifiedAt;
-  final String? verifiedBy;
 
   OrderInvoice({
     required this.id,
@@ -66,11 +132,8 @@ class OrderInvoice {
     required this.discount,
     this.paymentMethod,
     required this.paymentStatus,
-    required this.isVerified,
     this.payoutDate,
     required this.payoutStatus,
-    this.verifiedAt,
-    this.verifiedBy,
   });
 
   factory OrderInvoice.fromJson(Map<String, dynamic> json) {
@@ -82,11 +145,8 @@ class OrderInvoice {
       discount: (json['discount'] ?? 0).toDouble(),
       paymentMethod: json['paymentMethod'],
       paymentStatus: json['paymentStatus'] ?? '',
-      isVerified: json['isVerified'] ?? false,
       payoutDate: json['payoutDate'],
       payoutStatus: json['payoutStatus'] ?? '',
-      verifiedAt: json['verifiedAt'],
-      verifiedBy: json['verifiedBy'],
     );
   }
 }
@@ -143,17 +203,21 @@ class OrderModel {
   final String orderDate;
   final String bookingId;
   final double commissionAmount;
-  final String location;
-  final String locationDetails;
+  final String? location;
+  final String? locationDetails;
   final double providerAmount;
-  final OrderLocation providerLocation;
+  final OrderLocation? providerLocation;
   final int quantity;
   final String scheduledDate;
   final double totalAmount;
+  final bool isMultipleServices;
+  final List<ServiceBreakdown> servicesBreakdown;
+  final String? duration;
   final OrderUser user;
   final OrderProvider provider;
   final OrderService service;
-  final OrderInvoice invoice;
+  final OrderInvoice? invoice;
+  final List<ServiceBreakdown> services;
 
   OrderModel({
     required this.id,
@@ -164,17 +228,21 @@ class OrderModel {
     required this.orderDate,
     required this.bookingId,
     required this.commissionAmount,
-    required this.location,
-    required this.locationDetails,
+    this.location,
+    this.locationDetails,
     required this.providerAmount,
-    required this.providerLocation,
+    this.providerLocation,
     required this.quantity,
     required this.scheduledDate,
     required this.totalAmount,
+    required this.isMultipleServices,
+    required this.servicesBreakdown,
+    this.duration,
     required this.user,
     required this.provider,
     required this.service,
-    required this.invoice,
+    this.invoice,
+    required this.services,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -187,37 +255,51 @@ class OrderModel {
       orderDate: json['orderDate'] ?? '',
       bookingId: json['bookingId'] ?? '',
       commissionAmount: (json['commissionAmount'] ?? 0).toDouble(),
-      location: json['location'] ?? '',
-      locationDetails: json['locationDetails'] ?? '',
+      location: json['location'],
+      locationDetails: json['locationDetails'],
       providerAmount: (json['providerAmount'] ?? 0).toDouble(),
-      providerLocation: OrderLocation.fromJson(json['providerLocation'] ?? {}),
+      providerLocation: json['providerLocation'] != null
+          ? OrderLocation.fromJson(json['providerLocation'])
+          : null,
       quantity: json['quantity'] ?? 0,
       scheduledDate: json['scheduledDate'] ?? '',
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      isMultipleServices: json['isMultipleServices'] ?? false,
+      servicesBreakdown:
+          (json['servicesBreakdown'] as List<dynamic>?)
+              ?.map((service) => ServiceBreakdown.fromJson(service))
+              .toList() ??
+          [],
+      duration: json['duration'],
       user: OrderUser.fromJson(json['user'] ?? {}),
       provider: OrderProvider.fromJson(json['provider'] ?? {}),
       service: OrderService.fromJson(json['service'] ?? {}),
-      invoice: OrderInvoice.fromJson(json['invoice'] ?? {}),
+      invoice: json['invoice'] != null
+          ? OrderInvoice.fromJson(json['invoice'])
+          : null,
+      services:
+          (json['services'] as List<dynamic>?)
+              ?.map((service) => ServiceBreakdown.fromJson(service))
+              .toList() ??
+          [],
     );
   }
 }
 
 class OrderLocation {
-  final String address;
-  final double latitude;
-  final double longitude;
+  final String? address;
+  final double? latitude;
+  final double? longitude;
 
-  OrderLocation({
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-  });
+  OrderLocation({this.address, this.latitude, this.longitude});
 
   factory OrderLocation.fromJson(Map<String, dynamic> json) {
     return OrderLocation(
-      address: json['address'] ?? '',
-      latitude: (json['latitude'] ?? 0).toDouble(),
-      longitude: (json['longitude'] ?? 0).toDouble(),
+      address: json['address'],
+      latitude: json['latitude'] != null ? (json['latitude']).toDouble() : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude']).toDouble()
+          : null,
     );
   }
 }

@@ -199,30 +199,30 @@ class _SuccessPageViewState extends State<SuccessPageView>
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    // const SizedBox(height: 16),
 
-                    // View My Requests Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () => _viewMyRequests(),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: BorderSide(color: AppColors.primary, width: 2),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'view_my_requests'.tr,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // // View My Requests Button
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   child: OutlinedButton(
+                    //     onPressed: () => _viewMyRequests(),
+                    //     style: OutlinedButton.styleFrom(
+                    //       foregroundColor: AppColors.primary,
+                    //       side: BorderSide(color: AppColors.primary, width: 2),
+                    //       padding: const EdgeInsets.symmetric(vertical: 16),
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(12),
+                    //       ),
+                    //     ),
+                    //     child: Text(
+                    //       'view_my_requests'.tr,
+                    //       style: const TextStyle(
+                    //         fontSize: 16,
+                    //         fontWeight: FontWeight.w600,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
