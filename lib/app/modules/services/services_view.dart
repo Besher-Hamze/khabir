@@ -34,11 +34,6 @@ class ServicesView extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            if (controller.categoryState.isNotEmpty)
-              Text(
-                controller.categoryState,
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
           ],
         ),
         centerTitle: true,
@@ -196,41 +191,29 @@ class ServicesView extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            service.formattedCommission,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        if (service.whatsapp.isNotEmpty)
-                          IconButton(
-                            icon: Icon(
-                              Icons.phone,
-                              color: Colors.green,
-                              size: 20,
-                            ),
-                            onPressed: () =>
-                                controller.contactViaWhatsApp(service),
-                            tooltip: 'contact_via_whatsapp'.tr,
-                          ),
-                      ],
-                    ),
+                    //   const SizedBox(height: 8),
+                    //   Row(
+                    //     children: [
+                    //       Container(
+                    //         padding: const EdgeInsets.symmetric(
+                    //           horizontal: 8,
+                    //           vertical: 4,
+                    //         ),
+                    //         decoration: BoxDecoration(
+                    //           color: AppColors.primary.withOpacity(0.1),
+                    //           borderRadius: BorderRadius.circular(12),
+                    //         ),
+                    //         child: Text(
+                    //           service.formattedCommission,
+                    //           style: TextStyle(
+                    //             fontSize: 12,
+                    //             fontWeight: FontWeight.w600,
+                    //             color: AppColors.primary,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
                   ],
                 ),
               ),

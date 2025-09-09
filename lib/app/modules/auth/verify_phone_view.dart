@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/routes/app_routes.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'dart:async';
 import '../../core/values/colors.dart';
@@ -23,7 +24,9 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Title
               Text(
-                'forgot_password_title'.tr,
+                Get.previousRoute == AppRoutes.forgotPassword
+                    ? 'forgot_password_title'.tr
+                    : 'otp_sent_message'.tr,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

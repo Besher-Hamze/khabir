@@ -41,8 +41,8 @@ class AuthController extends GetxController {
 
   @override
   void onClose() {
-    phoneController.dispose();
-    passwordController.dispose();
+    // phoneController.dispose();
+    // passwordController.dispose();
     confirmPasswordController.dispose();
     usernameController.dispose();
     emailController.dispose();
@@ -383,7 +383,8 @@ class AuthController extends GetxController {
           Get.toNamed(AppRoutes.resetPassword);
         } else {
           // This is from signup flow - complete registration
-          await _completeRegistration();
+          Get.offAllNamed(AppRoutes.main);
+          // await _completeRegistration();
         }
       } else {
         Get.snackbar(
@@ -404,55 +405,6 @@ class AuthController extends GetxController {
       );
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  // Complete registration after OTP verification
-  Future<void> _completeRegistration() async {
-    try {
-      final result = await _authRepository.registerComplete(
-        name: usernameController.text.trim(),
-        phone: phoneController.text.trim(),
-        password: passwordController.text,
-        state: selectedState.value,
-        otp: otpCode.value,
-        email: emailController.text.isNotEmpty
-            ? emailController.text.trim()
-            : null,
-        address: selectedState.value.isNotEmpty
-            ? '$selectedState.value, Oman'
-            : null,
-        profileImagePath: profileImagePath.value.isNotEmpty
-            ? profileImagePath.value
-            : null,
-      );
-
-      if (result['success']) {
-        Get.snackbar(
-          'success'.tr,
-          result['message'],
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        Get.offAllNamed(AppRoutes.main);
-      } else {
-        Get.snackbar(
-          'error'.tr,
-          result['message'],
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } catch (e) {
-      Get.snackbar(
-        'error'.tr,
-        'signup_error'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     }
   }
 

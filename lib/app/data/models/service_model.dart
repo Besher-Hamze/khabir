@@ -2,6 +2,8 @@ import 'package:khabir/app/data/models/user_location_model.dart';
 
 import 'category_model.dart';
 
+enum ServiceType { NORMAL, KHABEER }
+
 class ServiceModel {
   final int id;
   final String image;
@@ -10,6 +12,7 @@ class ServiceModel {
   final double commission;
   final String whatsapp;
   final int categoryId;
+  final ServiceType serviceType;
   final CategoryModel category;
 
   ServiceModel({
@@ -21,6 +24,7 @@ class ServiceModel {
     required this.whatsapp,
     required this.categoryId,
     required this.category,
+    required this.serviceType,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +37,7 @@ class ServiceModel {
       whatsapp: json['whatsapp'] ?? '',
       categoryId: json['categoryId'] ?? 0,
       category: CategoryModel.fromJson(json['category'] ?? {}),
+      serviceType: ServiceType.values.byName(json['serviceType'] ?? 'NORMAL'),
     );
   }
 
@@ -46,6 +51,7 @@ class ServiceModel {
       'whatsapp': whatsapp,
       'categoryId': categoryId,
       'category': category.toJson(),
+      'serviceType': serviceType.name,
     };
   }
 

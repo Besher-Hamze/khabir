@@ -4,9 +4,9 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // API Base URLs - Updated to match Postman collection
-  static const String baseUrl = 'http://31.97.71.187:3000/api';
-  static const String baseUrlImage = 'http://31.97.71.187:3000';
-  static const String socketUrl = 'ws://31.97.71.187:3000/location-tracking';
+  static const String baseUrl = 'http://192.168.74.2:3069/api';
+  static const String baseUrlImage = 'http://192.168.74.2:3069';
+  static const String socketUrl = 'ws://192.168.74.2:3069/location-tracking';
 
   // API Endpoints
   static const String authLogin = '/auth/login';

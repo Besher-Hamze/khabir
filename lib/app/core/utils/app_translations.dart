@@ -940,6 +940,8 @@ class AppTranslations extends Translations {
       'submitting': 'جاري الإرسال...',
       'submit_request': 'إرسال الطلب',
 
+      'search': 'بحث',
+      'search_providers': 'البحث عن المزودين',
       'search_a_city': 'البحث عن مدينة',
       'search_for_services': 'البحث عن الخدمات',
       'popular_searches': 'البحث الشائع',
@@ -956,6 +958,7 @@ class AppTranslations extends Translations {
       'my_saved_locations': 'المواقع المحفوظة',
       'failed_to_load_locations': 'فشل في تحميل المواقع',
       'save_changes': 'حفظ التغييرات',
+      'all_providers': 'جميع المزودين',
     },
   };
 }

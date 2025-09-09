@@ -424,25 +424,27 @@ class _TrackingViewState extends State<TrackingView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() {
-        if (_trackingController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: SafeArea(
+        child: Obx(() {
+          if (_trackingController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (_trackingController.hasError.value) {
-          return _buildErrorWidget();
-        }
+          if (_trackingController.hasError.value) {
+            return _buildErrorWidget();
+          }
 
-        return Stack(
-          children: [
-            _buildMap(),
-            _buildCustomAppBar(),
-            _buildConnectionStatus(),
-            _buildServiceDetailsCard(),
-            _buildControlButtons(),
-          ],
-        );
-      }),
+          return Stack(
+            children: [
+              _buildMap(),
+              _buildCustomAppBar(),
+              _buildConnectionStatus(),
+              _buildServiceDetailsCard(),
+              _buildControlButtons(),
+            ],
+          );
+        }),
+      ),
     );
   }
 

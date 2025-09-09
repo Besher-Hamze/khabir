@@ -219,19 +219,6 @@ class CategoriesView extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-
-            // State indicator (small text)
-            if (category.state.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  category.state,
-                  style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
           ],
         ),
       ),
