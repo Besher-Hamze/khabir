@@ -47,6 +47,51 @@ class AuthRepository {
     }
   }
 
+  // Login as visitor with automatic credentials
+  Future<Map<String, dynamic>> loginAsVisitor() async {
+    try {
+      print('Login as visitor with phone: +96812345678');
+      final response = await _apiService.post(
+        AppConstants.authLogin,
+        data: {'email': 'admin@khabeer.com', 'password': 'admin123'},
+      );
+
+      if (response.statusCode == 201) {
+        final authResponse = AuthResponse.fromJson(response.data);
+
+        if (authResponse.success && authResponse.accessToken != null) {
+          // Save user and token
+          if (authResponse.user != null) {
+            final User visitorUser = User(
+              id: authResponse.user!.id,
+              name: "vistor",
+              phoneNumber: "96812345678",
+              role: "VISTOR",
+              createdAt: DateTime.now(),
+            );
+
+            await _storageService.saveUser(visitorUser);
+          }
+          await _storageService.saveToken(authResponse.accessToken!);
+
+          return {
+            'success': true,
+            'message': "visitor_login_success".tr,
+            'user': authResponse.user,
+            'token': authResponse.accessToken,
+          };
+        } else {
+          return {'success': false, 'message': authResponse.message};
+        }
+      } else {
+        return {'success': false, 'message': 'فشل في تسجيل الدخول كزائر'};
+      }
+    } catch (e) {
+      print('Visitor login error: $e');
+      return {'success': false, 'message': 'خطأ في تسجيل الدخول كزائر'};
+    }
+  }
+
   // Register new user - Step 1 (Initiate with image upload)
   Future<Map<String, dynamic>> registerInitiate({
     required String name,

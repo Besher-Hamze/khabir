@@ -118,6 +118,20 @@ class LoginView extends GetView<AuthController> {
 
               const SizedBox(height: 24),
 
+              // Skip Button
+              Obx(
+                () => CustomButton(
+                  text: 'skip'.tr,
+                  onPressed: controller.loginAsVisitor,
+                  isLoading: controller.isVisitorLoading.value,
+                  width: double.infinity,
+                  backgroundColor: AppColors.background,
+                  textColor: AppColors.primary,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
               // Sign Up Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

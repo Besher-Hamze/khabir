@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/routes/app_routes.dart';
 import 'package:khabir/app/modules/bookings/my_bookings_view.dart';
 import 'package:khabir/app/modules/notifications/notifications_view.dart';
 import 'package:khabir/app/modules/orders/orders_view.dart';
+import 'package:khabir/app/data/services/storage_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,8 +20,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onNotificationTap;
   final VoidCallback? onLocationTap;
   final VoidCallback? onWhatsAppTap;
-
-  const CustomAppBar({
+  final StorageService storageService = Get.find<StorageService>();
+  CustomAppBar({
     Key? key,
     this.title,
     this.showBackButton = false,
@@ -85,77 +87,109 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Notification Icon with Badge and Circle Background
-                    GestureDetector(
-                      onTap:
-                          onNotificationTap ??
-                          () {
-                            print('Notification tapped');
-                          },
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey[200]!,
-                            width: 1,
-                          ),
-                        ),
-                        child: Stack(
-                          children: [
-                            const Center(
-                              child: Icon(
-                                FontAwesomeIcons.bell,
-                                color: Color(0xFF6B7280),
-                                size: 20,
-                              ),
+                    if (storageService.getUser()?.role != 'VISTOR') ...[
+                      GestureDetector(
+                        onTap:
+                            onNotificationTap ??
+                            () {
+                              print('Notification tapped');
+                            },
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
                             ),
-                            Obx(
-                              () => notificationCount > 0
-                                  ? Positioned(
-                                      right: 8,
-                                      top: 8,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFEF4444),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 18,
-                                          minHeight: 18,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            notificationCount > 99
-                                                ? '99+'
-                                                : notificationCount.toString(),
-                                            style: const TextStyle(
+                          ),
+                          child: Stack(
+                            children: [
+                              const Center(
+                                child: Icon(
+                                  FontAwesomeIcons.bell,
+                                  color: Color(0xFF6B7280),
+                                  size: 20,
+                                ),
+                              ),
+                              Obx(
+                                () => notificationCount > 0
+                                    ? Positioned(
+                                        right: 8,
+                                        top: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFEF4444),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            border: Border.all(
                                               color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w700,
-                                              height: 1,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 18,
+                                            minHeight: 18,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              notificationCount > 99
+                                                  ? '99+'
+                                                  : notificationCount
+                                                        .toString(),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                height: 1,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
-                          ],
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(width: 16),
-
+                      const SizedBox(width: 16),
+                    ],
+                    if (storageService.getUser()?.role == 'VISTOR') ...[
+                      // go to login screen if visitor
+                      GestureDetector(
+                        onTap: () {
+                          storageService.removeUser();
+                          storageService.removeToken();
+                          Get.offAllNamed(AppRoutes.login);
+                        },
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              LucideIcons.logOut,
+                              color: Color(0xFF6B7280),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                    ],
                     // // Location Icon with Circle Background
                     // GestureDetector(
                     //   onTap:

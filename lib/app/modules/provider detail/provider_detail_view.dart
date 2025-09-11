@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/data/models/provider_model.dart';
+import 'package:khabir/app/data/services/storage_service.dart';
+import 'package:khabir/app/global_widgets/login_required_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
@@ -9,9 +11,8 @@ import '../../routes/app_routes.dart';
 
 class ProviderDetailView extends StatelessWidget {
   final Provider provider;
-
-  const ProviderDetailView({Key? key, required this.provider})
-    : super(key: key);
+  final StorageService _storageService = Get.find<StorageService>();
+  ProviderDetailView({Key? key, required this.provider}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -425,6 +426,10 @@ class ProviderDetailView extends StatelessWidget {
   Widget _buildRequestServiceButton(int serviceId) {
     return ElevatedButton(
       onPressed: () {
+        if (_storageService.getUser()?.role == 'VISTOR') {
+          Get.dialog(const LoginRequiredDialog());
+          return;
+        }
         final service = provider.services.firstWhere((s) => s.id == serviceId);
         Get.toNamed(
           AppRoutes.requestService,

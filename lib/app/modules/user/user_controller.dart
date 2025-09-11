@@ -33,8 +33,17 @@ class UserController extends GetxController {
     loadUserLocations();
   }
 
+  isVisitorUser() {
+    return _storageService.getUser()?.role == 'VISTOR' ||
+        _storageService.getUser()?.name.toLowerCase().contains('visitor') ==
+            true;
+  }
+
   // Profile Management
   Future<void> loadUserProfile() async {
+    if (isVisitorUser()) {
+      return;
+    }
     try {
       isProfileLoading.value = true;
       hasProfileError.value = false;
@@ -58,6 +67,9 @@ class UserController extends GetxController {
 
   // Location Management
   Future<void> loadUserLocations() async {
+    if (isVisitorUser()) {
+      return;
+    }
     try {
       isLocationsLoading.value = true;
       hasLocationsError.value = false;
@@ -80,6 +92,9 @@ class UserController extends GetxController {
 
   // Create new location
   Future<bool> createLocation(CreateLocationRequest request) async {
+    if (isVisitorUser()) {
+      return false;
+    }
     try {
       isLocationActionLoading.value = true;
 
@@ -117,6 +132,9 @@ class UserController extends GetxController {
     int locationId,
     UpdateLocationRequest request,
   ) async {
+    if (isVisitorUser()) {
+      return false;
+    }
     try {
       isLocationActionLoading.value = true;
 
@@ -154,6 +172,9 @@ class UserController extends GetxController {
 
   // Set default location
   Future<bool> setDefaultLocation(int locationId) async {
+    if (isVisitorUser()) {
+      return false;
+    }
     try {
       isLocationActionLoading.value = true;
 
@@ -185,6 +206,9 @@ class UserController extends GetxController {
 
   // Delete location
   Future<bool> deleteLocation(int locationId) async {
+    if (isVisitorUser()) {
+      return false;
+    }
     try {
       isLocationActionLoading.value = true;
 
@@ -252,6 +276,9 @@ class UserController extends GetxController {
 
   // Update user profile
   Future<bool> updateProfile(UpdateProfileRequest request) async {
+    if (isVisitorUser()) {
+      return false;
+    }
     try {
       if (userProfile.value == null) {
         Get.snackbar(
@@ -293,6 +320,9 @@ class UserController extends GetxController {
   }
 
   Future<void> logout() async {
+    if (isVisitorUser()) {
+      return;
+    }
     try {
       await _storageService.removeToken();
       await _storageService.removeUser();

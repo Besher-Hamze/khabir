@@ -5,6 +5,7 @@ import '../../data/models/service_model.dart';
 import '../../data/models/user_location_model.dart';
 import '../../data/repositories/providers_repository.dart';
 import '../../data/repositories/user_repository.dart';
+import '../../data/services/storage_service.dart';
 import '../../routes/app_routes.dart';
 
 class RequestServiceController extends GetxController {
@@ -219,6 +220,12 @@ class RequestServiceController extends GetxController {
 
   // Submit service request
   Future<void> submitRequest() async {
+    // Check if user is visitor and show registration popup
+    if (_isVisitorUser()) {
+      _showRegistrationPopup();
+      return;
+    }
+
     if (!_validateRequest()) return;
 
     try {
@@ -299,6 +306,38 @@ class RequestServiceController extends GetxController {
         final nextHour = DateTime.now().add(const Duration(hours: 1));
         return nextHour.toUtc().toIso8601String();
     }
+  }
+
+  // Check if current user is a visitor
+  bool _isVisitorUser() {
+    try {
+      final user = StorageService.instance.getUser();
+      return user?.phoneNumber == '+96812345678' ||
+          user?.name.toLowerCase().contains('visitor') == true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Show registration popup for visitor users
+  void _showRegistrationPopup() {
+    Get.dialog(
+      AlertDialog(
+        title: Text('registration_required'.tr),
+        content: Text('visitor_registration_message'.tr),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              Get.toNamed(AppRoutes.signup);
+            },
+            child: Text('register_now'.tr),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
+    );
   }
 
   // Handle submission errors

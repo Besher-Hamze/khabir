@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:khabir/app/data/services/storage_service.dart';
+import 'package:khabir/app/global_widgets/login_required_dialog.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/providers_repository.dart';
 import '../../routes/app_routes.dart';
@@ -94,6 +96,10 @@ class ServiceProvidersController extends GetxController {
 
   // Handle provider selection
   void onProviderSelected(ProviderApiModel provider) {
+    if (Get.find<StorageService>().getUser()?.role == 'VISTOR') {
+      Get.dialog(const LoginRequiredDialog());
+      return;
+    }
     Get.toNamed(
       AppRoutes.requestService,
       arguments: {

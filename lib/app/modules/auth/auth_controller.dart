@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:khabir/app/data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../core/constants/app_constants.dart';
@@ -14,6 +13,7 @@ class AuthController extends GetxController {
 
   // Observable variables
   var isLoading = false.obs;
+  var isVisitorLoading = false.obs;
   var isPasswordVisible = false.obs;
   var isConfirmPasswordVisible = false.obs;
   var agreedToTerms = false.obs;
@@ -232,6 +232,44 @@ class AuthController extends GetxController {
   // Guest login
   void loginAsGuest() {
     Get.offAllNamed(AppRoutes.main);
+  }
+
+  // Visitor login with automatic credentials
+  Future<void> loginAsVisitor() async {
+    isVisitorLoading.value = true;
+
+    try {
+      final result = await _authRepository.loginAsVisitor();
+
+      if (result['success']) {
+        Get.snackbar(
+          'success'.tr,
+          'visitor_login_success'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.offAllNamed(AppRoutes.main);
+      } else {
+        Get.snackbar(
+          'error'.tr,
+          result['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'error'.tr,
+        'visitor_login_error'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isVisitorLoading.value = false;
+    }
   }
 
   // Sign up

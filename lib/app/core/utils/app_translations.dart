@@ -124,6 +124,12 @@ class AppTranslations extends Translations {
       'i_agree_to': 'I agree to ',
       'login_success': 'Login successful',
       'signup_success': 'Account created successfully',
+      'visitor_login_success': 'Logged in as visitor',
+      'visitor_login_error': 'Visitor login failed',
+      'registration_required': 'Registration Required',
+      'visitor_registration_message':
+          'To make service requests, please register for a free account. Registration takes only a few minutes.',
+      'register_now': 'Register Now',
       'login_subtitle': 'Enter your phone number and password to login',
       'signup_subtitle': 'Create your account to get started',
       'forgot_password_description':
@@ -253,6 +259,9 @@ class AppTranslations extends Translations {
       'provider_no_services_message':
           'This provider has not added any services yet',
       'services_title': 'Services',
+      'login_required': 'Login Required',
+      'you_must_login_to_continue': 'You must login to continue',
+
       'price_label': 'Price: ',
       'request': 'Request',
       'request_submitted_successfully': 'Request Submitted Successfully!',
@@ -626,6 +635,12 @@ class AppTranslations extends Translations {
       'i_agree_to': 'أوافق على ',
       'login_success': 'تم تسجيل الدخول بنجاح',
       'signup_success': 'تم إنشاء الحساب بنجاح',
+      'visitor_login_success': 'تم تسجيل الدخول كزائر',
+      'visitor_login_error': 'فشل تسجيل الدخول كزائر',
+      'registration_required': 'التسجيل مطلوب',
+      'visitor_registration_message':
+          'لطلب الخدمات، يرجى التسجيل للحصول على حساب مجاني. التسجيل يستغرق دقائق قليلة فقط.',
+      'register_now': 'سجل الآن',
       'login_subtitle': 'أدخل رقم هاتفك وكلمة المرور لتسجيل الدخول',
       'signup_subtitle': 'أنشئ حسابك للبدء',
       'forgot_password_description': 'أدخل رقم هاتفك وسنرسل لك رمز التحقق',
@@ -745,6 +760,8 @@ class AppTranslations extends Translations {
       'no_services_available_provider': 'لا توجد خدمات متاحة',
       'provider_no_services_message': 'لم يضف هذا المزود أي خدمات بعد',
       'services_title': 'الخدمات',
+      'login_required': 'يجب عليك تسجيل الدخول للمتابعة',
+      'you_must_login_to_continue': 'يجب عليك تسجيل الدخول للمتابعة',
       'price_label': 'السعر: ',
       'request': 'طلب',
       'request_submitted_successfully': 'تم إرسال الطلب بنجاح!',
