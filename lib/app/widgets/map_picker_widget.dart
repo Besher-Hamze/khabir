@@ -28,7 +28,6 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
   String _selectedAddress = '';
   bool _isLoading = true;
   bool _hasError = false;
-  String _errorMessage = '';
 
   // Default location (Muscat, Oman)
   static const LatLng _defaultLocation = LatLng(23.5880, 58.3829);
@@ -85,7 +84,6 @@ class _MapPickerWidgetState extends State<MapPickerWidget> {
       setState(() {
         _isLoading = false;
         _hasError = true;
-        _errorMessage = e.toString();
       });
     }
   }

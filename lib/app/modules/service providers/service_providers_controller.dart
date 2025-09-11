@@ -13,7 +13,6 @@ class ServiceProvidersController extends GetxController {
   final RxList<ProviderApiModel> providers = <ProviderApiModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxInt currentServiceId = 0.obs;
   final RxString currentServiceName = ''.obs;
   final RxString currentCategoryName = ''.obs;
@@ -44,7 +43,6 @@ class ServiceProvidersController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
       currentServiceId.value = serviceId;
 
       final ProviderApiResponse response = await _providersRepository
@@ -54,7 +52,6 @@ class ServiceProvidersController extends GetxController {
       totalProviders.value = response.total;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading providers by service: $e');
     } finally {
       isLoading.value = false;

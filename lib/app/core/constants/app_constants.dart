@@ -76,8 +76,6 @@ class AppConstants {
       '/location-tracking/order/{orderId}/current-location';
   static const String locationTrackingHistory =
       '/location-tracking/order/{orderId}/location-history';
-  static const String locationTrackingEstimatedArrival =
-      '/location-tracking/order/{orderId}/estimated-arrival';
   static const String locationTrackingStatus =
       '/location-tracking/order/{orderId}/tracking-status';
   static const String locationTrackingUserOrders =

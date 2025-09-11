@@ -10,7 +10,6 @@ class ServicesController extends GetxController {
   final RxList<ServiceModel> services = <ServiceModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxInt currentCategoryId = 0.obs;
   final RxString currentCategoryName = ''.obs;
   final RxString currentCategoryState = ''.obs;
@@ -41,7 +40,6 @@ class ServicesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
       currentCategoryId.value = categoryId;
 
       final List<ServiceModel> fetchedServices = await _servicesRepository
@@ -50,7 +48,6 @@ class ServicesController extends GetxController {
       services.value = fetchedServices;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading services by category: $e');
     } finally {
       isLoading.value = false;
@@ -62,7 +59,6 @@ class ServicesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final List<ServiceModel> fetchedServices = await _servicesRepository
           .getKhabirServices();
@@ -70,7 +66,6 @@ class ServicesController extends GetxController {
       services.value = fetchedServices;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading khabir services: $e');
     } finally {
       isLoading.value = false;
@@ -82,7 +77,6 @@ class ServicesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final List<ServiceModel> fetchedServices = await _servicesRepository
           .getAllServices();
@@ -90,7 +84,6 @@ class ServicesController extends GetxController {
       services.value = fetchedServices;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading all services: $e');
     } finally {
       isLoading.value = false;

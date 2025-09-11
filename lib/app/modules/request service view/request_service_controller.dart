@@ -18,7 +18,6 @@ class RequestServiceController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isSubmitting = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxMap<int, int> serviceQuantities = <int, int>{}.obs;
   final RxString selectedDuration = 'Now'.obs;
   final Rx<UserLocationModel?> selectedLocation = Rx<UserLocationModel?>(null);
@@ -77,7 +76,6 @@ class RequestServiceController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final Provider response = await _providersRepository.getProviderServices(
         providerId,
@@ -88,7 +86,6 @@ class RequestServiceController extends GetxController {
       _initializeServiceQuantities();
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = _extractErrorMessage(e.toString());
       print('Error loading provider services: $e');
     } finally {
       isLoading.value = false;

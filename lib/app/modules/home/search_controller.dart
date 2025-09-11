@@ -10,7 +10,6 @@ class SearchController extends GetxController {
   final RxList<Provider> filteredProviders = <Provider>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
 
   final RxString searchQuery = ''.obs;
   final RxString selectedCity = ''.obs;
@@ -31,7 +30,6 @@ class SearchController extends GetxController {
       filteredProviders.value = providers;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
     }

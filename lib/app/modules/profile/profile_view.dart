@@ -86,12 +86,7 @@ class ProfileView extends GetView<UserController> {
                   color: Colors.grey[700],
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                controller.profileErrorMessage.value,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
+
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: controller.refreshProfile,
@@ -659,15 +654,7 @@ class ProfileView extends GetView<UserController> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            controller.locationsErrorMessage.value,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: controller.refreshLocations,

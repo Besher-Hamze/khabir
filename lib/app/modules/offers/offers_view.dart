@@ -363,14 +363,7 @@ class OffersView extends GetView<OffersController> {
               color: Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 8),
-          Obx(
-            () => Text(
-              controller.errorMessage.value,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-          ),
+
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: controller.loadOffers,

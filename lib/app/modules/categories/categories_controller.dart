@@ -11,7 +11,6 @@ class CategoriesController extends GetxController {
   final RxList<CategoryModel> categories = <CategoryModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxString selectedState = ''.obs;
 
   @override
@@ -25,7 +24,6 @@ class CategoriesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final List<CategoryModel> fetchedCategories = await _categoriesRepository
           .getCategories();
@@ -33,7 +31,6 @@ class CategoriesController extends GetxController {
       categories.value = fetchedCategories;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading categories: $e');
     } finally {
       isLoading.value = false;
@@ -45,7 +42,6 @@ class CategoriesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
       selectedState.value = state;
 
       final List<CategoryModel> fetchedCategories = await _categoriesRepository
@@ -54,7 +50,6 @@ class CategoriesController extends GetxController {
       categories.value = fetchedCategories;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading categories by state: $e');
     } finally {
       isLoading.value = false;

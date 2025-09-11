@@ -92,34 +92,34 @@ class LocationRepository {
   }
 
   // Get estimated arrival time for an order
-  Future<Map<String, dynamic>> getEstimatedArrival(String orderId) async {
-    try {
-      final path = AppConstants.locationTrackingEstimatedArrival.replaceAll(
-        '{orderId}',
-        orderId,
-      );
-      final response = await _apiService.get(path);
+  // Future<Map<String, dynamic>> getEstimatedArrival(String orderId) async {
+  //   try {
+  //     final path = AppConstants.locationTrackingEstimatedArrival.replaceAll(
+  //       '{orderId}',
+  //       orderId,
+  //     );
+  //     final response = await _apiService.get(path);
 
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        if (responseData['estimatedArrival'] != null) {
-          final estimatedArrival =
-              responseData['estimatedArrival'] as Map<String, dynamic>;
-          return {
-            'success': true,
-            'estimatedTime': estimatedArrival['estimatedTime'],
-            'distance': estimatedArrival['distance'],
-            'message': 'تم جلب وقت الوصول المتوقع بنجاح',
-          };
-        }
-      }
+  //     if (response.statusCode == 200) {
+  //       final responseData = response.data;
+  //       if (responseData['estimatedArrival'] != null) {
+  //         final estimatedArrival =
+  //             responseData['estimatedArrival'] as Map<String, dynamic>;
+  //         return {
+  //           'success': true,
+  //           'estimatedTime': estimatedArrival['estimatedTime'],
+  //           'distance': estimatedArrival['distance'],
+  //           'message': 'تم جلب وقت الوصول المتوقع بنجاح',
+  //         };
+  //       }
+  //     }
 
-      return {'success': false, 'message': 'فشل في جلب وقت الوصول المتوقع'};
-    } catch (e) {
-      print('Get estimated arrival error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
-    }
-  }
+  //     return {'success': false, 'message': 'فشل في جلب وقت الوصول المتوقع'};
+  //   } catch (e) {
+  //     print('Get estimated arrival error: $e');
+  //     return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+  //   }
+  // }
 
   // Get tracking status for an order
   Future<Map<String, dynamic>> getTrackingStatus(String orderId) async {

@@ -14,13 +14,11 @@ class UserController extends GetxController {
   final Rx<SystemInfoModel?> systemInfoModel = Rx<SystemInfoModel?>(null);
   final RxBool isProfileLoading = false.obs;
   final RxBool hasProfileError = false.obs;
-  final RxString profileErrorMessage = ''.obs;
 
   // Locations observables
   final RxList<UserLocationModel> userLocations = <UserLocationModel>[].obs;
   final RxBool isLocationsLoading = false.obs;
   final RxBool hasLocationsError = false.obs;
-  final RxString locationsErrorMessage = ''.obs;
 
   // Location management observables
   final RxBool isLocationActionLoading = false.obs;
@@ -47,14 +45,12 @@ class UserController extends GetxController {
     try {
       isProfileLoading.value = true;
       hasProfileError.value = false;
-      profileErrorMessage.value = '';
 
       final response = await _userRepository.getUserProfile();
       userProfile.value = response.user;
       systemInfoModel.value = response.systemInfo;
     } catch (e) {
       hasProfileError.value = true;
-      profileErrorMessage.value = e.toString();
       print('Error loading user profile: $e');
     } finally {
       isProfileLoading.value = false;
@@ -73,13 +69,11 @@ class UserController extends GetxController {
     try {
       isLocationsLoading.value = true;
       hasLocationsError.value = false;
-      locationsErrorMessage.value = '';
 
       final response = await _userRepository.getUserLocations();
       userLocations.value = response.locations;
     } catch (e) {
       hasLocationsError.value = true;
-      locationsErrorMessage.value = e.toString();
       print('Error loading user locations: $e');
     } finally {
       isLocationsLoading.value = false;

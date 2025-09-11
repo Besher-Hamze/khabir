@@ -70,12 +70,7 @@ class OrdersView extends GetView<OrdersController> {
               color: Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            controller.errorMessage.value,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
+
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: controller.loadOrders,

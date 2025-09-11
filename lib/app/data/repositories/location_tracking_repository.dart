@@ -72,29 +72,6 @@ class LocationTrackingRepository {
     }
   }
 
-  Future<Map<String, dynamic>> getEstimatedArrival(int orderId) async {
-    try {
-      final endpoint = AppConstants.locationTrackingEstimatedArrival.replaceAll(
-        '{orderId}',
-        orderId.toString(),
-      );
-
-      final response = await _apiService.get(endpoint);
-
-      if (response.statusCode == 200) {
-        return {'success': true, 'estimatedArrival': response.data};
-      } else {
-        return {'success': false, 'message': 'Failed to get estimated arrival'};
-      }
-    } catch (e) {
-      print('Get estimated arrival error: $e');
-      return {
-        'success': false,
-        'message': 'Error getting estimated arrival: $e',
-      };
-    }
-  }
-
   Future<Map<String, dynamic>> getTrackingStatus(int orderId) async {
     try {
       final endpoint = AppConstants.locationTrackingStatus.replaceAll(
@@ -148,6 +125,10 @@ class LocationTrackingRepository {
       });
       _socket!.on('provider_status_changed', (data) {
         print('Provider status changed: $data');
+      });
+
+      _socket!.on('provider_location_updated', (data) {
+        print('Received location update: $data');
       });
 
       return _socket!;

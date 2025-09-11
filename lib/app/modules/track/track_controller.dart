@@ -13,7 +13,6 @@ class LocationTrackingController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isConnected = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
 
   // Location data
   final Rx<LatLng?> userLocation = Rx<LatLng?>(null);
@@ -53,7 +52,7 @@ class LocationTrackingController extends GetxController {
     } catch (e) {
       print('Initialize location tracking error: $e');
       hasError.value = true;
-      errorMessage.value = e.toString();
+      e.toString();
     }
   }
 
@@ -79,6 +78,7 @@ class LocationTrackingController extends GetxController {
           if (status != null) {
             trackingStatus.value = _formatTrackingStatus(status);
           }
+          isConnected.value = true;
 
           print('Location updated: $latitude, $longitude');
         }
@@ -185,15 +185,15 @@ class LocationTrackingController extends GetxController {
     } catch (e) {
       print('Start tracking error: $e');
       hasError.value = true;
-      errorMessage.value = e.toString();
+      e.toString();
 
-      Get.snackbar(
-        'Tracking Error',
-        'Failed to start tracking: ${e.toString()}',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-      );
+      // Get.snackbar(
+      //   'Tracking Error',
+      //   'Failed to start tracking: ${e.toString()}',
+      //   backgroundColor: Colors.red,
+      //   colorText: Colors.white,
+      //   snackPosition: SnackPosition.TOP,
+      // );
     } finally {
       isLoading.value = false;
     }
@@ -262,33 +262,22 @@ class LocationTrackingController extends GetxController {
       }
 
       // Get location history
-      final historyResult = await _locationRepository.getLocationHistory(
-        orderId,
-      );
-      if (historyResult['success']) {
-        final historyData = historyResult['history'] as List?;
-        if (historyData != null) {
-          locationHistory.clear();
-          for (var point in historyData) {
-            final lat = point['latitude'] as double?;
-            final lng = point['longitude'] as double?;
-            if (lat != null && lng != null) {
-              locationHistory.add(LatLng(lat, lng));
-            }
-          }
-        }
-      }
-
-      // Get estimated arrival
-      final arrivalResult = await _locationRepository.getEstimatedArrival(
-        orderId,
-      );
-      if (arrivalResult['success']) {
-        final arrivalData = arrivalResult['estimatedArrival'];
-        estimatedArrival.value = arrivalData['eta'] ?? '';
-        routeDistance.value = arrivalData['distance'] ?? '';
-        routeDuration.value = arrivalData['duration'] ?? '';
-      }
+      // final historyResult = await _locationRepository.getLocationHistory(
+      //   orderId,
+      // );
+      // if (historyResult['success']) {
+      //   final historyData = historyResult['history'] as List?;
+      //   if (historyData != null) {
+      //     locationHistory.clear();
+      //     for (var point in historyData) {
+      //       final lat = point['latitude'] as double?;
+      //       final lng = point['longitude'] as double?;
+      //       if (lat != null && lng != null) {
+      //         locationHistory.add(LatLng(lat, lng));
+      //       }
+      //     }
+      //   }
+      // }
 
       // Get tracking status
       final statusResult = await _locationRepository.getTrackingStatus(orderId);

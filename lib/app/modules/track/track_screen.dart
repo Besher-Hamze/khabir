@@ -24,9 +24,8 @@ class _TrackingViewState extends State<TrackingView>
       "pk.eyJ1IjoibW9ra3MiLCJhIjoiY20zdno3MXl1MHozNzJxcXp5bmdvbTllYyJ9.Ed_O6F-c2IZJE9DoCyPZ2Q";
 
   final Completer<GoogleMapController> _mapController = Completer();
-  final LocationTrackingController _trackingController = Get.put(
-    LocationTrackingController(),
-  );
+  final LocationTrackingController _trackingController =
+      Get.find<LocationTrackingController>();
 
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
@@ -505,15 +504,7 @@ class _TrackingViewState extends State<TrackingView>
               color: Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              _trackingController.errorMessage.value,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-          ),
+
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
@@ -897,8 +888,8 @@ class _TrackingViewState extends State<TrackingView>
       ),
       child: Row(
         children: [
-          _buildDetailColumn('category'.tr, widget.booking.category),
-          _buildDetailColumn('type'.tr, widget.booking.type),
+          // _buildDetailColumn('category'.tr, widget.booking.category),
+          // _buildDetailColumn('type'.tr, widget.booking.type),
           _buildDetailColumn('duration'.tr, widget.booking.duration),
         ],
       ),
@@ -1054,12 +1045,7 @@ class _TrackingViewState extends State<TrackingView>
             onPressed: _animateToCurrentLocation,
             color: Colors.blue,
           ),
-          const SizedBox(height: 12),
-          _buildControlButton(
-            icon: Icons.refresh,
-            onPressed: () => _trackingController.refreshTracking(),
-            color: Colors.green,
-          ),
+
           const SizedBox(height: 12),
           _buildControlButton(
             icon: Icons.crop_free,

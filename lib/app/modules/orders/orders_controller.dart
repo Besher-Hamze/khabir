@@ -14,7 +14,6 @@ class OrdersController extends GetxController {
   final RxList<OrderModel> orders = <OrderModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxBool isDeletingOrder = false.obs;
 
   @override
@@ -29,10 +28,7 @@ class OrdersController extends GetxController {
     } catch (e) {
       print('OrdersController: Error finding repository: $e');
       hasError.value = true;
-      errorMessage.value = 'failed_to_initialize'.tr.replaceAll(
-        '{error}',
-        '$e',
-      );
+      'failed_to_initialize'.tr.replaceAll('{error}', '$e');
     }
   }
 
@@ -42,7 +38,6 @@ class OrdersController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       print('OrdersController: Calling repository.getUserOrders()');
       final OrderResponse response = await _ordersRepository.getUserOrders();
@@ -53,7 +48,6 @@ class OrdersController extends GetxController {
     } catch (e) {
       print('OrdersController: Error loading orders: $e');
       hasError.value = true;
-      errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
       print('OrdersController: loadOrders completed');

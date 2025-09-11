@@ -81,12 +81,7 @@ class ServiceProvidersView extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  controller.errorMessage.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
+
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: controller.refreshProviders,
