@@ -451,6 +451,7 @@ class AppTranslations extends Translations {
       'provider_information': 'Provider Information',
       'location_information': 'Location Information',
       'service_information': 'Service Information',
+      'khabir_category': 'Khabir Category',
 
       // Request Service
       'request_for_service': 'Request for service',
@@ -798,6 +799,7 @@ class AppTranslations extends Translations {
       'enter_otp_instruction': 'أدخل في الحقل أدناه.',
 
       // Additional Auth
+      'khabir_category': 'خدمات خبير',
 
       // My Bookings
       'my_bookings_title': 'حجزي',

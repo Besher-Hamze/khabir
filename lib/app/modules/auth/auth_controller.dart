@@ -22,7 +22,7 @@ class AuthController extends GetxController {
   var otpCode = ''.obs;
   var phoneNumber = ''.obs;
 
-  // Text controllers
+  //register text controllers
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -30,6 +30,11 @@ class AuthController extends GetxController {
   final emailController = TextEditingController();
   final newPasswordController = TextEditingController();
 
+  // login text controllers
+  final loginPhoneController = TextEditingController();
+  final loginPasswordController = TextEditingController();
+
+  // regiter text controllers
   // Form keys
   final loginFormKey = GlobalKey<FormState>();
   final signupFormKey = GlobalKey<FormState>();
@@ -43,10 +48,10 @@ class AuthController extends GetxController {
   void onClose() {
     // phoneController.dispose();
     // passwordController.dispose();
-    confirmPasswordController.dispose();
-    usernameController.dispose();
-    emailController.dispose();
-    newPasswordController.dispose();
+    // confirmPasswordController.dispose();
+    // usernameController.dispose();
+    // emailController.dispose();
+    // newPasswordController.dispose();
     _timer?.cancel();
     super.onClose();
   }
@@ -189,8 +194,8 @@ class AuthController extends GetxController {
 
     try {
       final result = await _authRepository.login(
-        phoneController.text.trim(),
-        passwordController.text,
+        loginPhoneController.text.trim(),
+        loginPasswordController.text,
       );
       print("result is equal to: $result");
       if (result['success']) {
@@ -286,23 +291,9 @@ class AuthController extends GetxController {
         );
         startTimer();
         Get.toNamed(AppRoutes.verifyPhone);
-      } else {
-        Get.snackbar(
-          'error'.tr,
-          initiateResult['message'],
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
       }
     } catch (e) {
-      Get.snackbar(
-        'error'.tr,
-        'signup_error'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      print('Sign up error: ${e}');
     } finally {
       isLoading.value = false;
     }

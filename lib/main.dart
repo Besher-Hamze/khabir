@@ -120,7 +120,9 @@ class KhabirUserApp extends StatelessWidget {
 
       // Internationalization
       translations: AppTranslations(),
-      locale: const Locale('ar'), // Default to Arabic
+      locale:
+          Get.deviceLocale ??
+          const Locale('ar'), // Use device locale, fallback to Arabic
       fallbackLocale: const Locale('en'),
 
       // Routes

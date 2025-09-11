@@ -124,7 +124,7 @@ class RequestServiceController extends GetxController {
     if (quantity == 0) return 0.0;
 
     final basePrice = service.price * quantity;
-    final totalCommission = service.commission ?? 0;
+    final totalCommission = 0;
 
     return basePrice + totalCommission;
   }
@@ -136,8 +136,7 @@ class RequestServiceController extends GetxController {
       final quantity = getServiceQuantity(service.id);
       if (quantity > 0) {
         final servicePrice = service.price * quantity;
-        final serviceCommission = (service.commission ?? 0);
-        total += servicePrice + serviceCommission;
+        total += servicePrice;
       }
     }
     return total;

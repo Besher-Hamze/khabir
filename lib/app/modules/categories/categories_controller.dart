@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../../data/models/category_model.dart';
 import '../../data/repositories/categories_repository.dart';
-import '../../core/utils/app_translations.dart';
 import '../../routes/app_routes.dart';
 
 class CategoriesController extends GetxController {
@@ -103,6 +102,18 @@ class CategoriesController extends GetxController {
         'categoryName': getCategoryTitle(category),
         'categoryImage': category.image,
         'categoryState': category.state,
+      },
+    );
+  }
+
+  // Handle Khabir Category selection
+  void onKhabirCategorySelected() {
+    Get.toNamed(
+      AppRoutes.services,
+      arguments: {
+        'categoryType': 'Khabir',
+        'categoryName': 'Khabir Category',
+        'categoryId': 0, // Special ID for Khabir Category
       },
     );
   }

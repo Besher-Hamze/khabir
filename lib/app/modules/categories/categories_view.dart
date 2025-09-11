@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:khabir/app/routes/app_routes.dart';
 import '../../core/values/colors.dart';
-import '../../core/utils/app_translations.dart';
 import 'categories_controller.dart';
 import '../../data/models/category_model.dart';
-import '../../global_widgets/loading_widgets.dart';
 
 class CategoriesView extends StatelessWidget {
   final bool showAppBar;
@@ -101,10 +98,17 @@ class CategoriesView extends StatelessWidget {
               mainAxisSpacing: 16,
               childAspectRatio: 0.9,
             ),
-            itemCount: controller.categories.length,
+            itemCount:
+                controller.categories.length +
+                1, // +1 for static Khabir Category
             itemBuilder: (context, index) {
+              // Show static Khabir Category first
+              if (index == 0) {
+                return _buildKhabirCategoryItem(controller);
+              }
+              // Show regular categories (adjust index by -1)
               return _buildCategoryItem(
-                controller.categories[index],
+                controller.categories[index - 1],
                 controller,
               );
             },
@@ -127,6 +131,61 @@ class CategoriesView extends StatelessWidget {
         elevation: 0,
       ),
       body: content,
+    );
+  }
+
+  Widget _buildKhabirCategoryItem(CategoriesController controller) {
+    return GestureDetector(
+      onTap: () => controller.onKhabirCategorySelected(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 2),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // Khabir Category Image/Icon Container
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.primary.withOpacity(0.1),
+                  ),
+                  child: Icon(Icons.star, size: 35, color: AppColors.primary),
+                ),
+              ),
+            ),
+
+            // Khabir Category Name
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                'khabir_category'.tr,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

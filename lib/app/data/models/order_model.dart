@@ -48,11 +48,9 @@ class ServiceBreakdown {
   final int quantity;
   final int serviceId;
   final double unitPrice;
-  final double commission;
   final double totalPrice;
   final String serviceImage;
   final String serviceTitle;
-  final double commissionAmount;
   final String serviceDescription;
   final ServiceCategory? category;
 
@@ -60,11 +58,9 @@ class ServiceBreakdown {
     required this.quantity,
     required this.serviceId,
     required this.unitPrice,
-    required this.commission,
     required this.totalPrice,
     required this.serviceImage,
     required this.serviceTitle,
-    required this.commissionAmount,
     required this.serviceDescription,
     this.category,
   });
@@ -74,11 +70,9 @@ class ServiceBreakdown {
       quantity: json['quantity'] ?? 0,
       serviceId: json['serviceId'] ?? 0,
       unitPrice: (json['unitPrice'] ?? 0).toDouble(),
-      commission: (json['commission'] ?? 0).toDouble(),
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
       serviceImage: json['serviceImage'] ?? '',
       serviceTitle: json['serviceTitle'] ?? '',
-      commissionAmount: (json['commissionAmount'] ?? 0).toDouble(),
       serviceDescription: json['serviceDescription'] ?? '',
       category: json['category'] != null
           ? ServiceCategory.fromJson(json['category'])
@@ -202,7 +196,6 @@ class OrderModel {
   final String status;
   final String orderDate;
   final String bookingId;
-  final double commissionAmount;
   final String? location;
   final String? locationDetails;
   final double providerAmount;
@@ -227,7 +220,6 @@ class OrderModel {
     required this.status,
     required this.orderDate,
     required this.bookingId,
-    required this.commissionAmount,
     this.location,
     this.locationDetails,
     required this.providerAmount,
@@ -254,7 +246,6 @@ class OrderModel {
       status: json['status'] ?? '',
       orderDate: json['orderDate'] ?? '',
       bookingId: json['bookingId'] ?? '',
-      commissionAmount: (json['commissionAmount'] ?? 0).toDouble(),
       location: json['location'],
       locationDetails: json['locationDetails'],
       providerAmount: (json['providerAmount'] ?? 0).toDouble(),

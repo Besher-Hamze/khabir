@@ -9,7 +9,6 @@ class ServiceModel {
   final String image;
   final String title;
   final String description;
-  final double commission;
   final String whatsapp;
   final int categoryId;
   final ServiceType serviceType;
@@ -20,7 +19,6 @@ class ServiceModel {
     required this.image,
     required this.title,
     required this.description,
-    required this.commission,
     required this.whatsapp,
     required this.categoryId,
     required this.category,
@@ -33,7 +31,6 @@ class ServiceModel {
       image: json['image'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      commission: (json['commission'] ?? 0.0).toDouble(),
       whatsapp: json['whatsapp'] ?? '',
       categoryId: json['categoryId'] ?? 0,
       category: CategoryModel.fromJson(json['category'] ?? {}),
@@ -47,7 +44,6 @@ class ServiceModel {
       'image': image,
       'title': title,
       'description': description,
-      'commission': commission,
       'whatsapp': whatsapp,
       'categoryId': categoryId,
       'category': category.toJson(),
@@ -64,9 +60,6 @@ class ServiceModel {
     if (image.startsWith('http')) return image;
     return '$baseUrl$image';
   }
-
-  // Format commission for display
-  String get formattedCommission => 'SAR $commission';
 }
 
 class ServiceCategory {

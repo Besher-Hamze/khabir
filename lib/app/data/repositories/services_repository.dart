@@ -30,6 +30,22 @@ class ServicesRepository extends GetxService {
     }
   }
 
+  Future<List<ServiceModel>> getKhabirServices() async {
+    try {
+      final response = await _apiService.get(AppConstants.servicesKhabir);
+
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> servicesData = response.data;
+        return servicesData.map((json) => ServiceModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load khabir services');
+      }
+    } catch (e) {
+      print('Error fetching khabir services: $e');
+      rethrow;
+    }
+  }
+
   // Get all services
   Future<List<ServiceModel>> getAllServices() async {
     try {

@@ -57,6 +57,7 @@ class AppConstants {
   // Categories & Services Endpoints
   static const String categories = '/categories';
   static const String services = '/services';
+  static const String servicesKhabir = '/services/khabeer';
   static const String servicesByCategory = '/services/category/{id}';
 
   // Provider Endpoints

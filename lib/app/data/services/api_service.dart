@@ -93,7 +93,10 @@ class ApiService extends GetxService {
         } else if (error.response?.statusCode == 500) {
           // Get.snackbar('error'.tr, 'server_error_message'.tr);
         } else {
-          // Get.snackbar('error'.tr, 'unexpected_error'.tr);
+          Get.snackbar(
+            'error'.tr,
+            error.response?.data['message'] ?? 'data_error'.tr,
+          );
         }
         break;
       case DioExceptionType.connectionError:

@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../../data/models/service_model.dart';
 import '../../data/repositories/services_repository.dart';
-import '../../core/utils/app_translations.dart';
 import '../../routes/app_routes.dart';
 
 class ServicesController extends GetxController {
@@ -15,6 +14,7 @@ class ServicesController extends GetxController {
   final RxInt currentCategoryId = 0.obs;
   final RxString currentCategoryName = ''.obs;
   final RxString currentCategoryState = ''.obs;
+  final RxString currentCategoryType = ''.obs;
 
   @override
   void onInit() {
@@ -25,8 +25,12 @@ class ServicesController extends GetxController {
       currentCategoryId.value = arguments['categoryId'] ?? 0;
       currentCategoryName.value = arguments['categoryName'] ?? '';
       currentCategoryState.value = arguments['categoryState'] ?? '';
+      currentCategoryType.value = arguments['categoryType'] ?? '';
 
-      if (currentCategoryId.value > 0) {
+      if (currentCategoryType.value == 'Khabir') {
+        // Handle Khabir Category - load all services or specific logic
+        loadKhabirServices();
+      } else if (currentCategoryId.value > 0) {
         loadServicesByCategory(currentCategoryId.value);
       }
     }
@@ -48,6 +52,26 @@ class ServicesController extends GetxController {
       hasError.value = true;
       errorMessage.value = e.toString();
       print('Error loading services by category: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Load Khabir services
+  Future<void> loadKhabirServices() async {
+    try {
+      isLoading.value = true;
+      hasError.value = false;
+      errorMessage.value = '';
+
+      final List<ServiceModel> fetchedServices = await _servicesRepository
+          .getKhabirServices();
+
+      services.value = fetchedServices;
+    } catch (e) {
+      hasError.value = true;
+      errorMessage.value = e.toString();
+      print('Error loading khabir services: $e');
     } finally {
       isLoading.value = false;
     }
@@ -75,7 +99,9 @@ class ServicesController extends GetxController {
 
   // Refresh services
   Future<void> refreshServices() async {
-    if (currentCategoryId.value > 0) {
+    if (currentCategoryType.value == 'Khabir') {
+      await loadKhabirServices();
+    } else if (currentCategoryId.value > 0) {
       await loadServicesByCategory(currentCategoryId.value);
     } else {
       await loadAllServices();
@@ -102,17 +128,37 @@ class ServicesController extends GetxController {
 
   // Handle service selection
   void onServiceSelected(ServiceModel service) {
-    Get.toNamed(
-      AppRoutes.providers,
-      arguments: {
-        'serviceId': service.id,
-        'serviceName': service.title,
-        'serviceImage': service.image,
-        'categoryId': service.categoryId,
-        'categoryName': currentCategoryName.value,
-        'categoryState': currentCategoryState.value,
-      },
-    );
+    if (service.serviceType == ServiceType.KHABEER) {
+      // Navigate to Khabir service request view
+      Get.toNamed(
+        AppRoutes.requestServiceKhabir,
+        arguments: {
+          'serviceId': service.id,
+          'serviceName': service.title,
+          'serviceImage': service.image,
+          'serviceDescription': service.description,
+          'serviceWhatsapp': service.whatsapp,
+          'categoryId': service.categoryId,
+          'categoryName': currentCategoryName.value,
+          'categoryState': currentCategoryState.value,
+          'categoryType': currentCategoryType.value,
+          'serviceType': 'KHABEER',
+        },
+      );
+    } else {
+      Get.toNamed(
+        AppRoutes.providers,
+        arguments: {
+          'serviceId': service.id,
+          'serviceName': service.title,
+          'serviceImage': service.image,
+          'categoryId': service.categoryId,
+          'categoryName': currentCategoryName.value,
+          'categoryState': currentCategoryState.value,
+          'categoryType': currentCategoryType.value,
+        },
+      );
+    }
   }
 
   // Handle WhatsApp contact
@@ -136,32 +182,5 @@ class ServicesController extends GetxController {
   String get categoryName => currentCategoryName.value;
   String get categoryState => currentCategoryState.value;
   int get categoryId => currentCategoryId.value;
-
-  // Filter services by commission range
-  List<ServiceModel> getServicesByCommissionRange(
-    double minCommission,
-    double maxCommission,
-  ) {
-    return services
-        .where(
-          (service) =>
-              service.commission >= minCommission &&
-              service.commission <= maxCommission,
-        )
-        .toList();
-  }
-
-  // Sort services by commission (low to high)
-  List<ServiceModel> getServicesSortedByCommission() {
-    final sortedServices = List<ServiceModel>.from(services);
-    sortedServices.sort((a, b) => a.commission.compareTo(b.commission));
-    return sortedServices;
-  }
-
-  // Sort services by commission (high to low)
-  List<ServiceModel> getServicesSortedByCommissionDesc() {
-    final sortedServices = List<ServiceModel>.from(services);
-    sortedServices.sort((a, b) => b.commission.compareTo(a.commission));
-    return sortedServices;
-  }
+  String get categoryType => currentCategoryType.value;
 }

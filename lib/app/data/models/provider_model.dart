@@ -277,7 +277,6 @@ class ProviderServiceItem {
   final double price;
   final double? offerPrice;
   final bool isActive;
-  final double? commission;
   final int? categoryId;
 
   // Legacy fields for backward compatibility
@@ -299,7 +298,6 @@ class ProviderServiceItem {
     required this.price,
     this.offerPrice,
     this.isActive = true,
-    this.commission,
     this.categoryId,
     // Legacy fields
     this.providerId,
@@ -370,9 +368,6 @@ class ProviderServiceItem {
       isActive: json['isActive'] ?? json['is_active'] ?? true,
 
       // Get commission from nested service
-      commission:
-          serviceData?['commission']?.toDouble() ??
-          json['commission']?.toDouble(),
 
       // Get categoryId from nested service or category
       categoryId:
@@ -406,7 +401,7 @@ class ProviderServiceItem {
       'price': price,
       'offerPrice': offerPrice,
       'isActive': isActive,
-      'commission': commission,
+
       'categoryId': categoryId,
       if (providerId != null) 'providerId': providerId,
       if (subcategoryId != null) 'subcategoryId': subcategoryId,

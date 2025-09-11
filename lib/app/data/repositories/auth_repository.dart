@@ -13,9 +13,10 @@ class AuthRepository {
   // Login with phone and password
   Future<Map<String, dynamic>> login(String phone, String password) async {
     try {
+      print('Login with phone: $phone and password: $password');
       final response = await _apiService.post(
         AppConstants.authLogin,
-        data: {'phone': phone, 'password': password},
+        data: {'phone': phone.trim(), 'password': password},
       );
 
       if (response.statusCode == 201) {
@@ -30,9 +31,9 @@ class AuthRepository {
 
           return {
             'success': true,
+            'message': "login_success".tr,
             'user': authResponse.user,
             'token': authResponse.accessToken,
-            'message': authResponse.message,
           };
         } else {
           return {'success': false, 'message': authResponse.message};
@@ -100,85 +101,7 @@ class AuthRepository {
         };
       }
     } catch (e) {
-      print('Register initiate error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
-    }
-  }
-
-  // Register new user - Step 2 (Complete with image upload)
-  Future<Map<String, dynamic>> registerComplete({
-    required String name,
-    required String phone,
-    required String password,
-    required String state,
-    required String otp,
-    String? email,
-    String? address,
-    String? profileImagePath,
-  }) async {
-    try {
-      FormData formData = FormData.fromMap({
-        'name': name,
-        'phoneNumber': phone,
-        'password': password,
-        'otp': otp,
-        'role': 'USER',
-        'state': state,
-        'email': email ?? '',
-        'address': address ?? '$state, Oman',
-      });
-
-      // Add profile image if provided
-      if (profileImagePath != null && profileImagePath.isNotEmpty) {
-        File imageFile = File(profileImagePath);
-        if (await imageFile.exists()) {
-          formData.files.add(
-            MapEntry(
-              'profileImage',
-              await MultipartFile.fromFile(
-                profileImagePath,
-                filename:
-                    'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-              ),
-            ),
-          );
-        }
-      }
-
-      final response = await _apiService.post(
-        AppConstants.authRegisterComplete,
-        data: formData,
-        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final authResponse = AuthResponse.fromJson(response.data);
-
-        if (authResponse.success && authResponse.accessToken != null) {
-          // Save user and token
-          if (authResponse.user != null) {
-            await _storageService.saveUser(authResponse.user!);
-          }
-          await _storageService.saveToken(authResponse.accessToken!);
-
-          return {
-            'success': true,
-            'user': authResponse.user,
-            'token': authResponse.accessToken,
-            'message': authResponse.message,
-          };
-        } else {
-          return {'success': false, 'message': authResponse.message};
-        }
-      } else {
-        final responseData = response.data;
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'فشل في إكمال التسجيل',
-        };
-      }
-    } catch (e) {
-      print('Register complete error: $e');
+      print('Register initiate error: ${e}');
       return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }

@@ -59,15 +59,10 @@ class SignupView extends GetView<AuthController> {
                 const SizedBox(height: 16),
 
                 // Phone Number Field
-                CustomTextField(
+                PhoneTextField(
                   label: 'enter_mobile_number'.tr,
                   controller: controller.phoneController,
                   validator: controller.validatePhone,
-                  keyboardType: TextInputType.phone,
-                  prefixIcon: const Icon(
-                    Icons.phone,
-                    color: AppColors.textLight,
-                  ),
                 ),
 
                 const SizedBox(height: 16),

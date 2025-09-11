@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/modules/notifications/notifications_view.dart';
 import 'package:khabir/app/modules/services/services_view.dart';
@@ -26,17 +25,16 @@ import '../modules/bookings/my_bookings_view.dart';
 import '../modules/bookings/my_bookings_binding.dart';
 import '../modules/categories/categories_view.dart';
 import '../modules/categories/categories_binding.dart';
-import '../modules/services/services_view.dart';
 import '../modules/services/services_binding.dart';
 import '../modules/offers/offers_binding.dart';
 import '../modules/offers/offers_view.dart';
 import '../modules/profile/profile_view.dart';
-import '../modules/profile/profile_binding.dart';
 import '../modules/notifications/notifications_binding.dart';
 import '../modules/service providers/service_providers_view.dart';
 import '../modules/service providers/service_providers_binding.dart';
 import '../modules/request service view/request_service_view.dart';
 import '../modules/request service view/request_service_binding.dart';
+import '../modules/request service view/request_service_khabir.dart';
 import '../modules/success page/success_page_view.dart';
 import '../modules/success page/success_page_binding.dart';
 import '../modules/orders/orders_view.dart';
@@ -45,8 +43,6 @@ import '../modules/provider detail/provider_detail_view.dart';
 import '../modules/provider detail/provider_detail_binding.dart';
 import '../modules/all providers/all_providers_view.dart';
 import '../modules/all providers/all_providers_binding.dart';
-import '../modules/offers/offers_view.dart';
-import '../modules/offers/offers_binding.dart';
 
 class AppPages {
   static const initial = AppRoutes.splash;
@@ -161,6 +157,11 @@ class AppPages {
       name: AppRoutes.requestService,
       page: () => const RequestServiceView(),
       binding: RequestServiceBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.requestServiceKhabir,
+      page: () => const RequestServiceKhabirView(),
     ),
 
     GetPage(
