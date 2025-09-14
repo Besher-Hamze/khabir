@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/global_widgets/welcome_dialog.dart';
 import '../../core/values/colors.dart';
 import '../../global_widgets/custom_appbar.dart';
 import '../home/home_view.dart';
@@ -14,6 +15,11 @@ class MainView extends GetView<MainController> {
 
   @override
   Widget build(BuildContext context) {
+    if (Get.arguments?['showWelcome'] == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WelcomeDialog.show();
+      });
+    }
     return Scaffold(
       appBar: HomeAppBar(
         notificationCount: controller.notificationCount,

@@ -19,21 +19,24 @@ class ProfileView extends GetView<UserController> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Profile Header Section
-          _buildProfileHeader(),
-          const SizedBox(height: 24),
+    return RefreshIndicator(
+      onRefresh: controller.refreshProfile,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Profile Header Section
+            _buildProfileHeader(),
+            const SizedBox(height: 24),
 
-          // Menu Items
-          _buildMenuItems(),
-          const SizedBox(height: 40),
+            // Menu Items
+            _buildMenuItems(),
+            const SizedBox(height: 40),
 
-          // Social Media Section
-          _buildSocialMediaSection(),
-          const SizedBox(height: 40),
-        ],
+            // Social Media Section
+            _buildSocialMediaSection(),
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
@@ -291,8 +294,8 @@ class ProfileView extends GetView<UserController> {
           icon: LucideIcons.mapPin,
           iconColor: Colors.red,
           title: 'my_locations'.tr,
-          subtitle: '${controller.userLocations.length} ${'saved'.tr}',
-          hasArrow: true,
+          // subtitle: '${controller.userLocations.length} ${'saved'.tr}',
+          hasArrow: false,
           onTap: () => _showLocationsDialog(),
         ),
 
@@ -1215,9 +1218,9 @@ class ProfileView extends GetView<UserController> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Add New Location',
+                        'add_new_location'.tr,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -1469,12 +1472,7 @@ class ProfileView extends GetView<UserController> {
                             isDefault: controller.userLocations.isEmpty,
                           );
 
-                          final success = await controller.createLocation(
-                            request,
-                          );
-                          if (success) {
-                            Get.back();
-                          }
+                          await controller.createLocation(request);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -1550,9 +1548,9 @@ class ProfileView extends GetView<UserController> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Edit Location',
+                        'edit_location'.tr,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -1577,7 +1575,7 @@ class ProfileView extends GetView<UserController> {
                     children: [
                       // Location Title
                       Text(
-                        'Location Name',
+                        'location_name'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1607,7 +1605,7 @@ class ProfileView extends GetView<UserController> {
 
                       // State Dropdown
                       Text(
-                        'State/Governorate',
+                        'state_governorate'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1650,7 +1648,7 @@ class ProfileView extends GetView<UserController> {
 
                       // Address Details
                       Text(
-                        'Address Details',
+                        'address_details'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1681,7 +1679,7 @@ class ProfileView extends GetView<UserController> {
 
                       // Description
                       Text(
-                        'Description (Optional)',
+                        'description_optional'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1712,7 +1710,7 @@ class ProfileView extends GetView<UserController> {
 
                       // Map Picker
                       Text(
-                        'Pin Location on Map',
+                        'pin_location_on_map'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1777,14 +1775,14 @@ class ProfileView extends GetView<UserController> {
                           if (titleController.text.isEmpty) {
                             Get.snackbar(
                               'Error',
-                              'Please enter a location name',
+                              'please_enter_a_location_name'.tr,
                             );
                             return;
                           }
                           if (addressDetailsController.text.isEmpty) {
                             Get.snackbar(
                               'Error',
-                              'Please enter address details',
+                              'please_enter_address_details'.tr,
                             );
                             return;
                           }
@@ -1800,13 +1798,8 @@ class ProfileView extends GetView<UserController> {
                             address: fullAddress,
                           );
 
-                          final success = await controller.updateLocation(
-                            location.id,
-                            request,
-                          );
-                          if (success) {
-                            Get.back();
-                          }
+                          await controller.updateLocation(location.id, request);
+                          Get.back();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -1840,7 +1833,9 @@ class ProfileView extends GetView<UserController> {
           ],
         ),
         content: Text(
-          'Are you sure you want to delete "${location.title}"? This action cannot be undone.',
+          'are_you_sure_you_want_to_delete'.tr +
+              ' "${location.title}"?' +
+              'this_action_cannot_be_undone'.tr,
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
@@ -1870,7 +1865,7 @@ class ProfileView extends GetView<UserController> {
         content: TextField(
           controller: nameController,
           decoration: InputDecoration(
-            hintText: 'Enter your name',
+            hintText: 'enter_your_name'.tr,
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.person_outline),
           ),
@@ -1885,7 +1880,7 @@ class ProfileView extends GetView<UserController> {
               }
 
               Get.back();
-              final success = await controller.updateProfile(
+              await controller.updateProfile(
                 UpdateProfileRequest(name: nameController.text.trim()),
               );
             },
@@ -2072,11 +2067,11 @@ class ProfileView extends GetView<UserController> {
                             state: selectedState,
                           );
 
-                          final success = await controller.updateProfile(
-                            request,
-                          );
-                          if (success) {
+                          try {
                             Get.back();
+                            await controller.updateProfile(request);
+                          } on Exception catch (e) {
+                            print(e);
                           }
                         },
                         style: ElevatedButton.styleFrom(

@@ -111,110 +111,38 @@ class ServicesView extends StatelessWidget {
     ServiceModel service,
     ServicesController controller,
   ) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border(left: BorderSide(color: AppColors.primary, width: 4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: () => controller.onServiceSelected(service),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
             children: [
-              // Service Image
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey[100],
-                ),
-                child: controller.serviceHasImage(service)
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          controller.getServiceImageUrl(service),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.build,
-                              size: 40,
-                              color: AppColors.primary,
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value:
-                                    loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                    : null,
-                                strokeWidth: 2,
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    : Icon(Icons.build, size: 40, color: AppColors.primary),
-              ),
-
-              const SizedBox(width: 16),
-
-              // Service Details
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      service.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    if (service.description.isNotEmpty)
-                      Text(
-                        service.description,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    //   const SizedBox(height: 8),
-                    //   Row(
-                    //     children: [
-                    //       Container(
-                    //         padding: const EdgeInsets.symmetric(
-                    //           horizontal: 8,
-                    //           vertical: 4,
-                    //         ),
-                    //         decoration: BoxDecoration(
-                    //           color: AppColors.primary.withOpacity(0.1),
-                    //           borderRadius: BorderRadius.circular(12),
-                    //         ),
-                    //         child: Text(
-                    //           service.formattedCommission,
-                    //           style: TextStyle(
-                    //             fontSize: 12,
-                    //             fontWeight: FontWeight.w600,
-                    //             color: AppColors.primary,
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                  ],
+                child: Text(
+                  service.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
-
-              // Arrow Icon
-              const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
+              Icon(Icons.chevron_right, size: 24, color: AppColors.primary),
             ],
           ),
         ),

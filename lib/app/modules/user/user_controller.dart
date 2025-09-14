@@ -98,6 +98,7 @@ class UserController extends GetxController {
       // If this is the first location or marked as default, refresh the list
       if (userLocations.length == 1 || request.isDefault) {
         await loadUserLocations();
+        Get.back();
       }
 
       Get.snackbar(
@@ -222,7 +223,7 @@ class UserController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'error'.tr,
-        'failed_to_delete_location'.tr + ': ${e.toString()}',
+        'failed_to_delete_location'.tr,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -304,7 +305,7 @@ class UserController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to update profile: ${e.toString()}',
+        'Failed to update profile',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         icon: const Icon(Icons.error, color: Colors.white),

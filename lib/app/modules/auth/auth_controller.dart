@@ -199,14 +199,7 @@ class AuthController extends GetxController {
       );
       print("result is equal to: $result");
       if (result['success']) {
-        Get.snackbar(
-          'success'.tr,
-          result['message'],
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        Get.offAllNamed(AppRoutes.main);
+        Get.offAllNamed(AppRoutes.main, arguments: {'showWelcome': true});
       } else {
         Get.snackbar(
           'error'.tr,

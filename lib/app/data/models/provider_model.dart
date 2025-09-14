@@ -117,7 +117,7 @@ class Provider {
       tier: _parseTier(json['tier']),
       score: (json['score'] ?? 0.0).toDouble(),
       rank: json['rank'] ?? 0,
-      rate: json['rate']?.toDouble(),
+      rate: json['rate']?.toDouble() ?? json['averageRating']?.toDouble(),
       services: _parseServices(json),
       orders: _parseOrders(json['orders']),
     );

@@ -68,6 +68,7 @@ class ProvidersRepository {
 
       final response = await _apiService.get(path);
       print('Providers by service API response status: ${response.statusCode}');
+      print('Providers by service API response data: ${response.data}');
 
       if (response.statusCode == 200) {
         if (response.data == null) {

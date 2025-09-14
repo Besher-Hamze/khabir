@@ -120,7 +120,6 @@ class OfferService {
   final String title;
   final String description;
   final String image;
-
   OfferService({
     required this.id,
     required this.title,

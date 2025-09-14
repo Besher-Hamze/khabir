@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/core/utils/helpers.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/app_translations.dart';
 import 'service_providers_controller.dart';
@@ -167,9 +168,7 @@ class ServiceProvidersView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
                       image: controller.providerHasImage(provider)
-                          ? NetworkImage(
-                              controller.getProviderImageUrl(provider),
-                            )
+                          ? NetworkImage(getImageUrl(provider.image))
                           : const AssetImage('assets/images/logo-04.png')
                                 as ImageProvider,
                       fit: BoxFit.cover,
@@ -226,7 +225,7 @@ class ServiceProvidersView extends StatelessWidget {
                   // State
                   if (provider.state.isNotEmpty)
                     Text(
-                      provider.state,
+                      provider.state.tr,
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
 
@@ -256,12 +255,13 @@ class ServiceProvidersView extends StatelessWidget {
                             color:
                                 controller.getProviderOfferPrice(provider) !=
                                     null
-                                ? Colors.green
-                                : Colors.red,
+                                ? Colors.red
+                                : Colors.green,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (controller.getProviderOfferPrice(provider) != null)
+                        if (controller.getProviderOfferPrice(provider) !=
+                            null) ...[
                           TextSpan(
                             text:
                                 '${controller.getProviderOfferPrice(provider)} OMR',
@@ -271,6 +271,7 @@ class ServiceProvidersView extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),

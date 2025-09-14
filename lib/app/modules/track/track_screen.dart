@@ -29,7 +29,6 @@ class _TrackingViewState extends State<TrackingView>
 
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
-  Timer? _locationUpdateTimer;
   Timer? _routeUpdateTimer;
   Timer? _userInteractionTimer;
 
@@ -57,6 +56,7 @@ class _TrackingViewState extends State<TrackingView>
     _initializeAnimations();
     _initializeTracking();
     _startUpdateTimers();
+    _setupLocationListeners();
   }
 
   void _initializeAnimations() {
@@ -96,19 +96,52 @@ class _TrackingViewState extends State<TrackingView>
     _trackingController.startTracking(orderId);
   }
 
-  void _startUpdateTimers() {
-    _locationUpdateTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      _updateMarkersIfNeeded();
+  void _setupLocationListeners() {
+    // Listen to location changes directly using ever()
+    ever(_trackingController.userLocation, (LatLng? location) {
+      if (location != null) {
+        print(
+          'User location changed: ${location.latitude}, ${location.longitude}',
+        );
+        _onLocationChanged();
+      }
     });
 
-    _routeUpdateTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    ever(_trackingController.providerLocation, (LatLng? location) {
+      if (location != null) {
+        print(
+          'Provider location changed: ${location.latitude}, ${location.longitude}',
+        );
+        _onLocationChanged();
+      }
+    });
+
+    // Also listen to location history changes for polyline updates
+    ever(_trackingController.locationHistory, (List<LatLng> history) {
+      print('Location history updated: ${history.length} points');
+      _onLocationChanged();
+    });
+  }
+
+  void _onLocationChanged() {
+    if (mounted) {
+      print('Location changed - updating map markers');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateMapMarkers();
+      });
+    }
+  }
+
+  void _startUpdateTimers() {
+    // Remove the location update timer since we're using reactive listeners now
+    // Keep only the route update timer for periodic route calculations
+    _routeUpdateTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       _updateRouteIfNeeded();
     });
   }
 
   @override
   void dispose() {
-    _locationUpdateTimer?.cancel();
     _routeUpdateTimer?.cancel();
     _userInteractionTimer?.cancel();
     _pulseController.dispose();
@@ -116,27 +149,6 @@ class _TrackingViewState extends State<TrackingView>
     _cardAnimationController.dispose();
     _trackingController.stopTracking();
     super.dispose();
-  }
-
-  void _updateMarkersIfNeeded() {
-    final userLocation = _trackingController.userLocation.value;
-    final providerLocation = _trackingController.providerLocation.value;
-
-    bool shouldUpdate = false;
-
-    if (userLocation != _lastUserLocation) {
-      _lastUserLocation = userLocation;
-      shouldUpdate = true;
-    }
-
-    if (providerLocation != _lastProviderLocation) {
-      _lastProviderLocation = providerLocation;
-      shouldUpdate = true;
-    }
-
-    if (shouldUpdate) {
-      _updateMapMarkers();
-    }
   }
 
   void _updateRouteIfNeeded() {
@@ -155,7 +167,32 @@ class _TrackingViewState extends State<TrackingView>
     final userLocation = _trackingController.userLocation.value;
     final providerLocation = _trackingController.providerLocation.value;
 
-    if (userLocation == null || providerLocation == null) return;
+    print(
+      'Updating map markers - User: $userLocation, Provider: $providerLocation',
+    );
+
+    if (userLocation == null) {
+      print('User location is null, skipping marker update');
+      return;
+    }
+
+    if (providerLocation == null) {
+      print('Provider location is null, showing only user marker');
+      setState(() {
+        _markers.clear();
+        _markers.add(
+          Marker(
+            markerId: const MarkerId("user_location"),
+            position: userLocation,
+            infoWindow: const InfoWindow(title: "Your Location"),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueBlue,
+            ),
+          ),
+        );
+      });
+      return;
+    }
 
     setState(() {
       _markers.clear();
@@ -184,20 +221,33 @@ class _TrackingViewState extends State<TrackingView>
       );
     });
 
+    print('Markers updated successfully: ${_markers.length} markers');
+
     _updatePolylines(userLocation, providerLocation);
 
+    // Auto-fit camera only on first load or when user is not interacting
     if (!_userIsInteracting && !_hasInitializedCamera) {
       _fitBothLocationsOnMap(userLocation, providerLocation);
       _hasInitializedCamera = true;
     }
+
+    // Update last known positions
+    _lastUserLocation = userLocation;
+    _lastProviderLocation = providerLocation;
   }
 
   void _updatePolylines(LatLng userLocation, LatLng providerLocation) {
     setState(() {
-      _polylines.clear();
+      // Clear existing polylines
+      _polylines.removeWhere(
+        (polyline) =>
+            polyline.polylineId.value == "user_to_provider" ||
+            polyline.polylineId.value == "provider_trail",
+      );
 
       final distance = _calculateDistance(userLocation, providerLocation);
 
+      // Add direct line between user and provider if they're far apart
       if (distance > 10) {
         _polylines.add(
           Polyline(
@@ -210,18 +260,23 @@ class _TrackingViewState extends State<TrackingView>
         );
       }
 
+      // Add provider's movement trail
       final locationHistory = _trackingController.locationHistory;
       if (locationHistory.isNotEmpty && locationHistory.length > 1) {
         _polylines.add(
           Polyline(
             polylineId: const PolylineId("provider_trail"),
-            points: locationHistory,
+            points: List.from(
+              locationHistory,
+            ), // Create a copy to avoid reference issues
             color: Colors.green.withOpacity(0.7),
             width: 4,
           ),
         );
       }
     });
+
+    print('Polylines updated: ${_polylines.length} lines');
   }
 
   double _calculateDistance(LatLng point1, LatLng point2) {
@@ -275,6 +330,8 @@ class _TrackingViewState extends State<TrackingView>
               ),
             );
           });
+
+          print('Route updated with ${routePoints.length} points');
         }
       }
     } catch (e) {
@@ -324,6 +381,7 @@ class _TrackingViewState extends State<TrackingView>
       );
 
       controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
+      print('Camera fitted to bounds');
     } catch (e) {
       debugPrint('Error fitting locations on map: $e');
     }
@@ -448,45 +506,48 @@ class _TrackingViewState extends State<TrackingView>
   }
 
   Widget _buildMap() {
-    final userLocation = _trackingController.userLocation.value;
+    return Obx(() {
+      final userLocation = _trackingController.userLocation.value;
 
-    if (userLocation == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text('getting_your_location'.tr),
-          ],
+      if (userLocation == null) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text('getting_your_location'.tr),
+            ],
+          ),
+        );
+      }
+
+      return GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: userLocation,
+          zoom: _currentZoom,
         ),
+        markers: _markers,
+        polylines: _polylines,
+        onMapCreated: (controller) {
+          _mapController.complete(controller);
+          print('Map created successfully');
+        },
+        onCameraMoveStarted: _onCameraMoveStarted,
+        onCameraMove: _onCameraMove,
+        onCameraIdle: _onCameraIdle,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        zoomControlsEnabled: false,
+        mapToolbarEnabled: false,
+        compassEnabled: false,
+        trafficEnabled: true,
+        zoomGesturesEnabled: true,
+        scrollGesturesEnabled: true,
+        tiltGesturesEnabled: false,
+        rotateGesturesEnabled: false,
       );
-    }
-
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: userLocation,
-        zoom: _currentZoom,
-      ),
-      markers: _markers,
-      polylines: _polylines,
-      onMapCreated: (controller) {
-        _mapController.complete(controller);
-      },
-      onCameraMoveStarted: _onCameraMoveStarted,
-      onCameraMove: _onCameraMove,
-      onCameraIdle: _onCameraIdle,
-      myLocationEnabled: true,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: false,
-      mapToolbarEnabled: false,
-      compassEnabled: false,
-      trafficEnabled: true,
-      zoomGesturesEnabled: true,
-      scrollGesturesEnabled: true,
-      tiltGesturesEnabled: false,
-      rotateGesturesEnabled: false,
-    );
+    });
   }
 
   Widget _buildErrorWidget() {
@@ -504,7 +565,6 @@ class _TrackingViewState extends State<TrackingView>
               color: Colors.grey[700],
             ),
           ),
-
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
@@ -612,18 +672,6 @@ class _TrackingViewState extends State<TrackingView>
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: const Icon(
-                      LucideIcons.chevronLeft,
-                      color: Colors.black87,
-                      size: 24,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -669,7 +717,7 @@ class _TrackingViewState extends State<TrackingView>
           right: 0,
           child: GestureDetector(
             onTap: _isCardExpanded ? null : _toggleCardExpansion,
-            onPanStart: _handlePanStart,
+            // onPanStart: _handlePanStart,
             // onPanUpdate: _handlePanUpdate,
             onPanEnd: _handlePanEnd,
             child: Container(
@@ -887,11 +935,7 @@ class _TrackingViewState extends State<TrackingView>
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: [
-          // _buildDetailColumn('category'.tr, widget.booking.category),
-          // _buildDetailColumn('type'.tr, widget.booking.type),
-          _buildDetailColumn('duration'.tr, widget.booking.duration),
-        ],
+        children: [_buildDetailColumn('duration'.tr, widget.booking.duration)],
       ),
     );
   }
@@ -1045,7 +1089,6 @@ class _TrackingViewState extends State<TrackingView>
             onPressed: _animateToCurrentLocation,
             color: Colors.blue,
           ),
-
           const SizedBox(height: 12),
           _buildControlButton(
             icon: Icons.crop_free,

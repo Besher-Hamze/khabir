@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import '../../core/values/colors.dart';
 import '../../global_widgets/custom_button.dart';
 import '../../global_widgets/custom_text_field.dart';
@@ -22,8 +23,8 @@ class SignupView extends GetView<AuthController> {
               children: [
                 // Logo
                 Container(
-                  height: 150,
-                  width: 250,
+                  height: 100,
+                  width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 30),
                   child: Image.asset(
                     'assets/images/logo_login.png',
@@ -47,7 +48,7 @@ class SignupView extends GetView<AuthController> {
 
                 // Full Name Field
                 CustomTextField(
-                  label: 'enter_full_name'.tr,
+                  hint: 'enter_full_name'.tr,
                   controller: controller.usernameController,
                   validator: controller.validateUsername,
                   prefixIcon: const Icon(
@@ -60,50 +61,23 @@ class SignupView extends GetView<AuthController> {
 
                 // Phone Number Field
                 PhoneTextField(
-                  label: 'enter_mobile_number'.tr,
+                  hint: 'enter_mobile_number'.tr,
                   controller: controller.phoneController,
                   validator: controller.validatePhone,
                 ),
 
                 const SizedBox(height: 16),
 
-                // State Dropdown
+                // State Dropdown - Custom Grouped
                 Obx(
-                  () => DropdownButtonFormField<String>(
-                    value: controller.selectedState.value.isEmpty
+                  () => CustomGroupedDropdown(
+                    hint: 'choose_state'.tr,
+                    selectedValue: controller.selectedState.value.isEmpty
                         ? null
                         : controller.selectedState.value,
-                    decoration: InputDecoration(
-                      labelText: 'choose_state'.tr,
-
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    items: controller.states.map((Map<String, dynamic> state) {
-                      return DropdownMenuItem<String>(
-                        value: state['value'],
-                        child: Text(state['label'] ?? ''),
-                      );
-                    }).toList(),
-                    onChanged: (String? value) {
-                      if (value != null) {
-                        controller.selectState(value);
-                      }
+                    data: OmanStatesData.states,
+                    onChanged: (String value, String label) {
+                      controller.selectState(value);
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -111,15 +85,18 @@ class SignupView extends GetView<AuthController> {
                       }
                       return null;
                     },
+                    prefixIcon: const Icon(
+                      Icons.public,
+                      color: AppColors.textLight,
+                    ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
 
                 // Password Field
                 Obx(
                   () => CustomTextField(
-                    label: 'enter_password'.tr,
+                    hint: 'enter_password'.tr,
                     controller: controller.passwordController,
                     obscureText: !controller.isPasswordVisible.value,
                     validator: controller.validatePassword,
@@ -144,7 +121,7 @@ class SignupView extends GetView<AuthController> {
                 // Confirm Password Field
                 Obx(
                   () => CustomTextField(
-                    label: 'confirm_password_label'.tr,
+                    hint: 'confirm_password_label'.tr,
                     controller: controller.confirmPasswordController,
                     obscureText: !controller.isConfirmPasswordVisible.value,
                     validator: controller.validateConfirmPassword,
@@ -223,7 +200,7 @@ class SignupView extends GetView<AuthController> {
                       ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: controller.toggleTermsAgreement,
+                          onTap: controller.goToTermsAndConditions,
                           child: RichText(
                             text: TextSpan(
                               style: const TextStyle(

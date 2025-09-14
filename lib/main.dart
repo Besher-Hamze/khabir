@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -8,13 +9,10 @@ import 'app/data/services/api_service.dart';
 import 'app/data/services/storage_service.dart';
 import 'app/routes/app_pages.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  print('🚀 Starting app initialization...');
-
-  // Initialize services
-  await initServices();
+  print('🚀 Starting app...');
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
@@ -33,75 +31,7 @@ void main() async {
   ]);
 
   print('🎉 App starting...');
-  runApp(KhabirUserApp());
-}
-
-Future<void> initServices() async {
-  print('🔧 Initializing services...');
-
-  try {
-    // Initialize storage service first
-    print('📦 Initializing storage service...');
-    final storageService = await Get.putAsync(() => StorageService().init());
-    print('✅ Storage service initialized successfully');
-
-    // Test storage service
-    try {
-      print('🧪 Testing storage service...');
-      await storageService.saveString('test_init', 'test_value');
-      final testValue = storageService.getString('test_init');
-      if (testValue == 'test_value') {
-        await storageService.remove('test_init');
-        print('✅ Storage service test passed');
-      } else {
-        print('⚠️ Storage service test failed');
-      }
-
-      // Print current storage state
-      print('📊 Initial Storage State:');
-      print('   - Has Token: ${storageService.hasToken}');
-      print('   - Has User: ${storageService.hasUser}');
-      print(
-        '   - Onboarding Completed: ${storageService.isOnboardingCompleted}',
-      );
-    } catch (testError) {
-      print('⚠️ Storage test error: $testError');
-    }
-
-    // Initialize API service
-    print('🌐 Initializing API service...');
-    Get.put(ApiService(), permanent: true);
-    print('✅ API service initialized successfully');
-
-    print('🎯 All services initialized successfully');
-  } catch (e) {
-    print('❌ Error initializing services: $e');
-
-    // Create fallback services with proper initialization
-    try {
-      print('🆘 Creating fallback services...');
-
-      final fallbackStorage = StorageService();
-      try {
-        await fallbackStorage
-            .onInit(); // Ensure SharedPreferences is initialized
-        Get.put<StorageService>(fallbackStorage, permanent: true);
-        print('✅ Fallback storage service created with SharedPreferences');
-      } catch (fallbackStorageError) {
-        print(
-          '❌ Fallback storage initialization failed: $fallbackStorageError',
-        );
-        // Put the service anyway, some functionality might still work
-        Get.put<StorageService>(fallbackStorage, permanent: true);
-        print('⚠️ Fallback storage service created without SharedPreferences');
-      }
-
-      Get.put(ApiService(), permanent: true);
-      print('⚠️ Fallback services created');
-    } catch (fallbackError) {
-      print('💥 Even fallback service creation failed: $fallbackError');
-    }
-  }
+  runApp(const KhabirUserApp());
 }
 
 class KhabirUserApp extends StatelessWidget {
@@ -120,41 +50,25 @@ class KhabirUserApp extends StatelessWidget {
 
       // Internationalization
       translations: AppTranslations(),
-      locale:
-          Get.deviceLocale ??
-          const Locale('ar'), // Use device locale, fallback to Arabic
+      locale: Get.deviceLocale ?? const Locale('ar'),
       fallbackLocale: const Locale('en'),
 
       // Routes
       initialRoute: AppPages.initial,
       getPages: AppPages.routes,
 
-      // Default transition
+      // Transitions
       defaultTransition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 300),
 
-      // Unknown route
+      // Error handling
       unknownRoute: GetPage(
         name: '/notfound',
         page: () => const NotFoundView(),
       ),
 
-      // Global bindings
+      // Bindings
       initialBinding: InitialBinding(),
-
-      // Enable smart management
-      smartManagement: SmartManagement.full,
-
-      // Add this to see navigation logs
-      enableLog: true,
-
-      // Add route observer for debugging navigation issues
-      routingCallback: (routing) {
-        print('🛣️ Route changed: ${routing?.current ?? 'unknown'}');
-        if (routing?.previous != null) {
-          print('   Previous: ${routing?.previous}');
-        }
-      },
     );
   }
 }
@@ -164,25 +78,45 @@ class InitialBinding extends Bindings {
   void dependencies() {
     print('🔗 Setting up initial bindings...');
 
-    // Verify services are available
-    try {
-      final storageService = Get.find<StorageService>();
-      print('✅ StorageService is available in InitialBinding');
-    } catch (e) {
-      print('❌ StorageService not available in InitialBinding: $e');
-    }
+    // Initialize services here instead of main()
+    _initServices();
+  }
 
+  Future<void> _initServices() async {
     try {
-      final apiService = Get.find<ApiService>();
-      print('✅ ApiService is available in InitialBinding');
+      // Check if already initialized
+      if (Get.isRegistered<StorageService>()) {
+        print('✅ Services already initialized');
+        return;
+      }
+
+      print('🔧 Initializing services...');
+
+      // Initialize storage service
+      final storageService = await Get.putAsync(
+        () => StorageService().init(),
+        permanent: !kDebugMode, // Not permanent in debug mode
+      );
+      print('✅ Storage service initialized');
+
+      // Initialize API service
+      Get.put(
+        ApiService(),
+        permanent: !kDebugMode, // Not permanent in debug mode
+      );
+      print('✅ API service initialized');
     } catch (e) {
-      print('❌ ApiService not available in InitialBinding: $e');
+      print('❌ Service initialization failed: $e');
+      // Create fallback services
+      Get.put(StorageService(), permanent: !kDebugMode);
+      Get.put(ApiService(), permanent: !kDebugMode);
+      print('⚠️ Fallback services created');
     }
   }
 }
 
 class NotFoundView extends StatelessWidget {
-  const NotFoundView({Key? key}) : super(key: key);
+  const NotFoundView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -197,12 +131,6 @@ class NotFoundView extends StatelessWidget {
             Text(
               'page_not_found'.tr,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'page_not_found_description'.tr,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -219,13 +147,13 @@ class NotFoundView extends StatelessWidget {
 // Extension to help with service initialization
 extension StorageServiceExt on StorageService {
   Future<StorageService> init() async {
-    print('📱 StorageServiceExt: Initializing storage service...');
+    print('📱 Initializing storage...');
     try {
       await onInit();
-      print('✅ StorageServiceExt: Storage service ready');
+      print('✅ Storage ready');
       return this;
     } catch (e) {
-      print('❌ StorageServiceExt: Initialization failed: $e');
+      print('❌ Storage failed: $e');
       rethrow;
     }
   }

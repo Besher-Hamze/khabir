@@ -59,6 +59,7 @@ class LoginView extends GetView<AuthController> {
               PhoneTextField(
                 controller: controller.loginPhoneController,
                 validator: controller.validatePhone,
+                hint: 'enter_mobile_number'.tr,
               ),
 
               const SizedBox(height: 16),
@@ -66,7 +67,7 @@ class LoginView extends GetView<AuthController> {
               // Password Field
               Obx(
                 () => CustomTextField(
-                  label: 'password'.tr,
+                  hint: 'password'.tr,
                   controller: controller.loginPasswordController,
                   obscureText: !controller.isPasswordVisible.value,
                   validator: controller.validatePassword,

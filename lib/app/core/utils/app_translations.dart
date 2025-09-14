@@ -61,6 +61,7 @@ class AppTranslations extends Translations {
       'edit_phone_number': 'Edit Phone Number',
       'edit_profile': 'Edit Profile',
       'select_language': 'Select Language',
+
       'english': 'English',
       'arabic': 'العربية',
       'delete_account': 'Delete Account',
@@ -126,7 +127,9 @@ class AppTranslations extends Translations {
       'signup_success': 'Account created successfully',
       'visitor_login_success': 'Logged in as visitor',
       'visitor_login_error': 'Visitor login failed',
+      'this_action_cannot_be_undone': 'this action cannot be undone',
       'registration_required': 'Registration Required',
+      'are_you_sure_you_want_to_delete': 'Are you sure you want to delete',
       'visitor_registration_message':
           'To make service requests, please register for a free account. Registration takes only a few minutes.',
       'register_now': 'Register Now',
@@ -190,6 +193,9 @@ class AppTranslations extends Translations {
       'username_too_short': 'Username must be at least 3 characters',
       'agree_terms_required': 'You must agree to the terms and conditions',
       'select_state_required': 'Please select your state',
+      'welcome_to_the_khabir_app': 'Welcome to the khabir app',
+      'we_are_happy_to_welcome_you_to_the_khabir_family':
+          'We are happy to welcome you to the khabir family',
 
       // Errors
       'network_error': 'Network connection error',
@@ -272,6 +278,9 @@ class AppTranslations extends Translations {
       'scheduled_date': 'Scheduled Date',
       'back_to_home': 'Back to Home',
       'view_my_requests': 'View My Requests',
+      "are_you_sure_you_want_to_submit_this_service_request?":
+          "Are you sure you want to submit this service request?",
+
       'tracking_info':
           'You can track your request status and communicate with the provider through the app.',
       'nothing_here_yet': 'Nothing here yet',
@@ -473,8 +482,15 @@ class AppTranslations extends Translations {
       'calendar': 'Calendar',
       'location': 'Location',
       'no_location_selected': 'No location selected',
+      'location_name': 'Location Name',
+      'state_governorate': 'State/Governorate',
+      'address_details': 'Address Details',
+      'description_optional': 'Description (Optional)',
+      'pin_location_on_map': 'Pin Location on Map',
+      'please_enter_a_location_name': 'Please enter a location name',
+      'please_enter_address_details': 'Please enter address details',
       'additional_notes': 'Additional Notes',
-      'add_special_instructions':
+      'add_any_special_instructions_or_notes_for_the_provider ':
           'Add any special instructions or notes for the provider...',
       'selected_services': 'Selected Services',
       'total_amount': 'Total Amount',
@@ -592,7 +608,9 @@ class AppTranslations extends Translations {
       'no_profile_data': 'لا توجد بيانات للملف الشخصي',
       'welcome_back': 'مرحباً بعودتك',
       'login_to_continue': 'سجل دخولك للمتابعة',
-
+      'welcome_to_the_khabir_app': 'مرحباً بك في الخبير',
+      'we_are_happy_to_welcome_you_to_the_khabir_family':
+          'نحن سعداء لترحيبك في عائلة الخبير',
       // Time
       'days_left': 'يوم متبقي',
       'hours_left': 'ساعة متبقية',
@@ -611,6 +629,7 @@ class AppTranslations extends Translations {
       'login': 'تسجيل الدخول',
       'signup': 'إنشاء حساب',
       'logout': 'تسجيل الخروج',
+      'this_action_cannot_be_undone': 'هذا الإجراء لا يمكن التراجع عنه',
       'phone_number': 'رقم الهاتف',
       'password': 'كلمة المرور',
       'confirm_password': 'تأكيد كلمة المرور',
@@ -701,7 +720,6 @@ class AppTranslations extends Translations {
       'username_too_short': 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل',
       'agree_terms_required': 'يجب الموافقة على الشروط والأحكام',
       'select_state_required': 'يرجى اختيار ولايتك',
-
       // Errors
       'network_error': 'خطأ في الاتصال بالشبكة',
       'server_error': 'حدث خطأ في الخادم',
@@ -757,6 +775,9 @@ class AppTranslations extends Translations {
       'no_services_available': 'لا توجد خدمات متاحة لهذه الفئة',
       'contact_via_whatsapp': 'التواصل عبر واتساب',
       'description': 'الوصف',
+
+      'add_any_special_instructions_or_notes_for_the_provider':
+          'أضف أي تعليقات خاصة أو ملاحظات للمزود',
       'no_services_available_provider': 'لا توجد خدمات متاحة',
       'provider_no_services_message': 'لم يضف هذا المزود أي خدمات بعد',
       'services_title': 'الخدمات',
@@ -772,6 +793,9 @@ class AppTranslations extends Translations {
       'scheduled_date': 'التاريخ المجدول',
       'back_to_home': 'العودة للرئيسية',
       'view_my_requests': 'عرض طلباتي',
+      "are_you_sure_you_want_to_submit_this_service_request?":
+          "هل انت متاكد من ارسال الطلب ؟ ",
+
       'tracking_info':
           'يمكنك تتبع حالة طلبك والتواصل مع مزود الخدمة من خلال التطبيق.',
       'nothing_here_yet': 'لا يوجد شيء هنا بعد',
@@ -951,6 +975,14 @@ class AppTranslations extends Translations {
       'tomorrow': 'غداً',
       'calendar': 'التقويم',
       'no_location_selected': 'لم يتم اختيار موقع',
+      'location_name': 'اسم الموقع',
+      'are_you_sure_you_want_to_delete': 'هل أنت متأكد من حذف',
+      'state_governorate': 'الولاية/المحافظة',
+      'address_details': 'تفاصيل العنوان',
+      'description_optional': 'الوصف (اختياري)',
+      'pin_location_on_map': 'تحديد الموقع على الخريطة',
+      'please_enter_a_location_name': 'يرجى إدخال اسم الموقع',
+      'please_enter_address_details': 'يرجى إدخال تفاصيل العنوان',
       'additional_notes': 'ملاحظات إضافية',
       'add_special_instructions':
           'أضف أي تعليمات خاصة أو ملاحظات لمقدم الخدمة...',

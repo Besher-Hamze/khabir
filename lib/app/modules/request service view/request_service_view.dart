@@ -63,94 +63,96 @@ class RequestServiceView extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (controller.hasError.value) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                const SizedBox(height: 16),
-                Text(
-                  'error'.tr,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+          if (controller.hasError.value) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'error'.tr,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refreshServices,
-                  child: Text('retry'.tr),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: controller.refreshServices,
+                    child: Text('retry'.tr),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (controller.services.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.build_outlined, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'no_services_available'.tr,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'provider_no_services_message'.tr,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: controller.refreshServices,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Provider Info Card
+                  _buildProviderInfoCard(controller),
+                  const SizedBox(height: 24),
+
+                  // Services List
+                  _buildServicesList(controller),
+                  const SizedBox(height: 24),
+
+                  // Duration and Location Section
+                  _buildDurationLocationSection(controller),
+                  const SizedBox(height: 16),
+
+                  // Total Price Section - Make it reactive
+                  Obx(() => _buildTotalPriceSection(controller)),
+                  const SizedBox(height: 24),
+
+                  // Notes Section
+                  _buildNotesSection(controller),
+                  const SizedBox(height: 24),
+
+                  // Submit Button - Make it reactive
+                  Obx(() => _buildSubmitButton(controller)),
+                ],
+              ),
             ),
           );
-        }
-
-        if (controller.services.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.build_outlined, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'no_services_available'.tr,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'provider_no_services_message'.tr,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: controller.refreshServices,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Provider Info Card
-                _buildProviderInfoCard(controller),
-                const SizedBox(height: 24),
-
-                // Services List
-                _buildServicesList(controller),
-                const SizedBox(height: 24),
-
-                // Duration and Location Section
-                _buildDurationLocationSection(controller),
-                const SizedBox(height: 16),
-
-                // Total Price Section - Make it reactive
-                Obx(() => _buildTotalPriceSection(controller)),
-                const SizedBox(height: 24),
-
-                // Notes Section
-                _buildNotesSection(controller),
-                const SizedBox(height: 24),
-
-                // Submit Button - Make it reactive
-                Obx(() => _buildSubmitButton(controller)),
-              ],
-            ),
-          ),
-        );
-      }),
+        }),
+      ),
     );
   }
 
@@ -171,84 +173,112 @@ class RequestServiceView extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Provider Image
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: provider.image.isNotEmpty
-                    ? NetworkImage(getImageUrl(provider.image))
-                    : const AssetImage('assets/images/logo-04.png')
-                          as ImageProvider,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Provider Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  provider.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+          // Header Row - Image, Name, Rating
+          Row(
+            children: [
+              // Circular Provider Image
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: provider.image.isNotEmpty
+                        ? NetworkImage(getImageUrl(provider.image))
+                        : const AssetImage('assets/images/logo-04.png')
+                              as ImageProvider,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  provider.description,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
+              ),
+              const SizedBox(width: 16),
+
+              // Provider Name and Service Type
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
                     Text(
-                      provider.state,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      provider.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      controller.services
+                          .where(
+                            (service) => service.id == controller.serviceId,
+                          )
+                          .first
+                          .title, // Use actu al service type from provider model
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
-              ],
+              ),
+
+              // Rating Badge
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      provider.rate.toString(), // Use actual rating
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.star, size: 16, color: Colors.amber),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Description Section
+          Text(
+            'Description',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
 
-          // Verification Badge
-          if (provider.isVerified)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.verified, size: 14, color: Colors.green),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Verified',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+          const SizedBox(height: 12),
+
+          // Description Text
+          Text(
+            provider.description,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              height: 1.4,
             ),
+          ),
         ],
       ),
     );
@@ -319,7 +349,8 @@ class RequestServiceView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'price'.tr + ': ${service.price} OMR',
+                      'price'.tr +
+                          ': ${service.offerPrice != null ? service.offerPrice : service.price} OMR',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -501,10 +532,10 @@ class RequestServiceView extends StatelessWidget {
               Obx(
                 () => Row(
                   children: [
-                    Expanded(child: _buildDurationButton('now'.tr, controller)),
+                    Expanded(child: _buildDurationButton('Now', controller)),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildDurationButton('tomorrow'.tr, controller),
+                      child: _buildDurationButton('Tomorrow', controller),
                     ),
                     const SizedBox(width: 8),
                     Expanded(child: _buildCalendarButton(controller)),
@@ -569,7 +600,7 @@ class RequestServiceView extends StatelessWidget {
                           Expanded(
                             child: Text(
                               controller.selectedLocation.value?.address ??
-                                  'No location selected',
+                                  'no_location_selected'.tr,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.black87,
@@ -628,7 +659,7 @@ class RequestServiceView extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            text,
+            (text.toLowerCase()).tr,
             style: TextStyle(
               fontSize: 13,
               color: isSelected ? Colors.white : Colors.black54,
@@ -719,7 +750,8 @@ class RequestServiceView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Selected Services: ${controller.selectedServicesCount}',
+                'selected_services'.tr +
+                    ': ${controller.selectedServicesCount}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -727,7 +759,7 @@ class RequestServiceView extends StatelessWidget {
                 ),
               ),
               Text(
-                'Total Amount',
+                'total_amount'.tr,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -741,7 +773,7 @@ class RequestServiceView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Duration: ${controller.selectedDuration.value}',
+                '${'duration'.tr}: ${controller.selectedDuration.value.toLowerCase().tr}',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               Text(
@@ -759,7 +791,7 @@ class RequestServiceView extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Date: ${controller.selectedDate.value!.day}/${controller.selectedDate.value!.month}/${controller.selectedDate.value!.year}',
+                  '${'date'.tr}: ${controller.selectedDate.value!.day}/${controller.selectedDate.value!.month}/${controller.selectedDate.value!.year}',
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
@@ -798,8 +830,8 @@ class RequestServiceView extends StatelessWidget {
                 child: const Icon(Icons.note, size: 18, color: Colors.black54),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Additional Notes',
+              Text(
+                'additional_notes'.tr,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -814,7 +846,7 @@ class RequestServiceView extends StatelessWidget {
             maxLines: 3,
             decoration: InputDecoration(
               hintText:
-                  'Add any special instructions or notes for the provider...',
+                  'add_any_special_instructions_or_notes_for_the_provider'.tr,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -842,7 +874,7 @@ class RequestServiceView extends StatelessWidget {
       child: ElevatedButton(
         onPressed:
             (controller.hasSelectedServices && !controller.isSubmitting.value)
-            ? controller.submitRequest
+            ? () => _showConfirmationDialog(controller)
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -883,6 +915,116 @@ class RequestServiceView extends StatelessWidget {
     );
   }
 
+  // Add this method to your RequestServiceView class
+  void _showConfirmationDialog(RequestServiceController controller) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Title
+              Text(
+                'confirm_request'.tr,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Message
+              Text(
+                'are_you_sure_you_want_to_submit_this_service_request?'.tr,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 32),
+
+              // Buttons Row
+              Row(
+                children: [
+                  // Cancel Button
+                  Expanded(
+                    child: SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () => Get.back(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[100],
+                          foregroundColor: Colors.black54,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'cancel'.tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // Confirm Button
+                  Expanded(
+                    child: SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                          controller.submitRequest();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'confirm'.tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+    );
+  }
+
   void _showLocationPickerDialog(RequestServiceController controller) {
     double? selectedLatitude;
     double? selectedLongitude;
@@ -905,6 +1047,7 @@ class RequestServiceView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.blue[200]!),
                 ),
+
                 child: Row(
                   children: [
                     Icon(Icons.info_outline, color: Colors.blue[700], size: 20),

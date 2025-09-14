@@ -12,9 +12,7 @@ class SplashView extends GetView<SplashController> {
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
