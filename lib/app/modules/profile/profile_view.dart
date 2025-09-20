@@ -6,7 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:khabir/app/core/utils/helpers.dart' as Helpers;
 
-import '../../global_widgets/custom_appbar.dart';
+import '../../global_widgets/custom_drop_down.dart';
 import '../user/user_controller.dart';
 import '../../data/models/user_profile_model.dart';
 import '../../data/models/user_location_model.dart';
@@ -1179,316 +1179,311 @@ class ProfileView extends GetView<UserController> {
     String selectedState = AppConstants.OMAN_GOVERNORATES[0]['value']!;
     double? selectedLatitude;
     double? selectedLongitude;
-    String selectedMapAddress = '';
 
     Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,
-        child: Container(
-          width: Get.width * 0.95,
-          height: Get.height * 0.9,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => Container(
+            // Use setDialogState parameter
+            width: Get.width * 0.95,
+            height: Get.height * 0.9,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.add_location,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'add_new_location'.tr,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.close, size: 24),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.add_location,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'add_new_location'.tr,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Get.back(),
-                      icon: const Icon(Icons.close, size: 24),
-                    ),
-                  ],
-                ),
-              ),
 
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Location Title
-                      Text(
-                        'Location Name',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          hintText: 'e.g., Home, Work, Office',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.label_outline,
-                            size: 20,
-                            color: Colors.grey[600],
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Location Title
+                        Text(
+                          'Location Name',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // State Dropdown
-                      Text(
-                        'State/Governorate',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedState,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
-                        items: AppConstants.OMAN_GOVERNORATES.map((
-                          governorate,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: governorate['value'],
-                            child: Text(
-                              governorate['label']!,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: titleController,
+                          decoration: InputDecoration(
+                            hintText: 'e.g., Home, Work, Office',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          );
-                        }).toList(),
-                        onChanged: (value) => selectedState = value!,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Address Details
-                      Text(
-                        'Address Details',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.label_outline,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: addressDetailsController,
-                        decoration: InputDecoration(
-                          hintText: 'Street, building number, apartment, etc.',
-                          border: OutlineInputBorder(
+
+                        const SizedBox(height: 16),
+
+                        // State Dropdown
+                        Text(
+                          'State/Governorate',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomGroupedDropdown(
+                          hint: 'choose_state'.tr,
+                          selectedValue: selectedState.isEmpty
+                              ? null
+                              : selectedState,
+                          data: OmanStatesData.states,
+                          onChanged: (String value, String label) {
+                            selectedState = value;
+                            setDialogState(
+                              () {},
+                            ); // Use the StatefulBuilder's setState
+                          },
+                          prefixIcon: const Icon(
+                            Icons.public,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Address Details
+                        Text(
+                          'Address Details',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: addressDetailsController,
+                          decoration: InputDecoration(
+                            hintText:
+                                'Street, building number, apartment, etc.',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.home_outlined,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          maxLines: 2,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Description
+                        Text(
+                          'Description (Optional)',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: descriptionController,
+                          decoration: InputDecoration(
+                            hintText: 'Additional notes about this location',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.description_outlined,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          maxLines: 2,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Map Picker
+                        Text(
+                          'Pin Location on Map',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.home_outlined,
-                            size: 20,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        maxLines: 2,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Description
-                      Text(
-                        'Description (Optional)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: descriptionController,
-                        decoration: InputDecoration(
-                          hintText: 'Additional notes about this location',
-                          border: OutlineInputBorder(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.description_outlined,
-                            size: 20,
-                            color: Colors.grey[600],
+                            child: MapPickerWidget(
+                              onLocationSelected:
+                                  (latitude, longitude, address) {
+                                    selectedLatitude = latitude;
+                                    selectedLongitude = longitude;
+                                  },
+                            ),
                           ),
                         ),
-                        maxLines: 2,
-                      ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                      const SizedBox(height: 16),
-
-                      // Map Picker
-                      Text(
-                        'Pin Location on Map',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                // Footer Actions
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Get.back(),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('cancel'.tr),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: MapPickerWidget(
-                            onLocationSelected: (latitude, longitude, address) {
-                              selectedLatitude = latitude;
-                              selectedLongitude = longitude;
-                              selectedMapAddress = address;
-                            },
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (titleController.text.isEmpty) {
+                              Get.snackbar(
+                                'Error',
+                                'Please enter a location name',
+                              );
+                              return;
+                            }
+                            if (addressDetailsController.text.isEmpty) {
+                              Get.snackbar(
+                                'Error',
+                                'Please enter address details',
+                              );
+                              return;
+                            }
+                            if (selectedLatitude == null ||
+                                selectedLongitude == null) {
+                              Get.snackbar(
+                                'Error',
+                                'Please select a location on the map',
+                              );
+                              return;
+                            }
+
+                            final fullAddress =
+                                '$selectedState|${addressDetailsController.text.trim()}';
+
+                            final request = CreateLocationRequest(
+                              title: titleController.text.trim(),
+                              description: descriptionController.text.trim(),
+                              latitude: selectedLatitude!,
+                              longitude: selectedLongitude!,
+                              address: fullAddress,
+                              isDefault: controller.userLocations.isEmpty,
+                            );
+
+                            await controller.createLocation(request);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
+                          child: Text('save_location'.tr),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // Footer Actions
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Get.back(),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text('cancel'.tr),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (titleController.text.isEmpty) {
-                            Get.snackbar(
-                              'Error',
-                              'Please enter a location name',
-                            );
-                            return;
-                          }
-                          if (addressDetailsController.text.isEmpty) {
-                            Get.snackbar(
-                              'Error',
-                              'Please enter address details',
-                            );
-                            return;
-                          }
-                          if (selectedLatitude == null ||
-                              selectedLongitude == null) {
-                            Get.snackbar(
-                              'Error',
-                              'Please select a location on the map',
-                            );
-                            return;
-                          }
-
-                          final fullAddress =
-                              '$selectedState|${addressDetailsController.text.trim()}';
-
-                          final request = CreateLocationRequest(
-                            title: titleController.text.trim(),
-                            description: descriptionController.text.trim(),
-                            latitude: selectedLatitude!,
-                            longitude: selectedLongitude!,
-                            address: fullAddress,
-                            isDefault: controller.userLocations.isEmpty,
-                          );
-
-                          await controller.createLocation(request);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text('save_location'.tr),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1509,7 +1504,6 @@ class ProfileView extends GetView<UserController> {
     String selectedState = addressParts[0];
     double selectedLatitude = location.latitude;
     double selectedLongitude = location.longitude;
-    String selectedMapAddress = location.address;
 
     Get.dialog(
       Dialog(
@@ -1613,35 +1607,19 @@ class ProfileView extends GetView<UserController> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedState,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.location_city,
-                            size: 20,
-                            color: Colors.grey[600],
-                          ),
+                      CustomGroupedDropdown(
+                        hint: 'choose_state'.tr,
+                        selectedValue: selectedState.isEmpty
+                            ? null
+                            : selectedState,
+                        data: OmanStatesData.states,
+                        onChanged: (String value, String label) {
+                          selectedState = value;
+                        },
+                        prefixIcon: const Icon(
+                          Icons.public,
+                          color: AppColors.textLight,
                         ),
-                        items: AppConstants.OMAN_GOVERNORATES.map((
-                          governorate,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: governorate['value'],
-                            child: Text(
-                              governorate['label']!,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) => selectedState = value!,
                       ),
 
                       const SizedBox(height: 16),
@@ -1733,7 +1711,6 @@ class ProfileView extends GetView<UserController> {
                             onLocationSelected: (latitude, longitude, address) {
                               selectedLatitude = latitude;
                               selectedLongitude = longitude;
-                              selectedMapAddress = address;
                             },
                           ),
                         ),
@@ -1898,197 +1875,191 @@ class ProfileView extends GetView<UserController> {
     Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,
-        child: Container(
-          width: Get.width * 0.9,
-          height: Get.height * 0.8,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.edit,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Edit Profile',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Get.back(),
-                      icon: const Icon(Icons.close, size: 24),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => Container(
+            width: Get.width * 0.9,
+            height: Get.height * 0.8,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                // Header
+                Container(
                   padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      // Name
-                      Text(
-                        'Full Name',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: AppColors.primary,
+                          size: 20,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your full name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.person_outline,
-                            size: 20,
-                            color: Colors.grey[600],
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Edit Profile',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 16),
-
-                      // State
-                      Text(
-                        'State/Governorate',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedState,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
-                        items: AppConstants.OMAN_GOVERNORATES.map((
-                          governorate,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: governorate['value'],
-                            child: Text(
-                              governorate['label']!,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) => selectedState = value!,
+                      IconButton(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.close, size: 24),
                       ),
                     ],
                   ),
                 ),
-              ),
 
-              // Footer Actions
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name
+                        Text(
+                          'Full Name',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            hintText: 'Enter your full name',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.person_outline,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // State
+                        Text(
+                          'State/Governorate',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomGroupedDropdown(
+                          hint: 'choose_state'.tr,
+                          selectedValue: selectedState.isEmpty
+                              ? null
+                              : selectedState,
+                          data: OmanStatesData.states,
+                          onChanged: (String value, String label) {
+                            selectedState = value;
+                            setDialogState(
+                              () {},
+                            ); // Use StatefulBuilder's setState
+                          },
+                          prefixIcon: const Icon(
+                            Icons.public,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Get.back(),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text('cancel'.tr),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (nameController.text.trim().isEmpty) {
-                            Get.snackbar('Error', 'Name cannot be empty');
-                            return;
-                          }
 
-                          final request = UpdateProfileRequest(
-                            name: nameController.text.trim(),
-                            state: selectedState,
-                          );
-
-                          try {
-                            Get.back();
-                            await controller.updateProfile(request);
-                          } on Exception catch (e) {
-                            print(e);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text('save_changes'.tr),
-                      ),
+                // Footer Actions
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
                     ),
-                  ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Get.back(),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('cancel'.tr),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (nameController.text.trim().isEmpty) {
+                              Get.snackbar('Error', 'Name cannot be empty');
+                              return;
+                            }
+
+                            final request = UpdateProfileRequest(
+                              name: nameController.text.trim(),
+                              state: selectedState,
+                            );
+
+                            try {
+                              Get.back();
+                              await controller.updateProfile(request);
+                            } on Exception catch (e) {
+                              print(e);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('save_changes'.tr),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
