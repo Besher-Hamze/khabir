@@ -93,17 +93,10 @@ class CategoriesView extends StatelessWidget {
               mainAxisSpacing: 16,
               childAspectRatio: 0.9,
             ),
-            itemCount:
-                controller.categories.length +
-                1, // +1 for static Khabir Category
+            itemCount: controller.categories.length,
             itemBuilder: (context, index) {
-              // Show static Khabir Category first
-              if (index == 0) {
-                return _buildKhabirCategoryItem(controller);
-              }
-              // Show regular categories (adjust index by -1)
               return _buildCategoryItem(
-                controller.categories[index - 1],
+                controller.categories[index],
                 controller,
               );
             },

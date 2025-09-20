@@ -7,7 +7,6 @@ import '../../data/models/service_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/models/category_model.dart';
 import 'home_controller.dart';
-import '../provider detail/provider_detail_view.dart';
 import '../all providers/all_providers_view.dart';
 import '../../routes/app_routes.dart';
 
@@ -285,6 +284,7 @@ class HomeView extends GetView<HomeController> {
       child: Container(
         width: 80,
         margin: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),
@@ -598,7 +598,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   void _navigateToProviderDetail(TopProviderModel provider) {
-    Get.toNamed(AppRoutes.providerDetail, arguments: provider);
+    Get.toNamed(AppRoutes.requestService, arguments: {'provider': provider});
   }
 
   void _navigateToAllProviders() {

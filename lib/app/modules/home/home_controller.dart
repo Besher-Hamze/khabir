@@ -85,18 +85,6 @@ class HomeController extends GetxController {
           // Sort by rank (lower is better) and take top 5
           activeProviders.sort((a, b) => a.rank.compareTo(b.rank ?? 0));
           bestProviders.value = activeProviders.take(5).toList();
-
-          print(
-            'Successfully loaded ${bestProviders.length} active providers from API',
-          );
-          print('Providers sorted by rank:');
-
-          // Debug: Print provider details
-          for (var provider in bestProviders) {
-            print(
-              'Provider: ${provider.name} - Rating: ${provider.averageRating} - Tier: ${provider.tier} - Rank: ${provider.rank}',
-            );
-          }
         } else {
           print('No active providers found in API response');
           bestProviders.value = [];
@@ -209,7 +197,10 @@ class HomeController extends GetxController {
         final provider = await _providersRepository.getProviderById(
           banner.providerId.toString(),
         );
-        Get.toNamed(AppRoutes.providerDetail, arguments: provider);
+        Get.toNamed(
+          AppRoutes.requestService,
+          arguments: {'provider': provider},
+        );
       }
     } catch (e) {
       print('Error handling banner tap: $e');

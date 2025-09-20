@@ -143,6 +143,7 @@ class AppTranslations extends Translations {
       'already_have_account': 'Already have an account? ',
       'remember_password': 'Remember your password? ',
       'didnt_receive_code': "Didn't receive the code? ",
+      'valid_until': 'Valid Until',
       'change_phone_number': 'Change Phone Number',
       'download_provider_app': 'Download Provider App',
       'download_provider_app_message':
@@ -798,6 +799,8 @@ class AppTranslations extends Translations {
 
       'tracking_info':
           'يمكنك تتبع حالة طلبك والتواصل مع مزود الخدمة من خلال التطبيق.',
+      "valid_until": "منتهي في",
+
       'nothing_here_yet': 'لا يوجد شيء هنا بعد',
       'try_again_default': 'حاول مرة أخرى',
       'something_went_wrong': 'حدث خطأ ما',

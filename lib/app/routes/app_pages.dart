@@ -39,8 +39,6 @@ import '../modules/success page/success_page_view.dart';
 import '../modules/success page/success_page_binding.dart';
 import '../modules/orders/orders_view.dart';
 import '../modules/orders/orders_binding.dart';
-import '../modules/provider detail/provider_detail_view.dart';
-import '../modules/provider detail/provider_detail_binding.dart';
 import '../modules/all providers/all_providers_view.dart';
 import '../modules/all providers/all_providers_binding.dart';
 
@@ -191,14 +189,6 @@ class AppPages {
       name: AppRoutes.search,
       page: () => const SearchView(),
       binding: HomeBinding(),
-    ),
-    // Provider Detail
-    GetPage(
-      name: AppRoutes.providerDetail,
-      page: () => ProviderDetailView(
-        provider: Get.arguments,
-      ), // Provider passed via arguments
-      binding: ProviderDetailBinding(),
     ),
 
     // All Providers

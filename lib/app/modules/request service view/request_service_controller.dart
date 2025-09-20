@@ -28,6 +28,7 @@ class RequestServiceController extends GetxController {
 
   // Provider and category info
   ProviderApiModel? provider;
+  int? providerId;
   int? serviceId;
   int? categoryId;
 
@@ -41,13 +42,15 @@ class RequestServiceController extends GetxController {
   // Initialize controller with arguments from navigation
   void _initializeFromArguments() {
     final arguments = Get.arguments as Map<String, dynamic>?;
+
     if (arguments != null) {
       provider = arguments['provider'] as ProviderApiModel?;
+      providerId = arguments['providerId'] ?? provider?.id;
       serviceId = arguments['serviceId'] as int?;
       categoryId = arguments['categoryId'] as int?;
 
-      if (provider != null && categoryId != null) {
-        loadProviderServices(provider!.id, categoryId!);
+      if (provider != null || providerId != null) {
+        loadProviderServices(providerId!, categoryId);
       }
     }
   }
@@ -72,17 +75,29 @@ class RequestServiceController extends GetxController {
   }
 
   // Load provider services
-  Future<void> loadProviderServices(int providerId, int categoryId) async {
+  Future<void> loadProviderServices(int providerId, int? categoryId) async {
     try {
       isLoading.value = true;
       hasError.value = false;
-
-      final Provider response = await _providersRepository.getProviderServices(
-        providerId,
-        categoryId,
-      );
+      Provider response;
+      if (categoryId != null) {
+        response = await _providersRepository.getProviderServices(
+          providerId,
+          categoryId,
+        );
+      } else {
+        response = await _providersRepository.getProviderServices(
+          providerId,
+          0,
+        );
+      }
 
       services.value = response.services;
+      if (serviceId != null) {
+        services.value = services
+            .where((service) => service.serviceId == serviceId)
+            .toList();
+      }
       _initializeServiceQuantities();
     } catch (e) {
       hasError.value = true;
@@ -263,7 +278,7 @@ class RequestServiceController extends GetxController {
       services: selectedServicesDetails
           .map(
             (serviceDetail) => ServiceRequestItem(
-              serviceId: serviceDetail['service'].id,
+              serviceId: serviceDetail['service'].serviceId,
               quantity: serviceDetail['quantity'],
             ),
           )
@@ -285,25 +300,44 @@ class RequestServiceController extends GetxController {
   // Get formatted scheduled date
   String _getScheduledDate() {
     if (selectedDate.value != null) {
-      return selectedDate.value!.toUtc().toIso8601String();
+      final date = selectedDate.value!;
+      // Always set time to 00:00:00
+      final dateAtMidnight = DateTime.utc(
+        date.year,
+        date.month,
+        date.day,
+        0,
+        0,
+        0,
+      );
+      return dateAtMidnight.toIso8601String();
     }
 
     switch (selectedDuration.value) {
       case 'Tomorrow':
         final tomorrow = DateTime.now().add(const Duration(days: 1));
-        return DateTime(
+        // Always set time to 00:00:00
+        return DateTime.utc(
           tomorrow.year,
           tomorrow.month,
           tomorrow.day,
-          10, // 10 AM default time
           0,
-        ).toUtc().toIso8601String();
+          0,
+          0,
+        ).toIso8601String();
 
       case 'Now':
       default:
-        // Schedule for next hour
-        final nextHour = DateTime.now().add(const Duration(hours: 1));
-        return nextHour.toUtc().toIso8601String();
+        final now = DateTime.now();
+        // Always set time to 00:00:00
+        return DateTime.utc(
+          now.year,
+          now.month,
+          now.day,
+          0,
+          0,
+          0,
+        ).toIso8601String();
     }
   }
 

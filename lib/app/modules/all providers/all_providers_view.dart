@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
 import '../../core/utils/helpers.dart' as Helpers;
-import '../provider detail/provider_detail_view.dart';
 import '../home/home_controller.dart';
 import '../../routes/app_routes.dart';
 
@@ -374,6 +373,6 @@ class AllProvidersView extends GetView<HomeController> {
   }
 
   void _onProviderTap(TopProviderModel provider) {
-    Get.toNamed(AppRoutes.providerDetail, arguments: provider);
+    Get.toNamed(AppRoutes.requestService, arguments: {'provider': provider});
   }
 }

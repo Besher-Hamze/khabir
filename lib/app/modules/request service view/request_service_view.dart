@@ -211,12 +211,16 @@ class RequestServiceView extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      controller.services
-                          .where(
-                            (service) => service.id == controller.serviceId,
-                          )
-                          .first
-                          .title, // Use actu al service type from provider model
+                      (controller.serviceId != null
+                                  ? controller.services.firstWhereOrNull(
+                                      (service) =>
+                                          service.id == controller.serviceId,
+                                    )
+                                  : (controller.services.isNotEmpty
+                                        ? controller.services.first
+                                        : null))
+                              ?.title ??
+                          '',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],

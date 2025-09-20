@@ -237,7 +237,7 @@ class MyBookingsView extends GetView<OrdersController> {
               _buildDetailColumn('number'.tr, order.quantity.toString()),
               _buildDetailColumn(
                 'duration'.tr,
-                controller.formatDate(order.scheduledDate),
+                Helpers.formatDate(order.scheduledDate),
               ),
               _buildDetailColumn(
                 'total_price'.tr,
@@ -501,7 +501,7 @@ class MyBookingsView extends GetView<OrdersController> {
                           ),
                           _buildDetailRow(
                             'scheduled_date'.tr,
-                            controller.formatDate(order.scheduledDate),
+                            Helpers.formatDate(order.scheduledDate),
                           ),
                         ],
                       ),

@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:khabir/app/data/models/user_location_model.dart';
 
 import 'category_model.dart';
@@ -29,7 +30,12 @@ class ServiceModel {
     return ServiceModel(
       id: json['id'] ?? 0,
       image: json['image'] ?? '',
-      title: json['title'] ?? '',
+      title:
+          json['title'] ??
+          (Get.locale?.languageCode == 'ar'
+              ? json['titleAr']
+              : json['titleEn']) ??
+          '',
       description: json['description'] ?? '',
       whatsapp: json['whatsapp'] ?? '',
       categoryId: json['categoryId'] ?? 0,
@@ -408,9 +414,9 @@ class ServiceRequestRequest {
       'providerId': providerId,
       'services': services.map((e) => e.toJson()).toList(),
       'scheduledDate': scheduledDate,
-      'location': location,
-      'locationDetails': locationDetails,
-      'userLocation': userLocation.toJson(),
+      // 'location': location,
+      // 'locationDetails': locationDetails,
+      'currentLocation': userLocation.toJson(),
       'notes': notes,
     };
   }

@@ -312,6 +312,7 @@ class ProviderServiceItem {
   });
 
   factory ProviderServiceItem.fromJson(Map<String, dynamic> json) {
+    print('json: $json');
     // Handle nested service structure from API
     final serviceData =
         json['service'] ?? json['providerService'] as Map<String, dynamic>?;
@@ -329,7 +330,8 @@ class ProviderServiceItem {
 
       // Handle title - provide fallback for minimal structure
       title:
-          serviceData?['title'] ??
+          serviceData?['titleAr'] ??
+          serviceData?['titleEn'] ??
           json['title'] ??
           json['name_en'] ??
           json['nameEn'] ??
@@ -357,11 +359,14 @@ class ProviderServiceItem {
               .toDouble(),
       offerPrice:
           (json['offerPrice'] ??
+                  serviceData?['offerPrice'] ??
+                  serviceData?['offerPrice']?['offerPrice'] ??
                   json['activeOffer']?['offerPrice'] ??
                   json['activeOffer']?['offer_price']) !=
               null
           ? (json['offerPrice'] ??
                     json['activeOffer']?['offerPrice'] ??
+                    serviceData?['offerPrice']?['offerPrice'] ??
                     json['activeOffer']?['offer_price'])
                 .toDouble()
           : null,

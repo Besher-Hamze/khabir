@@ -274,7 +274,7 @@ class OffersView extends GetView<OffersController> {
                       Text(
                         '${offer.originalPrice} OMR',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.grey[500],
                           decoration: TextDecoration.lineThrough,
                         ),
@@ -345,7 +345,7 @@ class OffersView extends GetView<OffersController> {
                       Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 8),
                       Text(
-                        'Valid until: ${controller.formatDate(offer.endDate)}',
+                        '${'valid_until'.tr}: ${controller.formatDate(offer.endDate)}',
                         style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       ),
                     ],
@@ -430,29 +430,26 @@ class OffersView extends GetView<OffersController> {
 
   Future<void> _onOfferTap(OfferModel offer) async {
     // Navigate to service request or provider detail
-    Provider prvoider = await Get.find<ProvidersRepository>().getProviderById(
-      offer.providerId.toString(),
-    );
+    // Provider prvoider = await Get.find<ProvidersRepository>().getProviderById(
+    //   offer.providerId.toString(),
+    // );
 
     // Find the matching service safely
-    final matchingServices = prvoider.services.where(
-      (s) => s.id == offer.serviceId,
-    );
-    if (matchingServices.isEmpty) {
-      return;
-    }
+    // final matchingServices = prvoider.services.where(
+    //   (s) => s.id == offer.serviceId,
+    // );
+    // if (matchingServices.isEmpty) {
+    //   return;
+    // }
 
-    final service = matchingServices.first;
+    // final service = matchingServices.first;
 
     Get.toNamed(
       AppRoutes.requestService,
       arguments: {
-        'provider': prvoider,
+        'providerId': offer.providerId,
         'serviceId': offer.serviceId,
-        'serviceName': offer.service.title,
-        'categoryName': service.category?.titleEn,
-        'categoryState': service.category?.state,
-        'categoryId': service.categoryId,
+        // 'serviceName': offer.service.title,
       },
     );
   }

@@ -28,8 +28,6 @@ class OffersController extends GetxController {
       final List<OfferModel> loadedOffers = await _offersRepository
           .getAvailableOffers();
       offers.value = loadedOffers;
-
-      print('Successfully loaded ${offers.length} offers');
     } catch (e) {
       hasError.value = true;
       print('Error loading offers: $e');

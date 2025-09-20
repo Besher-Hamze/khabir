@@ -64,6 +64,7 @@ class AppConstants {
   static const String providersByService = '/providers/service/{id}';
   static const String providerServices =
       '/providers/{providerId}/categories/{categoryId}/services';
+  static const String providerServicesAll = '/providers/{providerId}';
   static const String createServiceRequest = '/orders/multiple-services';
   static const String topProviders = '/providers/top/comprehensive';
   static const String providerById = '/providers/{id}';

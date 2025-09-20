@@ -48,6 +48,6 @@ class AppRoutes {
   static const searchResults = '/search-results';
 
   // Provider Routes
-  static const providerDetail = '/provider-detail';
+  // static const providerDetail = '/provider-detail';
   static const allProviders = '/all-providers';
 }

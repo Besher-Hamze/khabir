@@ -251,11 +251,15 @@ class ServiceProvidersView extends StatelessWidget {
                                     null
                                 ? TextDecoration.lineThrough
                                 : TextDecoration.none,
-                            fontSize: 16,
+                            fontSize:
+                                controller.getProviderOfferPrice(provider) !=
+                                    null
+                                ? 14
+                                : 16,
                             color:
                                 controller.getProviderOfferPrice(provider) !=
                                     null
-                                ? Colors.red
+                                ? Colors.grey
                                 : Colors.green,
                             fontWeight: FontWeight.w600,
                           ),
@@ -266,8 +270,8 @@ class ServiceProvidersView extends StatelessWidget {
                             text:
                                 '${controller.getProviderOfferPrice(provider)} OMR',
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.green,
+                              fontSize: 16,
+                              color: Colors.red,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

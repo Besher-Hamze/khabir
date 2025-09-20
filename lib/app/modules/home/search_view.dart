@@ -442,7 +442,10 @@ class _SearchViewState extends State<SearchView> {
 
   Widget _buildProviderCard(Provider provider) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.providerDetail, arguments: provider),
+      onTap: () => Get.toNamed(
+        AppRoutes.requestService,
+        arguments: {'provider': provider},
+      ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
