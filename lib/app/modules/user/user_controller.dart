@@ -98,9 +98,8 @@ class UserController extends GetxController {
       // If this is the first location or marked as default, refresh the list
       if (userLocations.length == 1 || request.isDefault) {
         await loadUserLocations();
-        Get.back();
       }
-
+      Get.back();
       Get.snackbar(
         'success'.tr,
         'location_created'.tr,
@@ -285,27 +284,48 @@ class UserController extends GetxController {
         return false;
       }
 
-      final updatedProfile = await _userRepository.updateUserProfile(
+      final response = await _userRepository.updateUserProfile(
         userProfile.value!.id,
         request,
       );
 
-      // Update the local profile
-      userProfile.value = updatedProfile;
+      if (response['success'] == true) {
+        // Update the local profile
+        userProfile.value = response['user'] as UserProfileModel;
 
-      Get.snackbar(
-        'Success',
-        'Profile updated successfully',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-      );
+        // Check if token was refreshed
+        final token = response['token'] as String?;
+        final message = response['message'] as String?;
 
-      return true;
+        String successMessage = message ?? 'Profile updated successfully';
+        if (token != null) {
+          successMessage += ' • Token refreshed';
+        }
+
+        Get.snackbar(
+          'Success',
+          successMessage,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
+        );
+
+        return true;
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to update profile',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+        return false;
+      }
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to update profile',
+        'Failed to update profile: ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         icon: const Icon(Icons.error, color: Colors.white),

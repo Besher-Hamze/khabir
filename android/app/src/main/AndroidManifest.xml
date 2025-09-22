@@ -4,8 +4,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     
+    <!-- Phone permissions -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    
     <application
-        android:label="khabir"
+        android:label="Khabir"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         

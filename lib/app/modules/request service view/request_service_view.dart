@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:khabir/app/core/utils/helpers.dart';
 import '../../core/values/colors.dart';
 import 'request_service_controller.dart';
@@ -262,9 +263,72 @@ class RequestServiceView extends StatelessWidget {
 
           const SizedBox(height: 20),
 
+          // Contact Information Section
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.green[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.phone, size: 18, color: Colors.green[700]),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'contact_provider'.tr.replaceAll(
+                        '{provider_name}',
+                        provider.name,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      provider.phone.isNotEmpty
+                          ? provider.phone
+                          : 'phone_not_available'.tr,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: provider.phone.isNotEmpty
+                            ? Colors.green[700]
+                            : Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (provider.phone.isNotEmpty)
+                GestureDetector(
+                  onTap: () async {
+                    await _makePhoneCall(provider.phone);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green[200]!),
+                    ),
+                    child: Icon(Icons.call, size: 20, color: Colors.green[700]),
+                  ),
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
           // Description Section
           Text(
-            'Description',
+            'description'.tr,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -909,7 +973,8 @@ class RequestServiceView extends StatelessWidget {
                 ],
               )
             : Text(
-                'Submit Request (${controller.selectedServicesCount} services)',
+                'submit_request'.tr +
+                    ' (${controller.selectedServicesCount} ${'services'.tr})',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -1030,13 +1095,195 @@ class RequestServiceView extends StatelessWidget {
   }
 
   void _showLocationPickerDialog(RequestServiceController controller) {
+    Get.dialog(
+      AlertDialog(
+        title: Text('select_service_location'.tr),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Saved Locations Section
+              if (controller.availableLocations.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        color: Colors.green[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'saved_locations'.tr,
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // List of Saved Locations
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: controller.availableLocations.length,
+                    itemBuilder: (context, index) {
+                      final location = controller.availableLocations[index];
+                      final isSelected =
+                          controller.selectedLocation.value?.id == location.id;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primary.withOpacity(0.1)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.grey[300]!,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              isSelected
+                                  ? Icons.check_circle
+                                  : Icons.location_on,
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.grey[600],
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(
+                            location.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : Colors.black87,
+                            ),
+                          ),
+                          subtitle: Text(
+                            location.address,
+                            style: TextStyle(
+                              color: isSelected
+                                  ? AppColors.primary.withOpacity(0.8)
+                                  : Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: location.isDefault
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange[100],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'default'.tr,
+                                    style: TextStyle(
+                                      color: Colors.orange[800],
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                          onTap: () {
+                            controller.setLocation(location);
+                            Get.back();
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Divider
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey[300])),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'or'.tr,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey[300])),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+              ],
+
+              // Map Picker Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showMapPickerDialog(controller),
+                  icon: const Icon(Icons.map, size: 20),
+                  label: Text('pick_on_map'.tr),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[600],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+        ],
+      ),
+    );
+  }
+
+  void _showMapPickerDialog(RequestServiceController controller) {
     double? selectedLatitude;
     double? selectedLongitude;
     String selectedAddress = '';
 
     Get.dialog(
       AlertDialog(
-        title: Text('select_service_location'.tr),
+        title: Text('pick_location_on_map'.tr),
         content: SizedBox(
           width: double.maxFinite,
           height: 600,
@@ -1051,7 +1298,6 @@ class RequestServiceView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.blue[200]!),
                 ),
-
                 child: Row(
                   children: [
                     Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
@@ -1117,6 +1363,7 @@ class RequestServiceView extends StatelessWidget {
 
                 controller.setLocation(tempLocation);
                 Get.back();
+                Get.back(); // Close both dialogs
               } else {
                 Get.snackbar(
                   'error'.tr,
@@ -1135,5 +1382,42 @@ class RequestServiceView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Make phone call using url_launcher
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    try {
+      // Clean the phone number (remove spaces, dashes, etc.)
+      final cleanPhoneNumber = phoneNumber.replaceAll(
+        RegExp(r'[\s\-\(\)]'),
+        '',
+      );
+
+      // Create the phone URL
+      final Uri phoneUri = Uri(scheme: 'tel', path: cleanPhoneNumber);
+
+      // Check if the device can launch the phone app
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        // Fallback: show error message
+        Get.snackbar(
+          'error'.tr,
+          'cannot_make_phone_call'.tr,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      // Handle any errors
+      Get.snackbar(
+        'error'.tr,
+        'failed_to_make_phone_call'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    }
   }
 }

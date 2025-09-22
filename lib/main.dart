@@ -9,7 +9,7 @@ import 'app/data/services/api_service.dart';
 import 'app/data/services/storage_service.dart';
 import 'app/routes/app_pages.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   print('🚀 Starting app...');
@@ -29,8 +29,6 @@ class KhabirUserApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('🏗️ Building main app...');
-
     return GetMaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
@@ -77,6 +75,7 @@ class InitialBinding extends Bindings {
       // Check if already initialized
       if (Get.isRegistered<StorageService>()) {
         print('✅ Services already initialized');
+        _loadLanguage();
         return;
       }
 
@@ -95,12 +94,30 @@ class InitialBinding extends Bindings {
         permanent: !kDebugMode, // Not permanent in debug mode
       );
       print('✅ API service initialized');
+
+      // Load saved language
+      _loadLanguage();
     } catch (e) {
       print('❌ Service initialization failed: $e');
       // Create fallback services
       Get.put(StorageService(), permanent: !kDebugMode);
       Get.put(ApiService(), permanent: !kDebugMode);
       print('⚠️ Fallback services created');
+    }
+  }
+
+  void _loadLanguage() {
+    try {
+      if (Get.isRegistered<StorageService>()) {
+        final storageService = Get.find<StorageService>();
+        final savedLanguage = storageService.getLanguage();
+        print('🌐 Loading saved language: $savedLanguage');
+
+        // Update the locale
+        Get.updateLocale(Locale(savedLanguage));
+      }
+    } catch (e) {
+      print('❌ Error loading language: $e');
     }
   }
 }

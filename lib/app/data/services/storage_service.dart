@@ -60,7 +60,7 @@ class StorageService extends GetxService {
   }
 
   String getLanguage() {
-    return _prefs.getString(AppConstants.keyLanguage) ?? AppConstants.defaultLanguage;
+    return _prefs.getString(AppConstants.keyLanguage) ?? 'ar';
   }
 
   // Onboarding
@@ -68,7 +68,8 @@ class StorageService extends GetxService {
     await _prefs.setBool(AppConstants.keyOnboarding, true);
   }
 
-  bool get isOnboardingCompleted => _prefs.getBool(AppConstants.keyOnboarding) ?? false;
+  bool get isOnboardingCompleted =>
+      _prefs.getBool(AppConstants.keyOnboarding) ?? false;
 
   // Theme
   Future<void> saveThemeMode(String themeMode) async {

@@ -8,6 +8,7 @@ import 'package:khabir/app/core/utils/helpers.dart' as Helpers;
 
 import '../../global_widgets/custom_drop_down.dart';
 import '../user/user_controller.dart';
+import '../../data/services/storage_service.dart';
 import '../../data/models/user_profile_model.dart';
 import '../../data/models/user_location_model.dart';
 import '../../widgets/map_picker_widget.dart';
@@ -558,7 +559,7 @@ class ProfileView extends GetView<UserController> {
           mode: LaunchMode.externalApplication,
         );
       } else {
-        Get.snackbar('Error', 'Could not open support link');
+        Get.snackbar('Error', 'Could not open support link ${supportUrl}');
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to open support: ${e.toString()}');
@@ -2079,10 +2080,22 @@ class ProfileView extends GetView<UserController> {
               trailing: Get.locale?.languageCode == 'en'
                   ? const Icon(Icons.check, color: Colors.green)
                   : null,
-              onTap: () {
-                Get.updateLocale(const Locale('en', 'US'));
+              onTap: () async {
+                // Save to storage
+                final storageService = Get.find<StorageService>();
+                await storageService.saveLanguage('en');
+
+                // Update locale
+                Get.updateLocale(const Locale('en'));
                 Get.back();
-                Get.snackbar('Success', 'Language changed to English');
+
+                // Show success message
+                Get.snackbar(
+                  'Success',
+                  'Language changed to English',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
               },
             ),
             ListTile(
@@ -2091,10 +2104,22 @@ class ProfileView extends GetView<UserController> {
               trailing: Get.locale?.languageCode == 'ar'
                   ? const Icon(Icons.check, color: Colors.green)
                   : null,
-              onTap: () {
-                Get.updateLocale(const Locale('ar', 'AE'));
+              onTap: () async {
+                // Save to storage
+                final storageService = Get.find<StorageService>();
+                await storageService.saveLanguage('ar');
+
+                // Update locale
+                Get.updateLocale(const Locale('ar'));
                 Get.back();
-                Get.snackbar('نجح', 'تم تغيير اللغة إلى العربية');
+
+                // Show success message
+                Get.snackbar(
+                  'نجح',
+                  'تم تغيير اللغة إلى العربية',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
               },
             ),
           ],
@@ -2144,6 +2169,9 @@ class ProfileView extends GetView<UserController> {
 
               // Navigate to login screen after delay
               await Future.delayed(const Duration(seconds: 2));
+              final storageService = Get.find<StorageService>();
+              await storageService.removeToken();
+              await storageService.removeUser();
               Get.offAllNamed(AppRoutes.login);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../values/colors.dart';
 
 class AppTheme {
@@ -15,82 +14,98 @@ class AppTheme {
         background: AppColors.background,
         error: AppColors.error,
       ),
-      // OPTION 1: Noto Sans - Excellent for Arabic/English bilingual apps
-      textTheme: GoogleFonts.notoSansTextTheme().copyWith(
-        displayLarge: GoogleFonts.notoSans(
+      // Cairo font family - Local assets
+      fontFamily: 'Cairo',
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        displayMedium: GoogleFonts.notoSans(
+        displayMedium: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        displaySmall: GoogleFonts.notoSans(
+        displaySmall: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        headlineLarge: GoogleFonts.notoSans(
+        headlineLarge: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        headlineMedium: GoogleFonts.notoSans(
+        headlineMedium: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        headlineSmall: GoogleFonts.notoSans(
+        headlineSmall: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        titleLarge: GoogleFonts.notoSans(
+        titleLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        titleMedium: GoogleFonts.notoSans(
+        titleMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        titleSmall: GoogleFonts.notoSans(
+        titleSmall: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
+          fontFamily: 'Cairo',
         ),
-        bodyLarge: GoogleFonts.notoSans(
+        bodyLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.normal,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        bodyMedium: GoogleFonts.notoSans(
+        bodyMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.normal,
           color: AppColors.textSecondary,
+          fontFamily: 'Cairo',
         ),
-        bodySmall: GoogleFonts.notoSans(
+        bodySmall: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.normal,
           color: AppColors.textTertiary,
+          fontFamily: 'Cairo',
         ),
-        labelLarge: GoogleFonts.notoSans(
+        labelLarge: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
+          fontFamily: 'Cairo',
         ),
-        labelMedium: GoogleFonts.notoSans(
+        labelMedium: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
+          fontFamily: 'Cairo',
         ),
-        labelSmall: GoogleFonts.notoSans(
+        labelSmall: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,
           color: AppColors.textTertiary,
+          fontFamily: 'Cairo',
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -102,7 +117,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.notoSans(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -116,7 +132,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.notoSans(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -126,7 +143,8 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          textStyle: GoogleFonts.notoSans(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -159,11 +177,13 @@ class AppTheme {
           horizontal: 16,
           vertical: 16,
         ),
-        labelStyle: GoogleFonts.notoSans(
+        labelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: AppColors.textSecondary,
           fontSize: 14,
         ),
-        hintStyle: GoogleFonts.notoSans(
+        hintStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: AppColors.textLight,
           fontSize: 14,
         ),
@@ -173,7 +193,8 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.notoSans(
+        titleTextStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -184,11 +205,13 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textLight,
-        selectedLabelStyle: GoogleFonts.notoSans(
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.notoSans(
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -221,78 +244,93 @@ class AppTheme {
         background: AppColors.background,
         error: AppColors.error,
       ),
-      textTheme: GoogleFonts.tajawalTextTheme().copyWith(
-        displayLarge: GoogleFonts.tajawal(
+      textTheme: const TextTheme().copyWith(
+        displayLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        displayMedium: GoogleFonts.tajawal(
+        displayMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        displaySmall: GoogleFonts.tajawal(
+        displaySmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        headlineLarge: GoogleFonts.tajawal(
+        headlineLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        headlineMedium: GoogleFonts.tajawal(
+        headlineMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        headlineSmall: GoogleFonts.tajawal(
+        headlineSmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        titleLarge: GoogleFonts.tajawal(
+        titleLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        titleMedium: GoogleFonts.tajawal(
+        titleMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
-        titleSmall: GoogleFonts.tajawal(
+        titleSmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
-        bodyLarge: GoogleFonts.tajawal(
+        bodyLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 16,
           fontWeight: FontWeight.normal,
           color: AppColors.textPrimary,
         ),
-        bodyMedium: GoogleFonts.tajawal(
+        bodyMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 14,
           fontWeight: FontWeight.normal,
           color: AppColors.textSecondary,
         ),
-        bodySmall: GoogleFonts.tajawal(
+        bodySmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.normal,
           color: AppColors.textTertiary,
         ),
-        labelLarge: GoogleFonts.tajawal(
+        labelLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
-        labelMedium: GoogleFonts.tajawal(
+        labelMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
-        labelSmall: GoogleFonts.tajawal(
+        labelSmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 10,
           fontWeight: FontWeight.w500,
           color: AppColors.textTertiary,
@@ -307,7 +345,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.tajawal(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -321,7 +360,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.tajawal(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -331,7 +371,8 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          textStyle: GoogleFonts.tajawal(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -364,11 +405,13 @@ class AppTheme {
           horizontal: 16,
           vertical: 16,
         ),
-        labelStyle: GoogleFonts.tajawal(
+        labelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: AppColors.textSecondary,
           fontSize: 14,
         ),
-        hintStyle: GoogleFonts.tajawal(
+        hintStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: AppColors.textLight,
           fontSize: 14,
         ),
@@ -378,7 +421,8 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.tajawal(
+        titleTextStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -389,11 +433,13 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textLight,
-        selectedLabelStyle: GoogleFonts.tajawal(
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.tajawal(
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -426,78 +472,93 @@ class AppTheme {
         background: AppColors.background,
         error: AppColors.error,
       ),
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(
+      textTheme: const TextTheme().copyWith(
+        displayLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        displayMedium: GoogleFonts.inter(
+        displayMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        displaySmall: GoogleFonts.inter(
+        displaySmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
         ),
-        headlineLarge: GoogleFonts.inter(
+        headlineLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        headlineMedium: GoogleFonts.inter(
+        headlineMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        headlineSmall: GoogleFonts.inter(
+        headlineSmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        titleMedium: GoogleFonts.inter(
+        titleMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
-        titleSmall: GoogleFonts.inter(
+        titleSmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
-        bodyLarge: GoogleFonts.inter(
+        bodyLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 16,
           fontWeight: FontWeight.normal,
           color: AppColors.textPrimary,
         ),
-        bodyMedium: GoogleFonts.inter(
+        bodyMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 14,
           fontWeight: FontWeight.normal,
           color: AppColors.textSecondary,
         ),
-        bodySmall: GoogleFonts.inter(
+        bodySmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.normal,
           color: AppColors.textTertiary,
         ),
-        labelLarge: GoogleFonts.inter(
+        labelLarge: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
-        labelMedium: GoogleFonts.inter(
+        labelMedium: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
-        labelSmall: GoogleFonts.inter(
+        labelSmall: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 10,
           fontWeight: FontWeight.w500,
           color: AppColors.textTertiary,
@@ -512,7 +573,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -526,7 +588,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -536,7 +599,8 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          textStyle: GoogleFonts.inter(
+          textStyle: TextStyle(
+            fontFamily: 'Cairo',
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -569,18 +633,24 @@ class AppTheme {
           horizontal: 16,
           vertical: 16,
         ),
-        labelStyle: GoogleFonts.inter(
+        labelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: AppColors.textSecondary,
           fontSize: 14,
         ),
-        hintStyle: GoogleFonts.inter(color: AppColors.textLight, fontSize: 14),
+        hintStyle: TextStyle(
+          fontFamily: 'Cairo',
+          color: AppColors.textLight,
+          fontSize: 14,
+        ),
       ),
       appBarTheme: AppBarTheme(
         elevation: 0,
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -591,11 +661,13 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textLight,
-        selectedLabelStyle: GoogleFonts.inter(
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),

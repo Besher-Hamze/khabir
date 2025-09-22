@@ -2,10 +2,12 @@ import 'package:get/get.dart';
 import '../models/user_profile_model.dart';
 import '../models/user_location_model.dart';
 import '../services/api_service.dart';
+import '../services/storage_service.dart';
 import '../../core/constants/app_constants.dart';
 
 class UserRepository {
   final ApiService _apiService = Get.find<ApiService>();
+  final StorageService _storageService = Get.find<StorageService>();
 
   // Get user profile
   Future<UserProfileResponse> getUserProfile() async {
@@ -118,7 +120,8 @@ class UserRepository {
   }
 
   // Update user profile
-  Future<UserProfileModel> updateUserProfile(
+  // {user:{},access_token:""}
+  Future<Map<String, dynamic>> updateUserProfile(
     int userId,
     UpdateProfileRequest request,
   ) async {
@@ -130,7 +133,44 @@ class UserRepository {
       final response = await _apiService.put(path, data: request.toJson());
 
       if (response.statusCode == 200) {
-        return UserProfileModel.fromJson(response.data);
+        final responseData = response.data;
+
+        // Check if response contains both user and access_token
+        if (responseData is Map<String, dynamic>) {
+          final userData = responseData['user'];
+          final accessToken = responseData['access_token'];
+
+          if (userData != null && accessToken != null) {
+            // Update the stored token
+            await _storageService.saveToken(accessToken);
+
+            // Update API service with new token
+            _apiService.updateToken(accessToken);
+
+            return {
+              'success': true,
+              'user': UserProfileModel.fromJson(userData),
+              'token': accessToken,
+              'message': 'Profile updated successfully',
+            };
+          } else {
+            // Fallback to old response format
+            return {
+              'success': true,
+              'user': UserProfileModel.fromJson(responseData),
+              'token': null,
+              'message': 'Profile updated successfully',
+            };
+          }
+        } else {
+          // Fallback to old response format
+          return {
+            'success': true,
+            'user': UserProfileModel.fromJson(responseData),
+            'token': null,
+            'message': 'Profile updated successfully',
+          };
+        }
       } else {
         throw Exception('Failed to update profile: ${response.statusCode}');
       }

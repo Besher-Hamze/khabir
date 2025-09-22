@@ -190,35 +190,36 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       const SizedBox(width: 16),
                     ],
-                    // // Location Icon with Circle Background
-                    // GestureDetector(
-                    //   onTap:
-                    //       onLocationTap ??
-                    //       () {
-                    //         print('Location tapped');
-                    //       },
-                    //   child: Container(
-                    //     width: 50,
-                    //     height: 50,
-                    //     decoration: BoxDecoration(
-                    //       color: Colors.grey[100],
-                    //       shape: BoxShape.circle,
-                    //       border: Border.all(
-                    //         color: Colors.grey[200]!,
-                    //         width: 1,
-                    //       ),
-                    //     ),
-                    //     child: const Center(
-                    //       child: Icon(
-                    //         LucideIcons.mapPin,
-                    //         color: Color(0xFF6B7280),
-                    //         size: 20,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
 
-                    // const SizedBox(width: 16),
+                    // // Location Icon with Circle Background
+                    GestureDetector(
+                      onTap:
+                          onLocationTap ??
+                          () {
+                            print('Location tapped');
+                          },
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey[200]!,
+                            width: 1,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            LucideIcons.mapPin,
+                            color: Color(0xFF6B7280),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
 
                     // WhatsApp Icon with Circle Background
                     GestureDetector(
@@ -294,6 +295,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       onNotificationTap: () {
         Get.to(const MyBookingsView(showAppBar: true, title: 'Notifications'));
       },
+      onLocationTap: () {},
     );
   }
 
