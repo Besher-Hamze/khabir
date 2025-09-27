@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/values/colors.dart';
@@ -85,6 +87,27 @@ class HomeView extends GetView<HomeController> {
   Widget _buildBannerCarousel() {
     final PageController pageController = PageController();
     final RxInt currentPage = 0.obs;
+    Timer? autoScrollTimer;
+
+    // Function to start auto-scroll
+    void startAutoScroll() {
+      autoScrollTimer?.cancel(); // Cancel any existing timer
+      autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+        if (controller.banners.isNotEmpty) {
+          final nextPage = (currentPage.value + 1) % controller.banners.length;
+          pageController.animateToPage(
+            nextPage,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+
+    // Function to stop auto-scroll
+    void stopAutoScroll() {
+      autoScrollTimer?.cancel();
+    }
 
     return Obx(() {
       if (controller.isBannersLoading.value) {
@@ -116,81 +139,92 @@ class HomeView extends GetView<HomeController> {
 
       final banners = controller.banners;
 
+      // Start auto-scroll when banners are loaded
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        startAutoScroll();
+      });
+
       return Column(
         children: [
           SizedBox(
             height: 150,
-            child: PageView.builder(
-              controller: pageController,
-              onPageChanged: (index) {
-                currentPage.value = index;
-              },
-              itemCount: banners.length,
-              itemBuilder: (context, index) {
-                final banner = banners[index];
-                return GestureDetector(
-                  onTap: () => controller.onBannerTap(banner),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          offset: const Offset(0, 4),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        Helpers.getImageUrl(banner.imageUrl),
-                        width: double.infinity,
-                        height: 150,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.red.withOpacity(0.8),
-                                  Colors.orange.withOpacity(0.8),
-                                ],
+            child: GestureDetector(
+              onPanDown: (_) =>
+                  stopAutoScroll(), // Stop auto-scroll on user interaction
+              onPanCancel: () => startAutoScroll(), // Resume auto-scroll
+              onPanEnd: (_) => startAutoScroll(), // Resume auto-scroll
+              child: PageView.builder(
+                controller: pageController,
+                onPageChanged: (index) {
+                  currentPage.value = index;
+                },
+                itemCount: banners.length,
+                itemBuilder: (context, index) {
+                  final banner = banners[index];
+                  return GestureDetector(
+                    onTap: () => controller.onBannerTap(banner),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            offset: const Offset(0, 4),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          Helpers.getImageUrl(banner.imageUrl),
+                          width: double.infinity,
+                          height: 150,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.red.withOpacity(0.8),
+                                    Colors.orange.withOpacity(0.8),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.image,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    banner.title.isNotEmpty
-                                        ? banner.title
-                                        : 'Banner ${index + 1}',
-                                    style: const TextStyle(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.image,
+                                      size: 40,
                                       color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      banner.title.isNotEmpty
+                                          ? banner.title
+                                          : 'Banner ${index + 1}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 12),

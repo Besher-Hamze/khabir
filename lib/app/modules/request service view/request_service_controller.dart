@@ -44,6 +44,7 @@ class RequestServiceController extends GetxController {
     final arguments = Get.arguments as Map<String, dynamic>?;
 
     if (arguments != null) {
+      print('Arguments: ${arguments}');
       provider = arguments['provider'] as ProviderApiModel?;
       providerId = arguments['providerId'] ?? provider?.id;
       serviceId = arguments['serviceId'] as int?;
@@ -93,6 +94,13 @@ class RequestServiceController extends GetxController {
       }
 
       services.value = response.services;
+      if (provider == null && (providerId != null && providerId != 0)) {
+        print('===============================: $providerId');
+        final providerResponse = await _providersRepository.getProviderById(
+          providerId.toString(),
+        );
+        provider = providerResponse;
+      }
       if (serviceId != null) {
         services.value = services
             .where((service) => service.serviceId == serviceId)
@@ -274,7 +282,7 @@ class RequestServiceController extends GetxController {
   // Build service request object
   ServiceRequestRequest _buildServiceRequest() {
     return ServiceRequestRequest(
-      providerId: provider?.id ?? 0,
+      providerId: providerId ?? 0,
       services: selectedServicesDetails
           .map(
             (serviceDetail) => ServiceRequestItem(
@@ -375,11 +383,9 @@ class RequestServiceController extends GetxController {
 
   // Handle submission errors
   void _handleSubmissionError(dynamic error) {
-    final String errorMsg = _extractErrorMessage(error.toString());
-
     Get.snackbar(
       'Submission Failed',
-      errorMsg,
+      "Error submitting service request",
       backgroundColor: Colors.red,
       colorText: Colors.white,
       duration: const Duration(seconds: 5),

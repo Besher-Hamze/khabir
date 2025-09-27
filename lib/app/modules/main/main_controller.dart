@@ -43,7 +43,12 @@ class MainController extends GetxController {
       notificationCount.value = orders.length;
     });
     ever(userController.systemInfoModel, (systemInfo) {
-      whatsAppNumber.value = systemInfo?.support.whatsappSupport ?? '';
+      print(
+        '=====================systemInfo: ${systemInfo?.support.whatsappSupport}',
+      );
+
+      whatsAppNumber.value =
+          'https://wa.me/${systemInfo?.support.whatsappSupport ?? ''}';
     });
   }
 }

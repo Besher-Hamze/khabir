@@ -276,7 +276,7 @@ class UserController extends GetxController {
     try {
       if (userProfile.value == null) {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           'User profile not loaded',
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -297,13 +297,13 @@ class UserController extends GetxController {
         final token = response['token'] as String?;
         final message = response['message'] as String?;
 
-        String successMessage = message ?? 'Profile updated successfully';
+        String successMessage = message ?? 'success'.tr;
         if (token != null) {
-          successMessage += ' • Token refreshed';
+          successMessage += ' • ${'token_refreshed'.tr}';
         }
 
         Get.snackbar(
-          'Success',
+          'success'.tr,
           successMessage,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -314,8 +314,8 @@ class UserController extends GetxController {
         return true;
       } else {
         Get.snackbar(
-          'Error',
-          'Failed to update profile',
+          'error'.tr,
+          'failed_to_update_profile'.tr,
           backgroundColor: Colors.red,
           colorText: Colors.white,
           icon: const Icon(Icons.error, color: Colors.white),
@@ -324,8 +324,8 @@ class UserController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to update profile: ${e.toString()}',
+        'error'.tr,
+        'failed_to_update_profile'.tr + ': ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         icon: const Icon(Icons.error, color: Colors.white),
@@ -342,7 +342,7 @@ class UserController extends GetxController {
       await _storageService.removeToken();
       await _storageService.removeUser();
       Get.offAllNamed(AppRoutes.login);
-      Get.snackbar('Success', 'Logged out successfully');
+      Get.snackbar('success'.tr, 'logged_out_successfully'.tr);
     } catch (e) {
       print('Logout error: $e');
     }

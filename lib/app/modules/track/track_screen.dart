@@ -6,8 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:lucide_icons/lucide_icons.dart';
-import 'package:khabir/app/core/utils/helpers.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:khabir/app/modules/track/track_controller.dart';
 
 class TrackingView extends StatefulWidget {
@@ -37,12 +36,9 @@ class _TrackingViewState extends State<TrackingView>
   bool _userIsInteracting = false;
   bool _hasInitializedCamera = false;
   double _currentZoom = 14.0;
-  LatLng? _lastUserLocation;
-  LatLng? _lastProviderLocation;
 
   // Card expansion state
   bool _isCardExpanded = true;
-  double _dragPosition = 0.0;
 
   // Animation controllers
   late AnimationController _pulseController;
@@ -231,10 +227,6 @@ class _TrackingViewState extends State<TrackingView>
       _fitBothLocationsOnMap(userLocation, providerLocation);
       _hasInitializedCamera = true;
     }
-
-    // Update last known positions
-    _lastUserLocation = userLocation;
-    _lastProviderLocation = providerLocation;
   }
 
   void _updatePolylines(LatLng userLocation, LatLng providerLocation) {
@@ -432,27 +424,7 @@ class _TrackingViewState extends State<TrackingView>
     }
   }
 
-  void _handlePanStart(DragStartDetails details) {
-    _dragPosition = 0.0;
-  }
-
-  void _handlePanUpdate(DragUpdateDetails details) {
-    setState(() {
-      _dragPosition += details.delta.dy;
-    });
-
-    const double sensitivity = 200.0;
-    double progress = (-_dragPosition / sensitivity).clamp(0.0, 1.0);
-
-    if (!_isCardExpanded) {
-      progress = 1.0 - progress;
-    }
-
-    _cardAnimationController.value = progress;
-  }
-
   void _handlePanEnd(DragEndDetails details) {
-    const double threshold = 100.0;
     double velocity = details.velocity.pixelsPerSecond.dy;
 
     bool shouldExpand;
@@ -460,16 +432,12 @@ class _TrackingViewState extends State<TrackingView>
     if (velocity.abs() > 500) {
       shouldExpand = velocity < 0;
     } else {
-      if (_isCardExpanded) {
-        shouldExpand = _dragPosition < threshold;
-      } else {
-        shouldExpand = _dragPosition < -threshold;
-      }
+      // Default behavior: expand if velocity is upward, collapse if downward
+      shouldExpand = velocity < 0;
     }
 
     setState(() {
       _isCardExpanded = shouldExpand;
-      _dragPosition = 0.0;
     });
 
     if (_isCardExpanded) {
@@ -895,7 +863,7 @@ class _TrackingViewState extends State<TrackingView>
           ),
         ),
 
-        // Price and expand indicator
+        // Price, call button and expand indicator
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -909,18 +877,48 @@ class _TrackingViewState extends State<TrackingView>
               ),
             ),
             const SizedBox(height: 2),
-            AnimatedBuilder(
-              animation: _cardAnimation,
-              builder: (context, child) {
-                return Transform.rotate(
-                  angle: _cardAnimation.value * math.pi,
-                  child: Icon(
-                    Icons.keyboard_arrow_up,
-                    color: Colors.grey[600],
-                    size: 18,
-                  ),
-                );
-              },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Call button - show when booking is accepted and provider is on the way
+                Obx(() {
+                  if (widget.booking.providerPhone.isNotEmpty) {
+                    return GestureDetector(
+                      onTap: () async {
+                        await _makePhoneCall(widget.booking.providerPhone);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.green[200]!),
+                        ),
+                        child: Icon(
+                          Icons.call,
+                          size: 16,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+                const SizedBox(width: 8),
+                AnimatedBuilder(
+                  animation: _cardAnimation,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: _cardAnimation.value * math.pi,
+                      child: Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Colors.grey[600],
+                        size: 18,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -1155,6 +1153,43 @@ class _TrackingViewState extends State<TrackingView>
         CameraPosition(target: userLocation, zoom: 16.0),
       ),
     );
+  }
+
+  // Make phone call using url_launcher
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    try {
+      // Clean the phone number (remove spaces, dashes, etc.)
+      final cleanPhoneNumber = phoneNumber.replaceAll(
+        RegExp(r'[\s\-\(\)]'),
+        '',
+      );
+
+      // Create the phone URL
+      final Uri phoneUri = Uri(scheme: 'tel', path: cleanPhoneNumber);
+
+      // Check if the device can launch the phone app
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        // Fallback: show error message
+        Get.snackbar(
+          'error'.tr,
+          'cannot_make_phone_call'.tr,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      // Handle any errors
+      Get.snackbar(
+        'error'.tr,
+        'failed_to_make_phone_call'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    }
   }
 }
 

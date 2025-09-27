@@ -78,7 +78,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                     shape: PinCodeFieldShape.box,
                     borderRadius: BorderRadius.circular(12),
                     fieldHeight: 60,
-                    fieldWidth: 60,
+                    fieldWidth: 50,
                     activeFillColor: Colors.white,
                     inactiveFillColor: Colors.white,
                     selectedFillColor: Colors.white,
@@ -90,10 +90,13 @@ class VerifyPhoneView extends GetView<AuthController> {
                   enableActiveFill: true,
                   keyboardType: TextInputType.number,
                   textStyle: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
+                  animationDuration: const Duration(milliseconds: 300),
+                  animationType: AnimationType.fade,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 ),
               ),
 
@@ -132,7 +135,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Expires in ',
+                        text: 'valid_until'.tr,
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,

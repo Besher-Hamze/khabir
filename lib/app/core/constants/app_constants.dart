@@ -17,6 +17,7 @@ class AppConstants {
       '/auth/phone/password-reset/send-otp';
   static const String authPasswordReset = '/auth/phone/password-reset';
   static const String authCheckStatus = '/auth/check-status';
+  static const String systemInfo = '/admin/settings/terms-and-conditions';
 
   // User Endpoints
   static const String userProfile = '/users/profile';

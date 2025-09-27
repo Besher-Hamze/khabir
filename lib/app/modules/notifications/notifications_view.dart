@@ -12,7 +12,7 @@ class NotificationsView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: DetailAppBar(
-        title: 'Notifications',
+        title: 'notifications'.tr,
         notificationCount:
             0.obs, // Hide notification badge on notification screen
       ),

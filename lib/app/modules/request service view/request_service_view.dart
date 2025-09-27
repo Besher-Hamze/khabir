@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:khabir/app/core/utils/helpers.dart';
 import '../../core/values/colors.dart';
 import 'request_service_controller.dart';
@@ -258,69 +257,6 @@ class RequestServiceView extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // Contact Information Section
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.green[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Icons.phone, size: 18, color: Colors.green[700]),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'contact_provider'.tr.replaceAll(
-                        '{provider_name}',
-                        provider.name,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      provider.phone.isNotEmpty
-                          ? provider.phone
-                          : 'phone_not_available'.tr,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: provider.phone.isNotEmpty
-                            ? Colors.green[700]
-                            : Colors.grey[500],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (provider.phone.isNotEmpty)
-                GestureDetector(
-                  onTap: () async {
-                    await _makePhoneCall(provider.phone);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green[200]!),
-                    ),
-                    child: Icon(Icons.call, size: 20, color: Colors.green[700]),
-                  ),
-                ),
             ],
           ),
 
@@ -1252,18 +1188,10 @@ class RequestServiceView extends StatelessWidget {
               // Map Picker Button
               SizedBox(
                 width: double.infinity,
-                height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () => _showMapPickerDialog(controller),
                   icon: const Icon(Icons.map, size: 20),
                   label: Text('pick_on_map'.tr),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
               ),
             ],
@@ -1382,42 +1310,5 @@ class RequestServiceView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // Make phone call using url_launcher
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    try {
-      // Clean the phone number (remove spaces, dashes, etc.)
-      final cleanPhoneNumber = phoneNumber.replaceAll(
-        RegExp(r'[\s\-\(\)]'),
-        '',
-      );
-
-      // Create the phone URL
-      final Uri phoneUri = Uri(scheme: 'tel', path: cleanPhoneNumber);
-
-      // Check if the device can launch the phone app
-      if (await canLaunchUrl(phoneUri)) {
-        await launchUrl(phoneUri);
-      } else {
-        // Fallback: show error message
-        Get.snackbar(
-          'error'.tr,
-          'cannot_make_phone_call'.tr,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          icon: const Icon(Icons.error, color: Colors.white),
-        );
-      }
-    } catch (e) {
-      // Handle any errors
-      Get.snackbar(
-        'error'.tr,
-        'failed_to_make_phone_call'.tr,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        icon: const Icon(Icons.error, color: Colors.white),
-      );
-    }
   }
 }

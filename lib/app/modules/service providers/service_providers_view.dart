@@ -232,52 +232,53 @@ class ServiceProvidersView extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Price
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'price_label'.tr,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w400,
-                          ),
+                  Row(
+                    children: [
+                      // Price Label
+                      Text(
+                        'price_label'.tr,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w400,
                         ),
-                        TextSpan(
-                          text: '${controller.getProviderPrice(provider)} OMR',
-                          style: TextStyle(
-                            decoration:
-                                controller.getProviderOfferPrice(provider) !=
-                                    null
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                            fontSize:
-                                controller.getProviderOfferPrice(provider) !=
-                                    null
-                                ? 14
-                                : 16,
-                            color:
-                                controller.getProviderOfferPrice(provider) !=
-                                    null
-                                ? Colors.grey
-                                : Colors.green,
+                      ),
+                      const SizedBox(width: 8),
+
+                      // Original Price
+                      Text(
+                        '${controller.getProviderPrice(provider)} OMR',
+                        style: TextStyle(
+                          fontSize:
+                              controller.getProviderOfferPrice(provider) != null
+                              ? 14
+                              : 16,
+                          color:
+                              controller.getProviderOfferPrice(provider) != null
+                              ? Colors.grey
+                              : Colors.green,
+                          fontWeight: FontWeight.w600,
+                          decoration:
+                              controller.getProviderOfferPrice(provider) != null
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+
+                      // Offer Price
+                      if (controller.getProviderOfferPrice(provider) !=
+                          null) ...[
+                        const SizedBox(width: 12),
+                        Text(
+                          '${controller.getProviderOfferPrice(provider)} OMR',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (controller.getProviderOfferPrice(provider) !=
-                            null) ...[
-                          TextSpan(
-                            text:
-                                '${controller.getProviderOfferPrice(provider)} OMR',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.red,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
                   ),
                 ],
               ),

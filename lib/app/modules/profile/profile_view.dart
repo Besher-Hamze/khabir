@@ -343,7 +343,7 @@ class ProfileView extends GetView<UserController> {
             iconColor: Colors.red,
             title: 'support'.tr,
             onTap: supportUrl != null && supportUrl.isNotEmpty
-                ? () => _openSupport(supportUrl)
+                ? () => _openSupport("https://wa.me/${supportUrl}")
                 : () => _showUnavailableSupport(),
           );
         }),
@@ -541,11 +541,11 @@ class ProfileView extends GetView<UserController> {
   // Helper Methods
   void _openDocument(String url) async {
     try {
-      if (await canLaunchUrl(Uri.parse(url))) {
-        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-      } else {
-        Get.snackbar('Error', 'Could not open document');
-      }
+      // Navigate to PDF Viewer with the URL
+      Get.toNamed(
+        AppRoutes.termsConditions,
+        arguments: {'pdf_url': url, 'title': 'document'.tr},
+      );
     } catch (e) {
       Get.snackbar('Error', 'Failed to open document: ${e.toString()}');
     }

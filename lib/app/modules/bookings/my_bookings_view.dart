@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/data/models/order_model.dart';
 import 'package:khabir/app/global_widgets/rating_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/helpers.dart' as Helpers;
 import '../orders/orders_controller.dart';
-import '../../data/models/provider_model.dart';
 
 class MyBookingsView extends GetView<OrdersController> {
   final bool showAppBar;
@@ -61,6 +61,10 @@ class MyBookingsView extends GetView<OrdersController> {
           title: Text(title ?? 'my_bookings_title'.tr),
           automaticallyImplyLeading: automaticallyImplyLeading,
           actions: actions,
+          titleTextStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
@@ -212,7 +216,7 @@ class MyBookingsView extends GetView<OrdersController> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'id'.tr + ' ${order.id}',
+                    'order_id'.tr + ' ${order.id}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.black54,
@@ -234,7 +238,10 @@ class MyBookingsView extends GetView<OrdersController> {
           // Details Section
           Row(
             children: [
-              _buildDetailColumn('number'.tr, order.quantity.toString()),
+              _buildDetailColumn(
+                'serving_number'.tr,
+                order.quantity.toString(),
+              ),
               _buildDetailColumn(
                 'duration'.tr,
                 Helpers.formatDate(order.scheduledDate),
@@ -298,7 +305,7 @@ class MyBookingsView extends GetView<OrdersController> {
       buttons.add(
         Expanded(
           child: _buildActionButton(
-            'Delete',
+            'delete'.tr,
             Colors.red,
             order,
             onTap: () => controller.deleteOrder(order),
@@ -311,7 +318,7 @@ class MyBookingsView extends GetView<OrdersController> {
       buttons.add(
         Expanded(
           child: _buildActionButton(
-            'Track',
+            'track'.tr,
             Colors.blue,
             order,
             onTap: () => controller.trackOrder(order),
@@ -455,7 +462,7 @@ class MyBookingsView extends GetView<OrdersController> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '#${order.id}',
+                            '${'order_id'.tr} #${order.id}',
                             style: Get.textTheme.bodyMedium?.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -513,6 +520,41 @@ class MyBookingsView extends GetView<OrdersController> {
                         icon: Icons.person,
                         children: [
                           _buildDetailRow('provider'.tr, order.provider.name),
+                          if (order.status.toLowerCase() == 'accepted' &&
+                              order.provider.phone.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildDetailRow(
+                                    'phone'.tr,
+                                    order.provider.phone,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () async {
+                                    await _makePhoneCall(order.provider.phone);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.green[200]!,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.call,
+                                      size: 20,
+                                      color: Colors.green[700],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -522,10 +564,6 @@ class MyBookingsView extends GetView<OrdersController> {
                         title: 'location_information'.tr,
                         icon: Icons.location_on,
                         children: [
-                          _buildDetailRow(
-                            'location'.tr,
-                            order.location ?? 'no_location'.tr,
-                          ),
                           if (order.locationDetails != null &&
                               order.locationDetails!.isNotEmpty)
                             _buildDetailRow(
@@ -542,16 +580,6 @@ class MyBookingsView extends GetView<OrdersController> {
                           title: 'services_breakdown'.tr,
                           icon: Icons.list_alt,
                           children: [_buildServicesBreakdownSection(order)],
-                        ),
-                      ],
-
-                      // Invoice Card
-                      if (order.invoice != null) ...[
-                        const SizedBox(height: 16),
-                        _buildInfoCard(
-                          title: 'invoice_information'.tr,
-                          icon: Icons.receipt,
-                          children: [_buildInvoiceSection(order.invoice!)],
                         ),
                       ],
                     ],
@@ -716,27 +744,6 @@ class MyBookingsView extends GetView<OrdersController> {
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
                 fontSize: 15,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPhoneRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              '$label:',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -1172,5 +1179,42 @@ class MyBookingsView extends GetView<OrdersController> {
         ),
       ],
     );
+  }
+
+  // Make phone call using url_launcher
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    try {
+      // Clean the phone number (remove spaces, dashes, etc.)
+      final cleanPhoneNumber = phoneNumber.replaceAll(
+        RegExp(r'[\s\-\(\)]'),
+        '',
+      );
+
+      // Create the phone URL
+      final Uri phoneUri = Uri(scheme: 'tel', path: cleanPhoneNumber);
+
+      // Check if the device can launch the phone app
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        // Fallback: show error message
+        Get.snackbar(
+          'error'.tr,
+          'cannot_make_phone_call'.tr,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          icon: const Icon(Icons.error, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      // Handle any errors
+      Get.snackbar(
+        'error'.tr,
+        'failed_to_make_phone_call'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error, color: Colors.white),
+      );
+    }
   }
 }

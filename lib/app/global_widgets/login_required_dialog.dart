@@ -10,14 +10,15 @@ class LoginRequiredDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
+
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           Icon(Icons.lock_outline, color: Colors.amber[800]),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           Text(
             'login_required'.tr,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ],
       ),

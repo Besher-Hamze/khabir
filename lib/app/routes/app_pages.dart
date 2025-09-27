@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:khabir/app/modules/auth/terms_conditions_view.dart';
 import 'package:khabir/app/modules/notifications/notifications_view.dart';
 import 'package:khabir/app/modules/services/services_view.dart';
 import 'package:khabir/app/modules/user/user_binding.dart';
@@ -77,6 +78,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.signup,
       page: () => const SignupView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.termsConditions,
+      page: () => const PdfViewerPage(),
       binding: AuthBinding(),
     ),
 

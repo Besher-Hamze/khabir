@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:khabir/app/core/utils/helpers.dart';
+import 'package:khabir/app/data/services/storage_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../routes/app_routes.dart';
 import '../../core/constants/app_constants.dart';
@@ -10,9 +12,10 @@ import '../../core/constants/app_constants.dart';
 class AuthController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
   final ImagePicker _imagePicker = ImagePicker();
-
   // Observable variables
+  var systemInfo = <String, dynamic>{}.obs;
   var isLoading = false.obs;
+  var isSystemInfoLoading = false.obs;
   var isVisitorLoading = false.obs;
   var isPasswordVisible = false.obs;
   var isConfirmPasswordVisible = false.obs;
@@ -45,6 +48,12 @@ class AuthController extends GetxController {
   List<Map<String, String>> get states => AppConstants.OMAN_GOVERNORATES;
 
   @override
+  void onInit() {
+    super.onInit();
+    getSystemInfo();
+  }
+
+  @override
   void onClose() {
     // phoneController.dispose();
     // passwordController.dispose();
@@ -54,6 +63,10 @@ class AuthController extends GetxController {
     // newPasswordController.dispose();
     _timer?.cancel();
     super.onClose();
+  }
+
+  void getSystemInfo() async {
+    systemInfo.value = await _authRepository.getSystemInfo();
   }
 
   // Toggle password visibility
@@ -315,7 +328,7 @@ class AuthController extends GetxController {
         phoneNumber.value = phoneController.text.trim();
         Get.snackbar(
           'success'.tr,
-          initiateResult['message'],
+          'otp_sent_successfully'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -583,7 +596,17 @@ class AuthController extends GetxController {
   }
 
   void goToTermsAndConditions() {
-    Get.toNamed(AppRoutes.termsConditions);
+    var _storageService = Get.find<StorageService>();
+    var pdfUrl = _storageService.getLanguage() == 'ar'
+        ? systemInfo.value['terms_ar']
+        : systemInfo.value['terms_en'];
+    Get.toNamed(
+      AppRoutes.termsConditions,
+      arguments: {
+        'pdf_url': getImageUrl(pdfUrl),
+        'title': 'terms_and_conditions'.tr,
+      },
+    );
   }
 
   void goToPrivacyPolicy() {

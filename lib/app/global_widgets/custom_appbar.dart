@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/modules/main/location_select_page.dart';
 import 'package:khabir/app/routes/app_routes.dart';
 import 'package:khabir/app/modules/bookings/my_bookings_view.dart';
-import 'package:khabir/app/modules/notifications/notifications_view.dart';
-import 'package:khabir/app/modules/orders/orders_view.dart';
 import 'package:khabir/app/data/services/storage_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -193,11 +192,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                     // // Location Icon with Circle Background
                     GestureDetector(
-                      onTap:
-                          onLocationTap ??
-                          () {
-                            print('Location tapped');
-                          },
+                      onTap: () {
+                        // Navigate to the new LocationSelectionPage
+                        Get.to(() => const LocationSelectionPage());
+                      },
                       child: Container(
                         width: 50,
                         height: 50,
@@ -293,7 +291,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         launchUrl(Uri.parse(whatsAppNumber.value));
       },
       onNotificationTap: () {
-        Get.to(const MyBookingsView(showAppBar: true, title: 'Notifications'));
+        Get.to(MyBookingsView(showAppBar: true, title: 'notifications'.tr));
       },
       onLocationTap: () {},
     );

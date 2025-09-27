@@ -14,7 +14,10 @@ class AppTheme {
         background: AppColors.background,
         error: AppColors.error,
       ),
-      // Cairo font family - Local assets
+      dialogTheme: DialogThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: AppColors.surface,
+      ), // Cairo font family - Local assets
       fontFamily: 'Cairo',
       textTheme: const TextTheme(
         displayLarge: TextStyle(

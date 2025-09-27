@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:dio/dio.dart';
+import 'package:khabir/app/data/models/user_profile_model.dart';
 import '../models/user_model.dart';
 import '../services/storage_service.dart';
 import '../services/api_service.dart';
@@ -105,7 +106,7 @@ class AuthRepository {
     try {
       FormData formData = FormData.fromMap({
         'name': name,
-        'phoneNumber': phone,
+        'phoneNumber': phone.replaceAll(' ', ''),
         'password': password,
         'role': 'USER',
         'state': state,
@@ -142,7 +143,9 @@ class AuthRepository {
         final responseData = response.data;
         return {
           'success': false,
-          'message': responseData['message'] ?? 'فشل في إنشاء الحساب',
+          'message': responseData['message'].toString().contains("Phone")
+              ? "phone_number_already_exists".tr
+              : 'فشل في إنشاء الحساب',
         };
       }
     } catch (e) {
@@ -156,10 +159,11 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordResetSendOTP,
-        data: {'phoneNumber': phone},
+        data: {'phoneNumber': phone.replaceAll(' ', '')},
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 && response.data['success'] == true) {
         return {'success': true, 'message': 'تم إرسال رمز التحقق إلى $phone'};
       } else {
         final responseData = response.data;
@@ -179,7 +183,7 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authRegisterComplete,
-        data: {'phoneNumber': phoneNumber, 'otp': otp},
+        data: {'phoneNumber': phoneNumber.replaceAll(' ', ''), 'otp': otp},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -222,7 +226,11 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordReset,
-        data: {'phoneNumber': phone, 'otp': otp, 'newPassword': newPassword},
+        data: {
+          'phoneNumber': phone.replaceAll(' ', ''),
+          'otp': otp,
+          'newPassword': newPassword,
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -322,6 +330,20 @@ class AuthRepository {
     } catch (e) {
       print('Delete account error: $e');
       return {'success': false, 'message': 'فشل في حذف الحساب'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getSystemInfo() async {
+    try {
+      //{"terms_en":"/uploads/documents/legal/legal-1758062440196-730754726.pdf","terms_ar":"/uploads/documents/legal/legal-1758062440197-215602153.pdf"}
+      final response = await _apiService.get(AppConstants.systemInfo);
+      return {
+        'terms_en': response.data['terms_en'],
+        'terms_ar': response.data['terms_ar'],
+      };
+    } catch (e) {
+      print('Get system info error: $e');
+      rethrow;
     }
   }
 }
