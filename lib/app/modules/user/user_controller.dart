@@ -32,7 +32,7 @@ class UserController extends GetxController {
   }
 
   isVisitorUser() {
-    return _storageService.getUser()?.role == 'VISTOR' ||
+    return _storageService.getUser()?.role == 'VISITOR' ||
         _storageService.getUser()?.name.toLowerCase().contains('visitor') ==
             true;
   }
@@ -304,7 +304,7 @@ class UserController extends GetxController {
 
         Get.snackbar(
           'success'.tr,
-          successMessage,
+          "profile_updated".tr,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           icon: const Icon(Icons.check_circle, color: Colors.white),

@@ -172,100 +172,341 @@ class _CustomTextFieldState extends State<CustomTextField> {
 }
 
 // Phone number text field
-class PhoneTextField extends StatefulWidget {
-  final String? label;
+// class PhoneTextField extends StatefulWidget {
+//   final String? label;
+//   final String? hint;
+//   final TextEditingController? controller;
+//   final String? Function(String?)? validator;
+//   final void Function(String)? onChanged;
+
+//   const PhoneTextField({
+//     Key? key,
+//     this.label,
+//     this.hint,
+//     this.controller,
+//     this.validator,
+//     this.onChanged,
+//   }) : super(key: key);
+
+//   @override
+//   State<PhoneTextField> createState() => _PhoneTextFieldState();
+// }
+
+// class _PhoneTextFieldState extends State<PhoneTextField> {
+//   late TextEditingController _internalController;
+//   final String countryCode = '+968';
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _internalController = widget.controller ?? TextEditingController();
+
+//     // Initialize with country code if empty
+//     if (_internalController.text.isEmpty) {
+//       _internalController.text = countryCode + ' ';
+//     }
+
+//     // Add listener to maintain country code
+//     _internalController.addListener(_handleTextChange);
+//   }
+
+//   void _handleTextChange() {
+//     final text = _internalController.text;
+
+//     // Ensure country code is always present
+//     if (!text.startsWith(countryCode)) {
+//       final newText =
+//           countryCode + ' ' + text.replaceAll(countryCode, '').trim();
+//       _internalController.value = TextEditingValue(
+//         text: newText,
+//         selection: TextSelection.collapsed(offset: newText.length),
+//       );
+//     }
+
+//     // Call the original onChanged callback
+//     if (widget.onChanged != null) {
+//       widget.onChanged!(text);
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     if (widget.controller == null) {
+//       _internalController.dispose();
+//     }
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return CustomTextField(
+//       label: widget.label ?? 'phone_number'.tr,
+//       hint: widget.hint ?? '+968 90 123 456',
+//       controller: _internalController,
+//       keyboardType: TextInputType.phone,
+//       inputFormatters: [
+//         FilteringTextInputFormatter.allow(RegExp(r'[\d+\-\s\(\)]')),
+//         LengthLimitingTextInputFormatter(17), // Adjusted for +968 prefix
+//         _OmanPhoneFormatter(), // Custom formatter to maintain +968
+//       ],
+//       validator: (value) {
+//         if (widget.validator != null) {
+//           return widget.validator!(value);
+//         }
+//         return null;
+//       },
+//       onChanged: null, // Handled internally
+//       // i want put the flag in suffix
+//       suffixIcon: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           const SizedBox(width: 12),
+//           const Text('🇴🇲', style: TextStyle(fontSize: 20)),
+//           const SizedBox(width: 8),
+//         ],
+//       ),
+//       prefixIcon: const Icon(Icons.phone, color: AppColors.textLight),
+//     );
+//   }
+// }
+
+class PhoneTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String? hintText;
+  final Function(String)? onChanged;
   final String? hint;
-  final TextEditingController? controller;
-  final String? Function(String?)? validator;
-  final void Function(String)? onChanged;
+  final Function(String?)? validator;
+  final String? errorText;
+  final bool showValidIcon;
+  final bool enabled;
+  final double height;
+  final String countryCode;
+  final String flagAssetPath;
+  final String countryShortName;
 
   const PhoneTextField({
     Key? key,
-    this.label,
-    this.hint,
-    this.controller,
-    this.validator,
+    required this.controller,
+    this.hintText,
     this.onChanged,
+    this.hint,
+    this.validator,
+    this.errorText,
+    this.showValidIcon = true,
+    this.enabled = true,
+    this.height = 56,
+    this.countryCode = '+968',
+    this.flagAssetPath = 'assets/icons/oman_flag.png',
+    this.countryShortName = 'OM',
   }) : super(key: key);
 
   @override
-  State<PhoneTextField> createState() => _PhoneTextFieldState();
-}
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: height,
+          decoration: BoxDecoration(
+            color: enabled ? Colors.white : Colors.grey[50],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: errorText != null && errorText!.isNotEmpty
+                  ? Colors.red
+                  : AppColors.primary,
+              width: 1.5,
+            ),
+          ),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Row(
+              textDirection: TextDirection.ltr,
+              children: [
+                // قسم رمز البلد
+                _buildCountryCodeSection(),
 
-class _PhoneTextFieldState extends State<PhoneTextField> {
-  late TextEditingController _internalController;
-  final String countryCode = '+968';
+                // قسم إدخال رقم الهاتف
+                _buildPhoneInputSection(),
+              ],
+            ),
+          ),
+        ),
 
-  @override
-  void initState() {
-    super.initState();
-    _internalController = widget.controller ?? TextEditingController();
-
-    // Initialize with country code if empty
-    if (_internalController.text.isEmpty) {
-      _internalController.text = countryCode + ' ';
-    }
-
-    // Add listener to maintain country code
-    _internalController.addListener(_handleTextChange);
+        // رسالة الخطأ
+        if (errorText != null && errorText!.isNotEmpty) _buildErrorMessage(),
+      ],
+    );
   }
 
-  void _handleTextChange() {
-    final text = _internalController.text;
+  Widget _buildCountryCodeSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      decoration: BoxDecoration(
+        border: Border(right: BorderSide(color: Colors.grey[300]!, width: 1)),
+      ),
+      child: Row(
+        textDirection: TextDirection.ltr,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // العلم
+          _buildFlagIcon(),
+          const SizedBox(width: 8),
+          // رمز البلد
+          Text(
+            countryCode,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF111827),
+            ),
+            textDirection: TextDirection.ltr,
+          ),
+        ],
+      ),
+    );
+  }
 
-    // Ensure country code is always present
-    if (!text.startsWith(countryCode)) {
-      final newText =
-          countryCode + ' ' + text.replaceAll(countryCode, '').trim();
-      _internalController.value = TextEditingValue(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length),
+  Widget _buildFlagIcon() {
+    return Image.asset(
+      flagAssetPath,
+      width: 30,
+      height: 20,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: 20,
+          height: 15,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(2),
+          ),
+          child: Center(
+            child: Text(
+              countryShortName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPhoneInputSection() {
+    return Expanded(
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        keyboardType: TextInputType.phone,
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.left,
+        style: TextStyle(
+          fontSize: 16,
+          color: enabled ? const Color(0xFF111827) : Colors.grey[600],
+          fontWeight: FontWeight.w400,
+        ),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: hintText ?? hint ?? 'enter_mobile_number'.tr,
+          hintStyle: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF9CA3AF),
+            fontWeight: FontWeight.w400,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          // أيقونة التحقق عند كتابة رقم صحيح
+          suffixIcon: _buildSuffixIcon(),
+        ),
+      ),
+    );
+  }
+
+  Widget? _buildSuffixIcon() {
+    if (!showValidIcon) return null;
+
+    if (controller.text.isNotEmpty &&
+        (errorText == null || errorText!.isEmpty)) {
+      return const Icon(
+        Icons.check_circle_outline,
+        color: Colors.green,
+        size: 20,
       );
     }
 
-    // Call the original onChanged callback
-    if (widget.onChanged != null) {
-      widget.onChanged!(text);
-    }
+    return null;
   }
 
-  @override
-  void dispose() {
-    if (widget.controller == null) {
-      _internalController.dispose();
-    }
-    super.dispose();
+  Widget _buildErrorMessage() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, left: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 16),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              errorText!,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+// Widget مخصص للاستخدام مع GetX Controller
+class ObxPhoneTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String? hintText;
+  final Function(String)? onChanged;
+  final RxString? errorText; // استخدام RxString للتحديث التلقائي
+  final bool showValidIcon;
+  final bool enabled;
+  final double height;
+  final String countryCode;
+  final String flagAssetPath;
+  final String countryShortName;
+
+  const ObxPhoneTextField({
+    Key? key,
+    required this.controller,
+    this.hintText,
+    this.onChanged,
+    this.errorText,
+    this.showValidIcon = true,
+    this.enabled = true,
+    this.height = 56,
+    this.countryCode = '+968',
+    this.flagAssetPath = 'assets/icons/oman_flag.png',
+    this.countryShortName = 'OM',
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CustomTextField(
-      label: widget.label ?? 'phone_number'.tr,
-      hint: widget.hint ?? '+968 90 123 456',
-      controller: _internalController,
-      keyboardType: TextInputType.phone,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[\d+\-\s\(\)]')),
-        LengthLimitingTextInputFormatter(17), // Adjusted for +968 prefix
-        _OmanPhoneFormatter(), // Custom formatter to maintain +968
-      ],
-      validator: (value) {
-        if (widget.validator != null) {
-          return widget.validator!(value);
-        }
-        return null;
-      },
-      onChanged: null, // Handled internally
-      // i want put the flag in suffix
-      suffixIcon: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(width: 12),
-          const Text('🇴🇲', style: TextStyle(fontSize: 20)),
-          const SizedBox(width: 8),
-        ],
+    return Obx(
+      () => PhoneTextField(
+        controller: controller,
+        hintText: hintText,
+        onChanged: onChanged,
+        errorText: errorText?.value,
+        showValidIcon: showValidIcon,
+        enabled: enabled,
+        height: height,
+        countryCode: countryCode,
+        flagAssetPath: flagAssetPath,
+        countryShortName: countryShortName,
       ),
-      prefixIcon: const Icon(Icons.phone, color: AppColors.textLight),
     );
   }
 }

@@ -335,8 +335,23 @@ class AuthController extends GetxController {
         );
         startTimer();
         Get.toNamed(AppRoutes.verifyPhone);
+      } else {
+        Get.snackbar(
+          'error'.tr,
+          initiateResult['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
+      Get.snackbar(
+        'error'.tr,
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       print('Sign up error: ${e}');
     } finally {
       isLoading.value = false;
@@ -360,7 +375,7 @@ class AuthController extends GetxController {
           colorText: Colors.white,
         );
         startTimer();
-        Get.toNamed(AppRoutes.verifyPhone);
+        Get.toNamed(AppRoutes.resetPassword);
       } else {
         Get.snackbar(
           'error'.tr,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
 import '../../core/utils/helpers.dart' as Helpers;
 import '../home/home_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../core/utils/app_translations.dart';
 
 class AllProvidersView extends GetView<HomeController> {
   const AllProvidersView({Key? key}) : super(key: key);
@@ -262,7 +264,11 @@ class AllProvidersView extends GetView<HomeController> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        provider.state,
+                        getStateInLanguage(
+                              Get.locale?.languageCode ?? 'en',
+                              provider.state,
+                            ) ??
+                            provider.state,
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                       const Spacer(),
@@ -278,7 +284,7 @@ class AllProvidersView extends GetView<HomeController> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          provider.tier.name.toUpperCase(),
+                          _getTierName(provider.tier.name),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -302,11 +308,6 @@ class AllProvidersView extends GetView<HomeController> {
                       ),
                       Text(
                         ' (${provider.totalRatings} ${'reviews'.tr})',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${provider.activeServices} services',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
@@ -369,6 +370,21 @@ class AllProvidersView extends GetView<HomeController> {
         return Colors.grey;
       default:
         return Colors.blue;
+    }
+  }
+
+  String _getTierName(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'verified':
+        return 'verified'.tr;
+      case 'premium':
+        return 'premium'.tr;
+      case 'gold':
+        return 'gold'.tr;
+      case 'silver':
+        return 'silver'.tr;
+      default:
+        return 'bronze'.tr;
     }
   }
 

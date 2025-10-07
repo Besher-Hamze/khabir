@@ -86,7 +86,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Notification Icon with Badge and Circle Background
-                    if (storageService.getUser()?.role != 'VISTOR') ...[
+                    if (storageService.getUser()?.role != 'VISITOR') ...[
                       GestureDetector(
                         onTap:
                             onNotificationTap ??
@@ -159,7 +159,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                       const SizedBox(width: 16),
                     ],
-                    if (storageService.getUser()?.role == 'VISTOR') ...[
+                    if (storageService.getUser()?.role == 'VISITOR') ...[
                       // go to login screen if visitor
                       GestureDetector(
                         onTap: () {
@@ -281,7 +281,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('=====================notificationCount: ${notificationCount.value}');
     return CustomAppBar(
       showBackButton: false,
       showTitle: false,

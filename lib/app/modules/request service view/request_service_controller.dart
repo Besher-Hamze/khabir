@@ -36,7 +36,10 @@ class RequestServiceController extends GetxController {
   void onInit() {
     super.onInit();
     _initializeFromArguments();
-    loadUserLocations();
+    // if not vistor
+    if (!_isVisitorUser()) {
+      loadUserLocations();
+    }
   }
 
   // Initialize controller with arguments from navigation
@@ -59,6 +62,11 @@ class RequestServiceController extends GetxController {
   // Load user locations
   Future<void> loadUserLocations() async {
     try {
+      print('loadUserLocations');
+      print(_isVisitorUser());
+      if (_isVisitorUser()) {
+        return;
+      }
       final response = await _userRepository.getUserLocations();
       availableLocations.value = response.locations;
 
@@ -94,8 +102,7 @@ class RequestServiceController extends GetxController {
       }
 
       services.value = response.services;
-      if (provider == null && (providerId != null && providerId != 0)) {
-        print('===============================: $providerId');
+      if (provider == null && (providerId != 0)) {
         final providerResponse = await _providersRepository.getProviderById(
           providerId.toString(),
         );
@@ -223,17 +230,17 @@ class RequestServiceController extends GetxController {
   // Validate request before submission
   bool _validateRequest() {
     if (!hasSelectedServices) {
-      _showErrorSnackbar('Please select at least one service');
+      _showErrorSnackbar('please_select_at_least_one_service'.tr);
       return false;
     }
 
     if (selectedLocation.value == null) {
-      _showErrorSnackbar('Please select a service location');
+      _showErrorSnackbar('please_select_a_service_location'.tr);
       return false;
     }
 
     if (selectedDuration.value == 'Calendar' && selectedDate.value == null) {
-      _showErrorSnackbar('Please select a date for your service');
+      _showErrorSnackbar('please_select_a_date_for_your_service'.tr);
       return false;
     }
 
@@ -271,7 +278,7 @@ class RequestServiceController extends GetxController {
         },
       );
 
-      _showSuccessSnackbar('Service request submitted successfully');
+      _showSuccessSnackbar('service_request_submitted_successfully'.tr);
     } catch (e) {
       _handleSubmissionError(e);
     } finally {
@@ -301,7 +308,7 @@ class RequestServiceController extends GetxController {
       ),
       notes: notes.value.trim().isNotEmpty
           ? notes.value.trim()
-          : 'Service request submitted from mobile app',
+          : 'service_request_submitted_from_mobile_app'.tr,
     );
   }
 
@@ -354,7 +361,7 @@ class RequestServiceController extends GetxController {
     try {
       final user = StorageService.instance.getUser();
       return user?.phoneNumber == '+96812345678' ||
-          user?.name.toLowerCase().contains('visitor') == true;
+          user?.role.toLowerCase().contains('vis') == true;
     } catch (e) {
       return false;
     }
@@ -384,8 +391,8 @@ class RequestServiceController extends GetxController {
   // Handle submission errors
   void _handleSubmissionError(dynamic error) {
     Get.snackbar(
-      'Submission Failed',
-      "Error submitting service request",
+      'submission_failed'.tr,
+      "error_submitting_service_request".tr,
       backgroundColor: Colors.red,
       colorText: Colors.white,
       duration: const Duration(seconds: 5),
@@ -406,20 +413,20 @@ class RequestServiceController extends GetxController {
     } else if (error.contains('Error:')) {
       return error.split('Error:').last.trim();
     } else if (error.contains('SocketException')) {
-      return 'Network connection error. Please check your internet connection.';
+      return 'network_connection_error'.tr;
     } else if (error.contains('TimeoutException')) {
-      return 'Request timed out. Please try again.';
+      return 'request_timed_out'.tr;
     } else if (error.contains('FormatException')) {
-      return 'Invalid data format. Please try again.';
+      return 'invalid_data_format'.tr;
     }
 
-    return error.isNotEmpty ? error : 'An unexpected error occurred';
+    return error.isNotEmpty ? error : 'an_unexpected_error_occurred'.tr;
   }
 
   // Show error snackbar
   void _showErrorSnackbar(String message) {
     Get.snackbar(
-      'Error',
+      'error'.tr,
       message,
       backgroundColor: Colors.red,
       colorText: Colors.white,
@@ -434,7 +441,7 @@ class RequestServiceController extends GetxController {
   // Show success snackbar
   void _showSuccessSnackbar(String message) {
     Get.snackbar(
-      'Success',
+      'success'.tr,
       message,
       backgroundColor: Colors.green,
       colorText: Colors.white,

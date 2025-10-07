@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import 'package:khabir/app/routes/app_routes.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -509,18 +510,13 @@ class _SearchViewState extends State<SearchView> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        provider.state,
+                        getStateInLanguage(
+                              Get.locale?.languageCode ?? 'en',
+                              provider.state,
+                            ) ??
+                            provider.state,
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
-                      if (provider.city != null) ...[
-                        Text(
-                          ', ${provider.city}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 8),

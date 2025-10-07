@@ -129,7 +129,9 @@ class ServicesController extends GetxController {
           'serviceId': service.id,
           'serviceName': service.title,
           'serviceImage': service.image,
-          'serviceDescription': service.description,
+          'serviceDescription': Get.locale?.languageCode == 'ar'
+              ? service.descriptionAr
+              : service.descriptionEn,
           'serviceWhatsapp': service.whatsapp,
           'categoryId': service.categoryId,
           'categoryName': currentCategoryName.value,
@@ -145,6 +147,9 @@ class ServicesController extends GetxController {
           'serviceId': service.id,
           'serviceName': service.title,
           'serviceImage': service.image,
+          'serviceDescription': Get.locale?.languageCode == 'ar'
+              ? service.descriptionAr
+              : service.descriptionEn,
           'categoryId': service.categoryId,
           'categoryName': currentCategoryName.value,
           'categoryState': currentCategoryState.value,

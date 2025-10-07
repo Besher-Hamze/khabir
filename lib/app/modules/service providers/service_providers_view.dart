@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/core/utils/helpers.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/app_translations.dart';
 import 'service_providers_controller.dart';
@@ -212,9 +213,17 @@ class ServiceProvidersView extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Description
-                  if (provider.description.isNotEmpty)
+                  if (provider.description.isNotEmpty ||
+                      (provider.descriptionAr?.isNotEmpty ?? false) ||
+                      (provider.descriptionEn?.isNotEmpty ?? false))
                     Text(
-                      provider.description,
+                      Get.locale?.languageCode == 'ar'
+                          ? provider.descriptionAr?.isNotEmpty ?? false
+                                ? provider.descriptionAr!
+                                : provider.description
+                          : provider.descriptionEn?.isNotEmpty ?? false
+                          ? provider.descriptionEn!
+                          : provider.description,
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -225,7 +234,11 @@ class ServiceProvidersView extends StatelessWidget {
                   // State
                   if (provider.state.isNotEmpty)
                     Text(
-                      provider.state.tr,
+                      getStateInLanguage(
+                            Get.locale?.languageCode ?? 'en',
+                            provider.state,
+                          ) ??
+                          provider.state,
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
 

@@ -6,6 +6,7 @@ import '../../global_widgets/custom_drop_down.dart';
 import '../../data/services/storage_service.dart';
 import '../../modules/user/user_controller.dart';
 import '../../data/models/user_profile_model.dart';
+import '../../modules/home/home_controller.dart';
 
 class LocationSelectionPage extends StatefulWidget {
   const LocationSelectionPage({Key? key}) : super(key: key);
@@ -120,6 +121,11 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
         UpdateProfileRequest(state: selectedState!),
       );
 
+      if (Get.isRegistered<HomeController>()) {
+        final homeController = Get.find<HomeController>();
+        homeController.selectedState.value = selectedState!;
+        homeController.loadHomeData();
+      }
       Get.back();
       Get.snackbar(
         'success'.tr,

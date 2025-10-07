@@ -50,7 +50,9 @@ class ServiceBreakdown {
   final double unitPrice;
   final double totalPrice;
   final String serviceImage;
-  final String serviceTitle;
+  final String serviceTitleEn;
+  final String serviceTitleAr;
+
   final String serviceDescription;
   final ServiceCategory? category;
 
@@ -60,7 +62,8 @@ class ServiceBreakdown {
     required this.unitPrice,
     required this.totalPrice,
     required this.serviceImage,
-    required this.serviceTitle,
+    required this.serviceTitleEn,
+    required this.serviceTitleAr,
     required this.serviceDescription,
     this.category,
   });
@@ -72,7 +75,8 @@ class ServiceBreakdown {
       unitPrice: (json['unitPrice'] ?? 0).toDouble(),
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
       serviceImage: json['serviceImage'] ?? '',
-      serviceTitle: json['serviceTitle'] ?? '',
+      serviceTitleEn: json['serviceTitleEn'] ?? json['serviceTitle'] ?? '',
+      serviceTitleAr: json['serviceTitleAr'] ?? json['serviceTitle'] ?? '',
       serviceDescription: json['serviceDescription'] ?? '',
       category: json['category'] != null
           ? ServiceCategory.fromJson(json['category'])
@@ -238,6 +242,7 @@ class OrderModel {
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
+    print(json['servicesBreakdown']);
     return OrderModel(
       id: json['id'] ?? 0,
       userId: json['userId'] ?? 0,

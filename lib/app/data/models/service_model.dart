@@ -10,6 +10,8 @@ class ServiceModel {
   final String image;
   final String title;
   final String description;
+  final String descriptionEn;
+  final String descriptionAr;
   final String whatsapp;
   final int categoryId;
   final ServiceType serviceType;
@@ -20,6 +22,8 @@ class ServiceModel {
     required this.image,
     required this.title,
     required this.description,
+    required this.descriptionEn,
+    required this.descriptionAr,
     required this.whatsapp,
     required this.categoryId,
     required this.category,
@@ -37,6 +41,8 @@ class ServiceModel {
               : json['titleEn']) ??
           '',
       description: json['description'] ?? '',
+      descriptionEn: json['descriptionEn'] ?? '',
+      descriptionAr: json['descriptionAr'] ?? '',
       whatsapp: json['whatsapp'] ?? '',
       categoryId: json['categoryId'] ?? 0,
       category: CategoryModel.fromJson(json['category'] ?? {}),
@@ -50,6 +56,8 @@ class ServiceModel {
       'image': image,
       'title': title,
       'description': description,
+      'descriptionEn': descriptionEn,
+      'descriptionAr': descriptionAr,
       'whatsapp': whatsapp,
       'categoryId': categoryId,
       'category': category.toJson(),

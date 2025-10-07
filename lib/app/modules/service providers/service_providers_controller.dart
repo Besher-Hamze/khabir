@@ -86,6 +86,7 @@ class ServiceProvidersController extends GetxController {
 
   double? getProviderOfferPrice(ProviderApiModel provider) {
     if (provider.services.isNotEmpty) {
+      print('offerPrice: ${provider.toJson()}');
       return provider.services.first.offerPrice;
     }
     return null;

@@ -167,7 +167,7 @@ class ProvidersRepository {
       final response = await _apiService.get(path);
 
       if (response.statusCode == 200) {
-        print('response.data: ${response.data}');
+        print('response.data: ${response.data['averageRating']}');
         return Provider.fromJson(response.data);
       } else {
         throw Exception(

@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:khabir/app/core/utils/helpers.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:khabir/app/modules/track/track_controller.dart';
 
@@ -788,9 +789,9 @@ class _TrackingViewState extends State<TrackingView>
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
-            child: widget.booking.providerImage.startsWith('http')
+            child: widget.booking.providerImage.isNotEmpty
                 ? Image.network(
-                    widget.booking.providerImage,
+                    getImageUrl(widget.booking.providerImage),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return const Icon(
@@ -801,7 +802,7 @@ class _TrackingViewState extends State<TrackingView>
                     },
                   )
                 : Image.asset(
-                    widget.booking.providerImage,
+                    getImageUrl(widget.booking.providerImage),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return const Icon(
@@ -877,48 +878,20 @@ class _TrackingViewState extends State<TrackingView>
               ),
             ),
             const SizedBox(height: 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Call button - show when booking is accepted and provider is on the way
-                Obx(() {
-                  if (widget.booking.providerPhone.isNotEmpty) {
-                    return GestureDetector(
-                      onTap: () async {
-                        await _makePhoneCall(widget.booking.providerPhone);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.green[200]!),
-                        ),
-                        child: Icon(
-                          Icons.call,
-                          size: 16,
-                          color: Colors.green[700],
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-                const SizedBox(width: 8),
-                AnimatedBuilder(
-                  animation: _cardAnimation,
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _cardAnimation.value * math.pi,
-                      child: Icon(
-                        Icons.keyboard_arrow_up,
-                        color: Colors.grey[600],
-                        size: 18,
-                      ),
-                    );
-                  },
+
+            GestureDetector(
+              onTap: () async {
+                await _makePhoneCall(widget.booking.providerPhone);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.green[200]!),
                 ),
-              ],
+                child: Icon(Icons.call, size: 16, color: Colors.green[700]),
+              ),
             ),
           ],
         ),
@@ -1014,32 +987,22 @@ class _TrackingViewState extends State<TrackingView>
                 ),
               ],
             ),
+            // if (_trackingController.estimatedArrival.value.isNotEmpty ||
+            //     _trackingController.routeDistance.value.isNotEmpty) ...[
+            //   const SizedBox(height: 12),
+            //   Wrap(
+            //     spacing: 8,
+            //     runSpacing: 8,
+            //     children: [
+            //       if (_trackingController.estimatedArrival.value.isNotEmpty)
+            //         _buildInfoChip(
+            //           'ETA',
+            //           _trackingController.estimatedArrival.value,
+            //         ),
+            //     ],
+            //   ),
 
-            if (_trackingController.estimatedArrival.value.isNotEmpty ||
-                _trackingController.routeDistance.value.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (_trackingController.estimatedArrival.value.isNotEmpty)
-                    _buildInfoChip(
-                      'ETA',
-                      _trackingController.estimatedArrival.value,
-                    ),
-                  if (_trackingController.routeDistance.value.isNotEmpty)
-                    _buildInfoChip(
-                      'Distance',
-                      '${_trackingController.routeDistance.value} km',
-                    ),
-                  if (_trackingController.routeDuration.value.isNotEmpty)
-                    _buildInfoChip(
-                      'Duration',
-                      _trackingController.routeDuration.value,
-                    ),
-                ],
-              ),
-            ],
+            // ],
           ],
         ),
       );

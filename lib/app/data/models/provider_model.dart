@@ -20,6 +20,8 @@ class Provider {
   final String name;
   final String image;
   final String description;
+  final String? descriptionAr;
+  final String? descriptionEn;
   final String state;
   final String? city;
   final String phone;
@@ -59,6 +61,8 @@ class Provider {
     required this.name,
     required this.image,
     required this.description,
+    this.descriptionAr,
+    this.descriptionEn,
     required this.state,
     this.city,
     required this.phone,
@@ -90,6 +94,8 @@ class Provider {
       name: json['name'] ?? '',
       image: json['image'] ?? json['profile_image'] ?? '',
       description: json['description'] ?? '',
+      descriptionAr: json['descriptionAr'] ?? json['description'],
+      descriptionEn: json['descriptionEn'] ?? json['description'],
       state: json['state'] ?? '',
       city: json['city'],
       phone: json['phone'] ?? '',
@@ -129,6 +135,8 @@ class Provider {
       'name': name,
       'image': image,
       'description': description,
+      'descriptionAr': descriptionAr,
+      'descriptionEn': descriptionEn,
       'state': state,
       'city': city,
       'phone': phone,
@@ -244,6 +252,8 @@ class Provider {
       'email': email,
       'profile_image': image,
       'description': description,
+      'descriptionAr': descriptionAr,
+      'descriptionEn': descriptionEn,
       'state': state,
       'city': city ?? '',
       'rating': averageRating,
@@ -313,9 +323,19 @@ class ProviderServiceItem {
 
   factory ProviderServiceItem.fromJson(Map<String, dynamic> json) {
     print('json: $json');
-    // Handle nested service structure from API
-    final serviceData =
-        json['service'] ?? json['providerService'] as Map<String, dynamic>?;
+
+    // Safely handle nested service structure from API
+    Map<String, dynamic>? serviceData;
+
+    // Check if json['service'] exists and is a Map
+    if (json['service'] != null && json['service'] is Map<String, dynamic>) {
+      serviceData = json['service'] as Map<String, dynamic>;
+    }
+    // Check if json['providerService'] exists and is a Map (not just an ID)
+    else if (json['providerService'] != null &&
+        json['providerService'] is Map<String, dynamic>) {
+      serviceData = json['providerService'] as Map<String, dynamic>;
+    }
 
     // Check if this is a minimal service structure (like from providers by service API)
     final isMinimalStructure =
@@ -323,6 +343,34 @@ class ProviderServiceItem {
         !json.containsKey('title') &&
         !json.containsKey('name_en') &&
         json.containsKey('price');
+
+    // Handle offer price more safely
+    double? offerPrice;
+
+    // Check for direct offerPrice in json
+    if (json['offerPrice'] != null) {
+      offerPrice = json['offerPrice'].toDouble();
+    }
+    // Check for offerPrice in serviceData
+    else if (serviceData?['offerPrice'] != null) {
+      // Make sure it's not trying to access nested structure that doesn't exist
+      final serviceOfferPrice = serviceData!['offerPrice'];
+      if (serviceOfferPrice is num) {
+        offerPrice = serviceOfferPrice.toDouble();
+      } else if (serviceOfferPrice is Map &&
+          serviceOfferPrice['offerPrice'] != null) {
+        offerPrice = serviceOfferPrice['offerPrice'].toDouble();
+      }
+    }
+    // Check for activeOffer structure
+    else if (json['activeOffer'] != null && json['activeOffer'] is Map) {
+      final activeOffer = json['activeOffer'] as Map<String, dynamic>;
+      if (activeOffer['offerPrice'] != null) {
+        offerPrice = activeOffer['offerPrice'].toDouble();
+      } else if (activeOffer['offer_price'] != null) {
+        offerPrice = activeOffer['offer_price'].toDouble();
+      }
+    }
 
     return ProviderServiceItem(
       id: json['id'] ?? 0,
@@ -351,28 +399,11 @@ class ProviderServiceItem {
           json['image'] ??
           (isMinimalStructure ? '' : ''),
 
-      price:
-          (serviceData?['price'] ??
-                  json['price'] ??
-                  serviceData?['providerService']?['price'] ??
-                  0.0)
-              .toDouble(),
-      offerPrice:
-          (json['offerPrice'] ??
-                  serviceData?['offerPrice'] ??
-                  serviceData?['offerPrice']?['offerPrice'] ??
-                  json['activeOffer']?['offerPrice'] ??
-                  json['activeOffer']?['offer_price']) !=
-              null
-          ? (json['offerPrice'] ??
-                    json['activeOffer']?['offerPrice'] ??
-                    serviceData?['offerPrice']?['offerPrice'] ??
-                    json['activeOffer']?['offer_price'])
-                .toDouble()
-          : null,
-      isActive: json['isActive'] ?? json['is_active'] ?? true,
+      price: (serviceData?['price'] ?? json['price'] ?? 0.0).toDouble(),
 
-      // Get commission from nested service
+      offerPrice: offerPrice,
+
+      isActive: json['isActive'] ?? json['is_active'] ?? true,
 
       // Get categoryId from nested service or category
       categoryId:
@@ -385,7 +416,7 @@ class ProviderServiceItem {
       subcategoryId:
           json['subcategory_id'] ?? json['subcategoryId']?.toString(),
       nameAr: json['name_ar'] ?? json['nameAr'],
-      nameEn: json['name_en'] ?? json['nameEn'] ?? serviceData?['title'],
+      nameEn: json['name_en'] ?? json['nameEn'] ?? serviceData?['titleEn'],
       descriptionAr: json['description_ar'] ?? json['descriptionAr'],
       descriptionEn:
           json['description_en'] ??
@@ -395,7 +426,6 @@ class ProviderServiceItem {
       sortOrder: json['sort_order'] ?? json['sortOrder'],
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -183,24 +183,6 @@ class ProfileView extends GetView<UserController> {
                               ),
                             ),
                     ),
-                    // Edit badge on profile picture
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          LucideIcons.edit,
-                          size: 12,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
 
@@ -238,7 +220,11 @@ class ProfileView extends GetView<UserController> {
 
                       // State
                       Text(
-                        user.state,
+                        getStateInLanguage(
+                              Get.locale?.languageCode ?? 'en',
+                              user.state,
+                            ) ??
+                            user.state,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -261,8 +247,8 @@ class ProfileView extends GetView<UserController> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.grey[300]!),
                     ),
-                    child: const Text(
-                      'Edit',
+                    child: Text(
+                      'edit'.tr,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -295,7 +281,6 @@ class ProfileView extends GetView<UserController> {
           icon: LucideIcons.mapPin,
           iconColor: Colors.red,
           title: 'my_locations'.tr,
-          // subtitle: '${controller.userLocations.length} ${'saved'.tr}',
           hasArrow: false,
           onTap: () => _showLocationsDialog(),
         ),
@@ -544,7 +529,7 @@ class ProfileView extends GetView<UserController> {
       // Navigate to PDF Viewer with the URL
       Get.toNamed(
         AppRoutes.termsConditions,
-        arguments: {'pdf_url': url, 'title': 'document'.tr},
+        arguments: {'pdf_url': url, 'title': 'privacy_policy'.tr},
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to open document: ${e.toString()}');
@@ -738,7 +723,7 @@ class ProfileView extends GetView<UserController> {
                           itemCount: controller.userLocations.length,
                           itemBuilder: (context, index) {
                             final location = controller.userLocations[index];
-                            return _buildLocationCard(location);
+                            return _buildLocationCard(location, context);
                           },
                         ),
                       ),
@@ -782,7 +767,7 @@ class ProfileView extends GetView<UserController> {
     );
   }
 
-  Widget _buildLocationCard(UserLocationModel location) {
+  Widget _buildLocationCard(UserLocationModel location, BuildContext context) {
     final String status = _getLocationStatus(location);
 
     return Container(
@@ -839,7 +824,11 @@ class ProfileView extends GetView<UserController> {
                           children: [
                             Expanded(
                               child: Text(
-                                location.title,
+                                getStateInLanguage(
+                                      Get.locale?.languageCode ?? 'en',
+                                      location.title,
+                                    ) ??
+                                    location.title,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -895,7 +884,7 @@ class ProfileView extends GetView<UserController> {
                           break;
                         case 'edit':
                           Get.back();
-                          _showEditLocationDialog(location);
+                          _showEditLocationDialog(location, context);
                           break;
                         case 'delete':
                           _showDeleteLocationConfirmation(location);
@@ -986,7 +975,11 @@ class ProfileView extends GetView<UserController> {
                         Expanded(
                           child: Text(
                             _getStateLabel(
-                              location.address.split('|')[0],
+                              getStateInLanguage(
+                                    Get.locale?.languageCode ?? 'en',
+                                    location.address.split('|')[0],
+                                  ) ??
+                                  location.address.split('|')[0],
                             ), // Extract state from address
                             style: const TextStyle(
                               fontSize: 13,
@@ -1068,7 +1061,7 @@ class ProfileView extends GetView<UserController> {
                   Icon(Icons.access_time, size: 11, color: Colors.grey[400]),
                   const SizedBox(width: 4),
                   Text(
-                    'Updated ${_formatDate(location.updatedAt)}',
+                    '${"updated".tr} ${_formatDate(location.updatedAt)}',
                     style: TextStyle(fontSize: 10, color: Colors.grey[400]),
                   ),
                   const Spacer(),
@@ -1106,19 +1099,19 @@ class ProfileView extends GetView<UserController> {
     switch (status.toLowerCase()) {
       case 'active':
         statusColor = Colors.green;
-        statusText = 'Active';
+        statusText = 'active'.tr;
         break;
       case 'inactive':
         statusColor = Colors.orange;
-        statusText = 'Inactive';
+        statusText = 'inactive'.tr;
         break;
       case 'verified':
         statusColor = Colors.blue;
-        statusText = 'Verified';
+        statusText = 'verified'.tr;
         break;
       default:
         statusColor = Colors.grey;
-        statusText = 'Unknown';
+        statusText = 'unknown'.tr;
     }
 
     return Container(
@@ -1247,7 +1240,7 @@ class ProfileView extends GetView<UserController> {
                       children: [
                         // Location Title
                         Text(
-                          'Location Name',
+                          'location_name'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1258,7 +1251,7 @@ class ProfileView extends GetView<UserController> {
                         TextField(
                           controller: titleController,
                           decoration: InputDecoration(
-                            hintText: 'e.g., Home, Work, Office',
+                            hintText: 'home_work_office'.tr,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -1278,7 +1271,7 @@ class ProfileView extends GetView<UserController> {
 
                         // State Dropdown
                         Text(
-                          'State/Governorate',
+                          'state_governorate'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1308,7 +1301,7 @@ class ProfileView extends GetView<UserController> {
 
                         // Address Details
                         Text(
-                          'Address Details',
+                          'address_details'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1319,8 +1312,7 @@ class ProfileView extends GetView<UserController> {
                         TextField(
                           controller: addressDetailsController,
                           decoration: InputDecoration(
-                            hintText:
-                                'Street, building number, apartment, etc.',
+                            hintText: 'street_building_number_apartment_etc'.tr,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -1341,7 +1333,7 @@ class ProfileView extends GetView<UserController> {
 
                         // Description
                         Text(
-                          'Description (Optional)',
+                          'description_optional'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1352,7 +1344,7 @@ class ProfileView extends GetView<UserController> {
                         TextField(
                           controller: descriptionController,
                           decoration: InputDecoration(
-                            hintText: 'Additional notes about this location',
+                            hintText: 'additional_notes_about_this_location'.tr,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -1373,7 +1365,7 @@ class ProfileView extends GetView<UserController> {
 
                         // Map Picker
                         Text(
-                          'Pin Location on Map',
+                          'pin_location_on_map'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1435,14 +1427,14 @@ class ProfileView extends GetView<UserController> {
                             if (titleController.text.isEmpty) {
                               Get.snackbar(
                                 'Error',
-                                'Please enter a location name',
+                                'please_enter_a_location_name'.tr,
                               );
                               return;
                             }
                             if (addressDetailsController.text.isEmpty) {
                               Get.snackbar(
                                 'Error',
-                                'Please enter address details',
+                                'please_enter_address_details'.tr,
                               );
                               return;
                             }
@@ -1450,7 +1442,7 @@ class ProfileView extends GetView<UserController> {
                                 selectedLongitude == null) {
                               Get.snackbar(
                                 'Error',
-                                'Please select a location on the map',
+                                'please_select_a_location_on_the_map'.tr,
                               );
                               return;
                             }
@@ -1491,7 +1483,10 @@ class ProfileView extends GetView<UserController> {
     );
   }
 
-  void _showEditLocationDialog(UserLocationModel location) {
+  void _showEditLocationDialog(
+    UserLocationModel location,
+    BuildContext context,
+  ) {
     final addressParts = location.address.contains('|')
         ? location.address.split('|')
         : [location.address, ''];
@@ -1775,9 +1770,8 @@ class ProfileView extends GetView<UserController> {
                             longitude: selectedLongitude,
                             address: fullAddress,
                           );
-
-                          await controller.updateLocation(location.id, request);
                           Get.back();
+                          await controller.updateLocation(location.id, request);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -1853,7 +1847,7 @@ class ProfileView extends GetView<UserController> {
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.trim().isEmpty) {
-                Get.snackbar('Error', 'Name cannot be empty');
+                Get.snackbar('error'.tr, 'name_cannot_be_empty'.tr);
                 return;
               }
 
@@ -1911,9 +1905,9 @@ class ProfileView extends GetView<UserController> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Edit Profile',
+                          'edit_profile'.tr,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -1938,7 +1932,7 @@ class ProfileView extends GetView<UserController> {
                       children: [
                         // Name
                         Text(
-                          'Full Name',
+                          'full_name'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1949,7 +1943,7 @@ class ProfileView extends GetView<UserController> {
                         TextField(
                           controller: nameController,
                           decoration: InputDecoration(
-                            hintText: 'Enter your full name',
+                            hintText: 'enter_your_full_name'.tr,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -1969,7 +1963,7 @@ class ProfileView extends GetView<UserController> {
 
                         // State
                         Text(
-                          'State/Governorate',
+                          'state_governorate'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -2029,7 +2023,7 @@ class ProfileView extends GetView<UserController> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (nameController.text.trim().isEmpty) {
-                              Get.snackbar('Error', 'Name cannot be empty');
+                              Get.snackbar('Error', 'name_cannot_be_empty'.tr);
                               return;
                             }
 
@@ -2138,8 +2132,9 @@ class ProfileView extends GetView<UserController> {
             Text('delete_account'.tr),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
+        content: Text(
+          'are_you_sure_you_want_to_delete_your_account_this_action_cannot_be_undone'
+              .tr,
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
@@ -2148,7 +2143,7 @@ class ProfileView extends GetView<UserController> {
               Get.back();
               // Show loading
               Get.dialog(
-                const Center(child: CircularProgressIndicator()),
+                Center(child: CircularProgressIndicator()),
                 barrierDismissible: false,
               );
 
@@ -2159,11 +2154,11 @@ class ProfileView extends GetView<UserController> {
 
               // Show success message
               Get.snackbar(
-                'Success',
-                'Account deleted successfully',
+                'success'.tr,
+                'account_deleted_successfully'.tr,
                 backgroundColor: Colors.green,
                 colorText: Colors.white,
-                icon: const Icon(Icons.check_circle, color: Colors.white),
+                icon: Icon(Icons.check_circle, color: Colors.white),
                 duration: const Duration(seconds: 2),
               );
 

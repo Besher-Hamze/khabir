@@ -10,6 +10,7 @@ class AppConstants {
 
   // API Endpoints
   static const String authLogin = '/auth/login';
+  static const String authDeleteAccount = '/auth/delete-account';
   static const String authPhoneLogin = '/auth/phone/login';
   static const String authRegisterInitiate = '/auth/register/initiate';
   static const String authRegisterComplete = '/auth/register/complete';
@@ -142,10 +143,13 @@ class AppConstants {
   static const String tiktokUrl = 'https://tiktok.com/@khabir_app';
 
   // Google Play Store
-  static const String providerAppId =
-      'com.akwan.khabirkhadmat_new.khabir_provider';
+  static const String providerAppId = 'com.akwan.khabirprovider_new';
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=';
+
+  // Apple App Store
+  static const String providerAppStoreUrl =
+      'https://apps.apple.com/us/app/k-provider/id6477719296';
 
   // Error Messages Keys
   static const String networkError = 'network_error';

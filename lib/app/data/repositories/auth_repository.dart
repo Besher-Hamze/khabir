@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:dio/dio.dart';
-import 'package:khabir/app/data/models/user_profile_model.dart';
 import '../models/user_model.dart';
 import '../services/storage_service.dart';
 import '../services/api_service.dart';
@@ -11,13 +10,19 @@ class AuthRepository {
   final StorageService _storageService = StorageService.instance;
   final ApiService _apiService = ApiService.instance;
 
+  String countryCode = '+968';
   // Login with phone and password
   Future<Map<String, dynamic>> login(String phone, String password) async {
     try {
       print('Login with phone: $phone and password: $password');
       final response = await _apiService.post(
         AppConstants.authLogin,
-        data: {'phone': phone.trim(), 'password': password},
+        data: {
+          'phone': '$countryCode$phone'.trim(),
+          'password': password,
+          "type": "USER",
+          "fcm": "fcm_token",
+        },
       );
 
       if (response.statusCode == 201) {
@@ -44,9 +49,14 @@ class AuthRepository {
       }
     } catch (e) {
       print('Login error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+      return {
+        'success': false,
+        'message': 'رقم الهاتف أو كلمة المرور غير صحيحة',
+      };
     }
   }
+
+  // Delete account
 
   // Login as visitor with automatic credentials
   Future<Map<String, dynamic>> loginAsVisitor() async {
@@ -65,9 +75,9 @@ class AuthRepository {
           if (authResponse.user != null) {
             final User visitorUser = User(
               id: authResponse.user!.id,
-              name: "vistor",
+              name: "visitor",
               phoneNumber: "96812345678",
-              role: "VISTOR",
+              role: "VISITOR",
               createdAt: DateTime.now(),
             );
 
@@ -106,7 +116,7 @@ class AuthRepository {
     try {
       FormData formData = FormData.fromMap({
         'name': name,
-        'phoneNumber': phone.replaceAll(' ', ''),
+        'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
         'password': password,
         'role': 'USER',
         'state': state,
@@ -141,6 +151,12 @@ class AuthRepository {
         return {'success': true, 'message': 'تم إرسال رمز التحقق إلى $phone'};
       } else {
         final responseData = response.data;
+        if (responseData['message'].toString().contains("Phone")) {
+          return {
+            'success': false,
+            'message': 'phone_number_already_exists'.tr,
+          };
+        }
         return {
           'success': false,
           'message': responseData['message'].toString().contains("Phone")
@@ -150,6 +166,9 @@ class AuthRepository {
       }
     } catch (e) {
       print('Register initiate error: ${e}');
+      if (e.toString().contains("409")) {
+        return {'success': false, 'message': 'phone_number_already_exists'.tr};
+      }
       return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
@@ -159,11 +178,10 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordResetSendOTP,
-        data: {'phoneNumber': phone.replaceAll(' ', '')},
+        data: {'phoneNumber': '$countryCode$phone'.replaceAll(' ', '')},
       );
 
-      if (response.statusCode == 200 ||
-          response.statusCode == 201 && response.data['success'] == true) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return {'success': true, 'message': 'تم إرسال رمز التحقق إلى $phone'};
       } else {
         final responseData = response.data;
@@ -183,7 +201,10 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authRegisterComplete,
-        data: {'phoneNumber': phoneNumber.replaceAll(' ', ''), 'otp': otp},
+        data: {
+          'phoneNumber': '$countryCode$phoneNumber'.replaceAll(' ', ''),
+          'otp': otp,
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -199,21 +220,18 @@ class AuthRepository {
             'success': true,
             'user': authResponse.user,
             'token': authResponse.accessToken,
-            'message': authResponse.message,
+            'message': 'otp_verified_successfully'.tr,
           };
         } else {
-          return {'success': false, 'message': authResponse.message};
+          return {'success': false, 'message': 'otp_verification_failed'.tr};
         }
       } else {
         final responseData = response.data;
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'رمز التحقق غير صحيح',
-        };
+        return {'success': false, 'message': 'otp_verification_failed'.tr};
       }
     } catch (e) {
       print('Verify OTP error: $e');
-      return {'success': false, 'message': 'خطأ في التحقق من الرمز'};
+      return {'success': false, 'message': 'otp_verification_failed'.tr};
     }
   }
 
@@ -227,24 +245,21 @@ class AuthRepository {
       final response = await _apiService.post(
         AppConstants.authPasswordReset,
         data: {
-          'phoneNumber': phone.replaceAll(' ', ''),
+          'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
           'otp': otp,
           'newPassword': newPassword,
         },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return {'success': true, 'message': 'تم تغيير كلمة المرور بنجاح'};
+        return {'success': true, 'message': 'password_reset_successfully'.tr};
       } else {
         final responseData = response.data;
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'فشل في تغيير كلمة المرور',
-        };
+        return {'success': false, 'message': 'password_reset_failed'.tr};
       }
     } catch (e) {
       print('Reset password error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+      return {'success': false, 'message': 'password_reset_failed'.tr};
     }
   }
 
@@ -310,26 +325,57 @@ class AuthRepository {
           return {
             'success': true,
             'user': updatedUser,
-            'message': 'تم تحديث الملف الشخصي بنجاح',
+            'message': 'profile_updated'.tr,
           };
         }
       }
 
-      return {'success': false, 'message': 'فشل في تحديث الملف الشخصي'};
+      return {'success': false, 'message': 'profile_update_failed'.tr};
     } catch (e) {
       print('Update profile error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+      return {'success': false, 'message': 'profile_update_failed'.tr};
     }
   }
 
   // Delete account
   Future<Map<String, dynamic>> deleteAccount() async {
     try {
-      await logout();
-      return {'success': true, 'message': 'تم حذف الحساب بنجاح'};
+      final response = await _apiService.delete(AppConstants.authDeleteAccount);
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        await logout();
+        return {'success': true, 'message': 'account_deleted_successfully'.tr};
+      } else {
+        final dynamic data = response.data;
+        String? backendMessage;
+        if (data is Map<String, dynamic>) {
+          backendMessage = (data['message'] ?? data['error'] ?? data['detail'])
+              ?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          backendMessage = data;
+        }
+        return {
+          'success': false,
+          'message': backendMessage ?? 'account_delete_failed'.tr,
+        };
+      }
     } catch (e) {
       print('Delete account error: $e');
-      return {'success': false, 'message': 'فشل في حذف الحساب'};
+      if (e is DioException) {
+        final res = e.response;
+        final dynamic data = res?.data;
+        String? backendMessage;
+        if (data is Map<String, dynamic>) {
+          backendMessage = (data['message'] ?? data['error'] ?? data['detail'])
+              ?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          backendMessage = data;
+        }
+        return {
+          'success': false,
+          'message': backendMessage ?? 'خطأ في الاتصال بالخادم',
+        };
+      }
+      return {'success': false, 'message': 'account_delete_failed'.tr};
     }
   }
 

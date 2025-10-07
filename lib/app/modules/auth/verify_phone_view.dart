@@ -87,6 +87,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                     selectedColor: AppColors.primary,
                     borderWidth: 2,
                   ),
+                  backgroundColor: Colors.transparent,
                   enableActiveFill: true,
                   keyboardType: TextInputType.number,
                   textStyle: const TextStyle(

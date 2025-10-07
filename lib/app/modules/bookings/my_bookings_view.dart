@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/data/models/order_model.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import 'package:khabir/app/global_widgets/rating_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/values/colors.dart';
@@ -568,7 +569,20 @@ class MyBookingsView extends GetView<OrdersController> {
                               order.locationDetails!.isNotEmpty)
                             _buildDetailRow(
                               'location_details'.tr,
-                              order.locationDetails!,
+                              (() {
+                                final details = order.locationDetails!.split(
+                                  '|',
+                                );
+                                if (details.length >= 2) {
+                                  final state = getStateInLanguage(
+                                    Get.locale?.languageCode ?? 'en',
+                                    details[0],
+                                  );
+                                  return '${state ?? details[0]} ${details[1]}';
+                                } else {
+                                  return order.locationDetails!;
+                                }
+                              })(),
                             ),
                         ],
                       ),
@@ -845,7 +859,9 @@ class MyBookingsView extends GetView<OrdersController> {
             children: [
               Expanded(
                 child: Text(
-                  service.serviceTitle,
+                  Get.locale?.languageCode == 'ar'
+                      ? service.serviceTitleAr
+                      : service.serviceTitleEn,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -937,7 +953,7 @@ class MyBookingsView extends GetView<OrdersController> {
                   child: Row(
                     children: [
                       Text(
-                        '• ${service.serviceTitle}',
+                        '• ${Get.locale?.languageCode == 'ar' ? service.serviceTitleAr : service.serviceTitleEn}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: Colors.black87,

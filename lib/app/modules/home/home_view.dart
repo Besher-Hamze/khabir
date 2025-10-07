@@ -371,9 +371,7 @@ class HomeView extends GetView<HomeController> {
             // Category Name
             Expanded(
               child: Text(
-                category.titleEn.isNotEmpty
-                    ? category.titleEn
-                    : category.titleAr,
+                category.getTitle(Get.locale?.languageCode ?? 'en'),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

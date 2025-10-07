@@ -701,3 +701,15 @@ class OmanStatesData {
     ),
   ];
 }
+
+/// Returns the state name in the specified language, or null if state not found
+String? getStateInLanguage(String lang, String state) {
+  for (var governorate in OmanStatesData.states) {
+    for (var stateData in governorate.states) {
+      if (stateData.value == state) {
+        return lang == 'ar' ? stateData.label.ar : stateData.label.en;
+      }
+    }
+  }
+  return null; // State not found
+}

@@ -99,22 +99,6 @@ class _SuccessPageViewState extends State<SuccessPageView>
                 ),
               ),
 
-              const SizedBox(height: 16),
-
-              // Success Message
-              FadeTransition(
-                opacity: _fadeIn,
-                child: Text(
-                  'request_submitted_message'.tr,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
               const SizedBox(height: 40),
 
               // Booking Details Card

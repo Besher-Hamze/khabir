@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/core/utils/helpers.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import '../../core/values/colors.dart';
 import 'request_service_controller.dart';
 import '../../data/models/provider_model.dart';
@@ -211,16 +212,11 @@ class RequestServiceView extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      (controller.serviceId != null
-                                  ? controller.services.firstWhereOrNull(
-                                      (service) =>
-                                          service.id == controller.serviceId,
-                                    )
-                                  : (controller.services.isNotEmpty
-                                        ? controller.services.first
-                                        : null))
-                              ?.title ??
-                          '',
+                      getStateInLanguage(
+                            Get.locale?.languageCode ?? 'en',
+                            provider.state,
+                          ) ??
+                          provider.state,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -245,7 +241,9 @@ class RequestServiceView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      provider.rate.toString(), // Use actual rating
+                      provider.rate != null
+                          ? provider.rate.toString()
+                          : '0', // Use actual rating
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -603,8 +601,11 @@ class RequestServiceView extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              controller.selectedLocation.value?.address ??
-                                  'no_location_selected'.tr,
+                              controller.selectedLocation.value != null
+                                  ? _getFormattedLocationAddress(
+                                      controller.selectedLocation.value!,
+                                    )
+                                  : 'no_location_selected'.tr,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.black87,
@@ -902,8 +903,8 @@ class RequestServiceView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Submitting...',
+                  Text(
+                    'submitting'.tr,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -1277,13 +1278,13 @@ class RequestServiceView extends StatelessWidget {
                 // Create a temporary location model for the selected coordinates
                 final tempLocation = UserLocationModel(
                   id: -1, // Temporary ID
-                  title: 'Selected Location',
-                  description: 'Temporarily selected for this service',
+                  title: 'selected_location'.tr,
+                  description: 'temporarily_selected_for_this_service'.tr,
                   latitude: selectedLatitude!,
                   longitude: selectedLongitude!,
                   address: selectedAddress.isNotEmpty
                       ? selectedAddress
-                      : 'Selected Location',
+                      : 'selected_location'.tr,
                   isDefault: false,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
@@ -1310,5 +1311,18 @@ class RequestServiceView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getFormattedLocationAddress(UserLocationModel location) {
+    if (location.address.contains('|')) {
+      // Handle saved locations with pipe separator
+      final parts = location.address.split('|');
+      if (parts.length >= 2) {
+        return '${getStateInLanguage(Get.locale?.languageCode ?? 'en', parts[0])} ${parts[1]}';
+      }
+    }
+
+    // Handle map-selected locations or locations without pipe separator
+    return location.address;
   }
 }

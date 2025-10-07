@@ -256,7 +256,9 @@ class OffersView extends GetView<OffersController> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'Save ${(offer.originalPrice - offer.offerPrice).toStringAsFixed(1)} OMR',
+                      'save_offer'.tr +
+                          ' ${(offer.originalPrice - offer.offerPrice).toStringAsFixed(1)} ' +
+                          'OMR',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.green,

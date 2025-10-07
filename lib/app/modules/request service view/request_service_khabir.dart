@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:khabir/app/core/utils/helpers.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -81,8 +82,8 @@ class RequestServiceKhabirView extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Description Section
-              const Text(
-                'Description',
+              Text(
+                'description'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -94,9 +95,7 @@ class RequestServiceKhabirView extends StatelessWidget {
 
               // Description Text
               Text(
-                serviceDescription.isNotEmpty
-                    ? serviceDescription
-                    : 'As a UX designer, I specialize in crafting seamless user experiences that align with your brand and resonate with your audience. My services encompass comprehensive user research, wireframing, prototyping, and interface design. I focus on understanding user behavior and creating intuitive, accessible designs that drive engagement and conversion. Whether you need a complete design overhaul or specific UX improvements, I\'m here to help transform your digital presence.',
+                serviceDescription,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
@@ -145,11 +144,15 @@ class RequestServiceKhabirView extends StatelessWidget {
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.chat, color: Colors.red, size: 16),
+                    child: const Icon(
+                      FontAwesomeIcons.whatsapp,
+                      color: Colors.red,
+                      size: 16,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Contact us',
+                  Text(
+                    'contact_us'.tr,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ],

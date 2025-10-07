@@ -156,7 +156,7 @@ class HomeController extends GetxController {
       AppRoutes.services,
       arguments: {
         'categoryId': category.id,
-        'categoryName': category.titleEn,
+        'categoryName': category.getTitle(Get.locale?.languageCode ?? 'en'),
         'categoryImage': category.image,
         'categoryState': category.state,
       },

@@ -15,10 +15,15 @@ class OrdersRepository {
       if (response.statusCode == 200) {
         return OrderResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to load orders: ${response.statusMessage}');
+        throw Exception(
+          'failed_to_load_orders'.tr.replaceAll(
+            '{error}',
+            '$response.statusMessage',
+          ),
+        );
       }
     } catch (e) {
-      throw Exception('Error loading orders: $e');
+      throw Exception('error_loading_orders'.tr.replaceAll('{error}', '$e'));
     }
   }
 
@@ -30,16 +35,16 @@ class OrdersRepository {
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        return {'success': true, 'message': 'Order deleted successfully'};
+        return {'success': true, 'message': 'order_deleted_successfully'.tr};
       } else {
         return {
           'success': false,
-          'message': response.data['message'] ?? 'Failed to delete order',
+          'message': response.data['message'] ?? 'failed_to_delete_order'.tr,
         };
       }
     } catch (e) {
       print('Delete order error: $e');
-      return {'success': false, 'message': 'Error deleting order: $e'};
+      return {'success': false, 'message': 'error_deleting_order'.tr};
     }
   }
 
@@ -54,18 +59,21 @@ class OrdersRepository {
       if (response.statusCode == 200) {
         return {
           'success': true,
-          'message': 'Order cancelled successfully',
+          'message': 'order_cancelled_successfully'.tr,
           // 'order': OrderModel.fromJson(response.data['order']),
         };
       } else {
         return {
           'success': false,
-          'message': response.data['message'] ?? 'Failed to cancel order',
+          'message': response.data['message'] ?? 'failed_to_cancel_order'.tr,
         };
       }
     } catch (e) {
       print('Cancel order error: $e');
-      return {'success': false, 'message': 'Error cancelling order: $e'};
+      return {
+        'success': false,
+        'message': 'error_cancelling_order'.tr.replaceAll('{error}', '$e'),
+      };
     }
   }
 
@@ -77,10 +85,12 @@ class OrdersRepository {
       if (response.statusCode == 200) {
         return OrderModel.fromJson(response.data['order']);
       } else {
-        throw Exception('Failed to load order details');
+        throw Exception('failed_to_load_order_details'.tr);
       }
     } catch (e) {
-      throw Exception('Error loading order details: $e');
+      throw Exception(
+        'error_loading_order_details'.tr.replaceAll('{error}', '$e'),
+      );
     }
   }
 
@@ -98,19 +108,22 @@ class OrdersRepository {
       if (response.statusCode == 200) {
         return {
           'success': true,
-          'message': 'Order status updated successfully',
+          'message': 'order_status_updated_successfully'.tr,
           'order': OrderModel.fromJson(response.data['order']),
         };
       } else {
         return {
           'success': false,
           'message':
-              response.data['message'] ?? 'Failed to update order status',
+              response.data['message'] ?? 'failed_to_update_order_status'.tr,
         };
       }
     } catch (e) {
       print('Update order status error: $e');
-      return {'success': false, 'message': 'Error updating order status: $e'};
+      return {
+        'success': false,
+        'message': 'error_updating_order_status'.tr.replaceAll('{error}', '$e'),
+      };
     }
   }
 }

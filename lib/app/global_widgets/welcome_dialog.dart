@@ -57,17 +57,8 @@ class WelcomeDialog extends StatelessWidget {
             // OK Button
             SizedBox(
               width: double.infinity,
-              height: 56,
               child: ElevatedButton(
                 onPressed: onOkPressed ?? () => Get.back(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
                 child: Text(
                   'ok'.tr,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),

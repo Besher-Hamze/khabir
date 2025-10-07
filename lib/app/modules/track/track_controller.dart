@@ -20,7 +20,7 @@ class LocationTrackingController extends GetxController {
   final RxList<LatLng> locationHistory = <LatLng>[].obs;
 
   // Tracking info
-  final RxString trackingStatus = 'Connecting...'.obs;
+  final RxString trackingStatus = 'connecting'.tr.obs;
   final RxString providerStatus = 'Unknown'.obs;
   final RxString estimatedArrival = ''.obs;
   final RxString routeDistance = ''.obs;
@@ -339,14 +339,14 @@ class LocationTrackingController extends GetxController {
       // Get initial tracking data
       await _loadInitialTrackingData(orderId);
 
-      trackingStatus.value = 'Tracking started';
+      trackingStatus.value = 'tracking_started'.tr;
       isConnected.value = true;
 
       print('CONTROLLER: Tracking started successfully');
 
       Get.snackbar(
-        'Tracking Started',
-        'Now tracking your service provider',
+        'tracking_started'.tr,
+        'now_tracking_your_service_provider'.tr,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -358,7 +358,7 @@ class LocationTrackingController extends GetxController {
       isConnected.value = false;
 
       Get.snackbar(
-        'Tracking Error',
+        'tracking_error'.tr,
         'Failed to start tracking: ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -374,12 +374,12 @@ class LocationTrackingController extends GetxController {
     if (currentOrderId != null) {
       print('CONTROLLER: Stopping tracking for order: $currentOrderId');
       _locationRepository.stopTracking(currentOrderId!);
-      trackingStatus.value = 'Tracking stopped';
+      trackingStatus.value = 'tracking_stopped'.tr;
       currentOrderId = null;
 
       Get.snackbar(
-        'Tracking Stopped',
-        'Location tracking has been stopped',
+        'tracking_stopped'.tr,
+        'location_tracking_has_been_stopped'.tr,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -473,8 +473,8 @@ class LocationTrackingController extends GetxController {
       await _loadInitialTrackingData(currentOrderId!);
 
       Get.snackbar(
-        'Tracking Refreshed',
-        'Location data has been updated',
+        'tracking_refreshed'.tr,
+        'location_data_has_been_updated'.tr,
         backgroundColor: Colors.blue,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -489,8 +489,8 @@ class LocationTrackingController extends GetxController {
       case 'completed':
         stopTracking();
         Get.snackbar(
-          'Service Completed',
-          'Your service has been completed',
+          'service_completed'.tr,
+          'your_service_has_been_completed'.tr,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -499,8 +499,8 @@ class LocationTrackingController extends GetxController {
       case 'cancelled':
         stopTracking();
         Get.snackbar(
-          'Service Cancelled',
-          'Your service has been cancelled',
+          'service_cancelled'.tr,
+          'your_service_has_been_cancelled'.tr,
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -515,15 +515,15 @@ class LocationTrackingController extends GetxController {
   String _formatTrackingStatus(String status) {
     switch (status.toLowerCase()) {
       case 'on_the_way':
-        return 'On the way';
+        return 'on_the_way'.tr;
       case 'nearby':
-        return 'Nearby';
+        return 'nearby'.tr;
       case 'almost_there':
-        return 'Almost there';
+        return 'almost_there'.tr;
       case 'arrived':
-        return 'Arrived';
+        return 'arrived'.tr;
       case 'in_service':
-        return 'Providing service';
+        return 'providing_service'.tr;
       default:
         return status.replaceAll('_', ' ').capitalizeFirst ?? status;
     }
@@ -533,13 +533,13 @@ class LocationTrackingController extends GetxController {
   String _formatProviderStatus(String status) {
     switch (status.toLowerCase()) {
       case 'online':
-        return 'Online';
+        return 'online'.tr;
       case 'offline':
-        return 'Offline';
+        return 'offline'.tr;
       case 'busy':
-        return 'Busy';
+        return 'busy'.tr;
       case 'available':
-        return 'Available';
+        return 'available'.tr;
       default:
         return status.capitalizeFirst ?? status;
     }
@@ -641,7 +641,7 @@ class LocationTrackingController extends GetxController {
 
   // Format duration for display
   String formatDuration(String duration) {
-    return duration.isNotEmpty ? duration : 'Calculating...';
+    return duration.isNotEmpty ? duration : 'calculating'.tr;
   }
 
   // Debug method to check current state
