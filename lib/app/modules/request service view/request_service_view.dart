@@ -332,7 +332,9 @@ class RequestServiceView extends StatelessWidget {
             children: [
               // Service Details
               Text(
-                service.title,
+                Get.locale?.languageCode == 'ar'
+                    ? service.titleAr
+                    : service.titleEn,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

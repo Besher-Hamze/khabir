@@ -178,7 +178,7 @@ class Provider {
       totalOrders > 0 ? (completedOrders / totalOrders) : 0.0;
 
   List<String> get topServiceNames =>
-      services.where((s) => s.isActive).take(3).map((s) => s.title).toList();
+      services.where((s) => s.isActive).take(3).map((s) => s.titleAr).toList();
 
   // =============================================================================
   // HELPER METHODS FOR PARSING
@@ -281,7 +281,8 @@ class Provider {
 class ProviderServiceItem {
   final int id;
   final int? serviceId;
-  final String title;
+  final String titleEn;
+  final String titleAr;
   final String description;
   final String image;
   final double price;
@@ -302,7 +303,8 @@ class ProviderServiceItem {
   ProviderServiceItem({
     required this.id,
     this.serviceId,
-    required this.title,
+    required this.titleAr,
+    required this.titleEn,
     required this.description,
     required this.image,
     required this.price,
@@ -377,14 +379,22 @@ class ProviderServiceItem {
       serviceId: json['serviceId'] ?? serviceData?['id'],
 
       // Handle title - provide fallback for minimal structure
-      title:
+      titleAr:
           serviceData?['titleAr'] ??
+          json['titleAr'] ??
+          serviceData?['titleAr'] ??
+          json['titleAr'] ??
+          json['name_ar'] ??
+          json['nameAr'] ??
+          (isMinimalStructure ? 'Service ${json['id'] ?? 'Unknown'}' : ''),
+      titleEn:
           serviceData?['titleEn'] ??
-          json['title'] ??
+          json['titleEn'] ??
+          serviceData?['titleEn'] ??
+          json['titleEn'] ??
           json['name_en'] ??
           json['nameEn'] ??
           (isMinimalStructure ? 'Service ${json['id'] ?? 'Unknown'}' : ''),
-
       // Handle description - provide fallback for minimal structure
       description:
           serviceData?['description'] ??
@@ -430,7 +440,8 @@ class ProviderServiceItem {
     return {
       'id': id,
       'serviceId': serviceId,
-      'title': title,
+      'titleAr': titleAr,
+      'titleEn': titleEn,
       'description': description,
       'image': image,
       'price': price,
@@ -456,8 +467,8 @@ class ProviderServiceItem {
       'id': id.toString(),
       'provider_id': providerId ?? '',
       'subcategory_id': subcategoryId ?? '',
-      'name_ar': nameAr ?? title,
-      'name_en': nameEn ?? title,
+      'name_ar': nameAr ?? titleAr,
+      'name_en': nameEn ?? titleEn,
       'description_ar': descriptionAr ?? description,
       'description_en': descriptionEn ?? description,
       'price': price,

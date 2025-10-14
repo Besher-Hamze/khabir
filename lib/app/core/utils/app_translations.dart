@@ -531,7 +531,8 @@ class AppTranslations extends Translations {
           'Your service request has been submitted and is being processed. We\'ll notify you once a provider accepts your request.',
 
       // Status Messages
-
+      "add_any_special_instructions_or_notes_for_the_provider":
+          "Add any special instructions or notes for the provider...",
       // Offers
       'failed_to_load_offers': 'Failed to load offers',
       'no_offers_available': 'No offers available',
@@ -1177,7 +1178,6 @@ class AppTranslations extends Translations {
       'tap_map_select_location':
           'اضغط على الخريطة لاختيار موقع الخدمة أو استخدم المواقع المحفوظة',
       'please_select_location': 'يرجى اختيار موقع على الخريطة',
-
       // Order Status
       "default": "افتراضي",
       'pending': 'قيد الانتظار',
