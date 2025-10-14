@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:dio/dio.dart';
+import 'package:khabir/app/data/services/firebase_messaging_service.dart';
 import '../models/user_model.dart';
 import '../services/storage_service.dart';
 import '../services/api_service.dart';
@@ -15,13 +17,14 @@ class AuthRepository {
   Future<Map<String, dynamic>> login(String phone, String password) async {
     try {
       print('Login with phone: $phone and password: $password');
+      final fcmToken = await FirebaseMessaging.instance.getToken();
       final response = await _apiService.post(
         AppConstants.authLogin,
         data: {
           'phone': '$countryCode$phone'.trim(),
           'password': password,
           "type": "USER",
-          "fcm": "fcm_token",
+          "fcm": fcmToken,
         },
       );
 

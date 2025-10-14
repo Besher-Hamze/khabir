@@ -2,17 +2,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'app/core/theme/app_theme.dart';
 import 'app/core/utils/app_translations.dart';
 import 'app/core/constants/app_constants.dart';
+import 'app/core/config/firebase_config.dart';
 import 'app/data/services/api_service.dart';
 import 'app/data/services/storage_service.dart';
+import 'app/data/services/firebase_messaging_service.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   print('🚀 Starting app...');
+
+  // Initialize Firebase
+  await _initializeFirebase();
 
   // Set preferred orientations
   SystemChrome.setPreferredOrientations([
@@ -22,6 +29,27 @@ void main() async {
 
   print('🎉 App starting...');
   runApp(const KhabirUserApp());
+}
+
+/// Initialize Firebase
+Future<void> _initializeFirebase() async {
+  try {
+    print('🔥 Initializing Firebase...');
+
+    // Set background message handler
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    // Initialize Firebase with platform-specific options
+    await Firebase.initializeApp(
+      options: defaultTargetPlatform == TargetPlatform.android
+          ? androidFirebaseOptions
+          : iosFirebaseOptions,
+    );
+
+    print('✅ Firebase initialized successfully');
+  } catch (e) {
+    print('❌ Firebase initialization failed: $e');
+  }
 }
 
 class KhabirUserApp extends StatelessWidget {
@@ -82,7 +110,7 @@ class InitialBinding extends Bindings {
       print('🔧 Initializing services...');
 
       // Initialize storage service
-      final storageService = await Get.putAsync(
+      await Get.putAsync(
         () => StorageService().init(),
         permanent: !kDebugMode, // Not permanent in debug mode
       );
@@ -95,6 +123,13 @@ class InitialBinding extends Bindings {
       );
       print('✅ API service initialized');
 
+      // Initialize Firebase Messaging service
+      Get.put(
+        FirebaseMessagingService(),
+        permanent: !kDebugMode, // Not permanent in debug mode
+      );
+      print('✅ Firebase Messaging service initialized');
+
       // Load saved language
       _loadLanguage();
     } catch (e) {
@@ -102,6 +137,7 @@ class InitialBinding extends Bindings {
       // Create fallback services
       Get.put(StorageService(), permanent: !kDebugMode);
       Get.put(ApiService(), permanent: !kDebugMode);
+      Get.put(FirebaseMessagingService(), permanent: !kDebugMode);
       print('⚠️ Fallback services created');
     }
   }
