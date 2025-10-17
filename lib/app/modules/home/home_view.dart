@@ -297,7 +297,7 @@ class HomeView extends GetView<HomeController> {
           }
 
           return SizedBox(
-            height: 100,
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: controller.categories.length,
@@ -328,8 +328,8 @@ class HomeView extends GetView<HomeController> {
           children: [
             // Category Icon
             SizedBox(
-              width: 60,
-              height: 60,
+              width: 70,
+              height: 70,
               child: Center(
                 child: category.image.isNotEmpty
                     ? Image.network(

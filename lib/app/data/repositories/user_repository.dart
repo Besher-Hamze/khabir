@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import '../models/user_profile_model.dart';
 import '../models/user_location_model.dart';
@@ -176,6 +177,49 @@ class UserRepository {
       }
     } catch (e) {
       throw Exception('Error updating profile: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteAccount() async {
+    try {
+      final response = await _apiService.delete(AppConstants.authDeleteAccount);
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        await _storageService.removeToken();
+        await _storageService.removeUser();
+
+        return {'success': true, 'message': 'account_deleted_successfully'.tr};
+      } else {
+        final dynamic data = response.data;
+        String? backendMessage;
+        if (data is Map<String, dynamic>) {
+          backendMessage = (data['message'] ?? data['error'] ?? data['detail'])
+              ?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          backendMessage = data;
+        }
+        return {
+          'success': false,
+          'message': backendMessage ?? 'account_delete_failed'.tr,
+        };
+      }
+    } catch (e) {
+      print('Delete account error: $e');
+      if (e is DioException) {
+        final res = e.response;
+        final dynamic data = res?.data;
+        String? backendMessage;
+        if (data is Map<String, dynamic>) {
+          backendMessage = (data['message'] ?? data['error'] ?? data['detail'])
+              ?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          backendMessage = data;
+        }
+        return {
+          'success': false,
+          'message': backendMessage ?? 'خطأ في الاتصال بالخادم',
+        };
+      }
+      return {'success': false, 'message': 'account_delete_failed'.tr};
     }
   }
 }

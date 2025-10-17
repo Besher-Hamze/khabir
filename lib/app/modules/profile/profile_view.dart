@@ -297,7 +297,10 @@ class ProfileView extends GetView<UserController> {
             iconColor: Colors.red,
             title: 'terms_and_conditions'.tr,
             onTap: termsUrl != null && termsUrl.isNotEmpty
-                ? () => _openDocument("${AppConstants.baseUrlImage}$termsUrl")
+                ? () => _openDocument(
+                    "${AppConstants.baseUrlImage}$termsUrl",
+                    "terms_and_conditions",
+                  )
                 : () => _showUnavailableDocument('Terms and Conditions'),
           );
         }),
@@ -314,7 +317,10 @@ class ProfileView extends GetView<UserController> {
             iconColor: Colors.red,
             title: 'privacy_policy'.tr,
             onTap: privacyUrl != null && privacyUrl.isNotEmpty
-                ? () => _openDocument("${AppConstants.baseUrlImage}$privacyUrl")
+                ? () => _openDocument(
+                    "${AppConstants.baseUrlImage}$privacyUrl",
+                    "privacy_policy",
+                  )
                 : () => _showUnavailableDocument('Privacy Policy'),
           );
         }),
@@ -524,12 +530,12 @@ class ProfileView extends GetView<UserController> {
   }
 
   // Helper Methods
-  void _openDocument(String url) async {
+  void _openDocument(String url, String title) async {
     try {
       // Navigate to PDF Viewer with the URL
       Get.toNamed(
         AppRoutes.termsConditions,
-        arguments: {'pdf_url': url, 'title': 'privacy_policy'.tr},
+        arguments: {'pdf_url': url, 'title': title.tr},
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to open document: ${e.toString()}');
@@ -2146,9 +2152,8 @@ class ProfileView extends GetView<UserController> {
                 Center(child: CircularProgressIndicator()),
                 barrierDismissible: false,
               );
-
+              await controller.deleteAccount();
               // Simulate API call delay
-              await Future.delayed(const Duration(seconds: 2));
 
               Get.back(); // Close loading dialog
 
@@ -2161,12 +2166,6 @@ class ProfileView extends GetView<UserController> {
                 icon: Icon(Icons.check_circle, color: Colors.white),
                 duration: const Duration(seconds: 2),
               );
-
-              // Navigate to login screen after delay
-              await Future.delayed(const Duration(seconds: 2));
-              final storageService = Get.find<StorageService>();
-              await storageService.removeToken();
-              await storageService.removeUser();
               Get.offAllNamed(AppRoutes.login);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

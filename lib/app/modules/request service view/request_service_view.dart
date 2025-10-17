@@ -142,9 +142,9 @@ class RequestServiceView extends StatelessWidget {
                   Obx(() => _buildTotalPriceSection(controller)),
                   const SizedBox(height: 24),
 
-                  // Notes Section
-                  _buildNotesSection(controller),
-                  const SizedBox(height: 24),
+                  // // Notes Section
+                  // _buildNotesSection(controller),
+                  // const SizedBox(height: 24),
 
                   // Submit Button - Make it reactive
                   Obx(() => _buildSubmitButton(controller)),
@@ -809,71 +809,71 @@ class RequestServiceView extends StatelessWidget {
     );
   }
 
-  Widget _buildNotesSection(RequestServiceController controller) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 2),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.note, size: 18, color: Colors.black54),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'additional_notes'.tr,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            onChanged: (value) => controller.notes.value = value,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText:
-                  'add_any_special_instructions_or_notes_for_the_provider'.tr,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                  width: 2,
-                ),
-              ),
-              filled: true,
-              fillColor: Colors.grey[50],
-              contentPadding: const EdgeInsets.all(16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildNotesSection(RequestServiceController controller) {
+  //   return Container(
+  //     padding: const EdgeInsets.all(20),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(16),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.05),
+  //           offset: const Offset(0, 2),
+  //           blurRadius: 8,
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(6),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey[100],
+  //                 borderRadius: BorderRadius.circular(8),
+  //               ),
+  //               child: const Icon(Icons.note, size: 18, color: Colors.black54),
+  //             ),
+  //             const SizedBox(width: 12),
+  //             Text(
+  //               'additional_notes'.tr,
+  //               style: TextStyle(
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: Colors.black87,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 16),
+  //         TextField(
+  //           onChanged: (value) => controller.notes.value = value,
+  //           maxLines: 3,
+  //           decoration: InputDecoration(
+  //             hintText:
+  //                 'add_any_special_instructions_or_notes_for_the_provider'.tr,
+  //             border: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(12),
+  //               borderSide: BorderSide(color: Colors.grey[300]!),
+  //             ),
+  //             focusedBorder: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(12),
+  //               borderSide: const BorderSide(
+  //                 color: AppColors.primary,
+  //                 width: 2,
+  //               ),
+  //             ),
+  //             filled: true,
+  //             fillColor: Colors.grey[50],
+  //             contentPadding: const EdgeInsets.all(16),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSubmitButton(RequestServiceController controller) {
     return SizedBox(

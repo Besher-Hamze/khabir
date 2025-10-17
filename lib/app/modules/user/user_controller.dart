@@ -347,4 +347,24 @@ class UserController extends GetxController {
       print('Logout error: $e');
     }
   }
+
+  Future<void> deleteAccount() async {
+    if (isVisitorUser()) {
+      return;
+    }
+    try {
+      final result = await _userRepository.deleteAccount();
+      if (result['success'] == true) {
+        Get.snackbar(
+          'success'.tr,
+          'account_deleted_successfully'.tr,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        await logout();
+      }
+    } catch (e) {
+      print('Delete account error: $e');
+    }
+  }
 }

@@ -181,7 +181,10 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordResetSendOTP,
-        data: {'phoneNumber': '$countryCode$phone'.replaceAll(' ', '')},
+        data: {
+          'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
+          "role": "USER",
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -251,6 +254,7 @@ class AuthRepository {
           'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
           'otp': otp,
           'newPassword': newPassword,
+          "role": "USER",
         },
       );
 

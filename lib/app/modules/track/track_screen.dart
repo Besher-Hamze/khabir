@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -32,6 +33,7 @@ class _TrackingViewState extends State<TrackingView>
   Set<Polyline> _polylines = {};
   Timer? _routeUpdateTimer;
   Timer? _userInteractionTimer;
+  BitmapDescriptor? _carIcon;
 
   // User interaction state
   bool _userIsInteracting = false;
@@ -55,6 +57,7 @@ class _TrackingViewState extends State<TrackingView>
     _initializeTracking();
     _startUpdateTimers();
     _setupLocationListeners();
+    _createCarIcon();
   }
 
   void _initializeAnimations() {
@@ -87,6 +90,99 @@ class _TrackingViewState extends State<TrackingView>
 
     // Start with card expanded
     _cardAnimationController.value = 1.0;
+  }
+
+  /// Create custom car icon for provider location
+  Future<void> _createCarIcon() async {
+    try {
+      // Create a custom car icon programmatically
+      _carIcon = await _createCarBitmap();
+    } catch (e) {
+      // Fallback to a custom icon created programmatically
+      _carIcon = BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueGreen,
+      );
+      print('Could not create car icon, using default: $e');
+    }
+  }
+
+  /// Create a custom car bitmap icon
+  Future<BitmapDescriptor> _createCarBitmap() async {
+    // Create a custom car icon using Flutter's painting capabilities
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const size = Size(72, 72); // Increased from 48x48 to 72x72
+
+    // Car body (main rectangle) - scaled up
+    final carPaint = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.fill;
+
+    final carRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(12, 24, 48, 30), // Increased size
+      const Radius.circular(12), // Increased radius
+    );
+    canvas.drawRRect(carRect, carPaint);
+
+    // Car roof - scaled up
+    final roofPaint = Paint()
+      ..color = Colors.green.shade700
+      ..style = PaintingStyle.fill;
+
+    final roofRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(18, 12, 36, 24), // Increased size
+      const Radius.circular(9), // Increased radius
+    );
+    canvas.drawRRect(roofRect, roofPaint);
+
+    // Wheels - scaled up
+    final wheelPaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(const Offset(24, 54), 6, wheelPaint); // Increased size
+    canvas.drawCircle(const Offset(48, 54), 6, wheelPaint); // Increased size
+
+    // Wheel centers - scaled up
+    final wheelCenterPaint = Paint()
+      ..color = Colors.grey.shade300
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      const Offset(24, 54),
+      3,
+      wheelCenterPaint,
+    ); // Increased size
+    canvas.drawCircle(
+      const Offset(48, 54),
+      3,
+      wheelCenterPaint,
+    ); // Increased size
+
+    // Headlights - scaled up
+    final headlightPaint = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      const Offset(18, 36),
+      3,
+      headlightPaint,
+    ); // Increased size
+    canvas.drawCircle(
+      const Offset(54, 36),
+      3,
+      headlightPaint,
+    ); // Increased size
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(
+      size.width.toInt(),
+      size.height.toInt(),
+    );
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+
+    return BitmapDescriptor.fromBytes(bytes!.buffer.asUint8List());
   }
 
   void _initializeTracking() {
@@ -212,9 +308,9 @@ class _TrackingViewState extends State<TrackingView>
             title: widget.booking.providerName,
             snippet: _trackingController.trackingStatus.value,
           ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueGreen,
-          ),
+          icon:
+              _carIcon ??
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         ),
       );
     });
