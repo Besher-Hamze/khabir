@@ -24,6 +24,9 @@ class UserController extends GetxController {
   final RxBool isLocationActionLoading = false.obs;
   final Rx<UserLocationModel?> selectedLocation = Rx<UserLocationModel?>(null);
 
+  // Account management observables
+  final RxBool isDeleteAccountLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -293,15 +296,6 @@ class UserController extends GetxController {
         // Update the local profile
         userProfile.value = response['user'] as UserProfileModel;
 
-        // Check if token was refreshed
-        final token = response['token'] as String?;
-        final message = response['message'] as String?;
-
-        String successMessage = message ?? 'success'.tr;
-        if (token != null) {
-          successMessage += ' • ${'token_refreshed'.tr}';
-        }
-
         Get.snackbar(
           'success'.tr,
           "profile_updated".tr,
@@ -353,6 +347,7 @@ class UserController extends GetxController {
       return;
     }
     try {
+      isDeleteAccountLoading.value = true;
       final result = await _userRepository.deleteAccount();
       if (result['success'] == true) {
         Get.snackbar(
@@ -362,9 +357,24 @@ class UserController extends GetxController {
           colorText: Colors.white,
         );
         await logout();
+      } else {
+        Get.snackbar(
+          'error'.tr,
+          'account_delete_failed'.tr,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print('Delete account error: $e');
+      Get.snackbar(
+        'error'.tr,
+        'account_delete_failed'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isDeleteAccountLoading.value = false;
     }
   }
 }

@@ -133,7 +133,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
     } catch (e) {
       Get.snackbar(
         'error'.tr,
