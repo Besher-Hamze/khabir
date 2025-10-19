@@ -193,6 +193,8 @@ class AppTranslations extends Translations {
       "save_location": "Save Location",
       "location_updated_successfully": "Location updated successfully",
       "failed_to_update_location": "Failed to update location",
+      "account_delete_failed":
+          "Failed to delete account may you have pending orders",
       'language': 'Language',
       'password': 'Password',
       'phone_number_already_exists': 'Phone number already exists',
@@ -319,7 +321,6 @@ class AppTranslations extends Translations {
       'profile_updated': 'Profile updated successfully',
       'profile_update_failed': 'Failed to update profile',
       'account_deleted_successfully': 'Account deleted successfully',
-      'account_delete_failed': 'Failed to delete account',
       'validation_error': 'Validation error',
       'permission_denied': 'Permission denied',
       'location_permission': 'Location permission required',
@@ -799,12 +800,13 @@ class AppTranslations extends Translations {
       'order_status_updated_successfully': 'تم تحديث حالة الطلب بنجاح',
       'otp_sent_successfully': 'تم إرسال رمز التحقق بنجاح',
       'otp_verification_failed': 'فشل في التحقق من الرمز',
+      "account_delete_failed": "فشل حذف الحساب قد يكون لديك طلبات معلقة",
+
       'password_reset_successfully': 'تم إعادة تعيين كلمة المرور بنجاح',
       'password_reset_failed': 'فشل في إعادة تعيين كلمة المرور',
       'profile_updated': 'تم تحديث الملف الشخصي بنجاح',
       'profile_update_failed': 'فشل تحديث الملف الشخصي',
       'account_deleted_successfully': 'تم حذف الحساب بنجاح',
-      'account_delete_failed': 'فشل حذف الحساب',
 
       // Time
       'days_left': 'يوم متبقي',

@@ -2144,32 +2144,26 @@ class ProfileView extends GetView<UserController> {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
-          ElevatedButton(
-            onPressed: () async {
-              Get.back();
-              // Show loading
-              Get.dialog(
-                Center(child: CircularProgressIndicator()),
-                barrierDismissible: false,
-              );
-              await controller.deleteAccount();
-              // Simulate API call delay
-
-              Get.back(); // Close loading dialog
-
-              // Show success message
-              Get.snackbar(
-                'success'.tr,
-                'account_deleted_successfully'.tr,
-                backgroundColor: Colors.green,
-                colorText: Colors.white,
-                icon: Icon(Icons.check_circle, color: Colors.white),
-                duration: const Duration(seconds: 2),
-              );
-              Get.offAllNamed(AppRoutes.login);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('delete'.tr, style: TextStyle(color: Colors.white)),
+          Obx(
+            () => ElevatedButton(
+              onPressed: controller.isDeleteAccountLoading.value
+                  ? null
+                  : () async {
+                      Get.back(); // Close confirmation dialog
+                      await controller.deleteAccount();
+                    },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: controller.isDeleteAccountLoading.value
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text('delete'.tr, style: TextStyle(color: Colors.white)),
+            ),
           ),
         ],
       ),
