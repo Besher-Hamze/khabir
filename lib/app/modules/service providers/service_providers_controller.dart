@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:khabir/app/data/services/storage_service.dart';
+import 'package:khabir/app/global_widgets/login_required_dialog.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/providers_repository.dart';
 import '../../routes/app_routes.dart';
@@ -11,7 +13,6 @@ class ServiceProvidersController extends GetxController {
   final RxList<ProviderApiModel> providers = <ProviderApiModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxInt currentServiceId = 0.obs;
   final RxString currentServiceName = ''.obs;
   final RxString currentCategoryName = ''.obs;
@@ -42,7 +43,6 @@ class ServiceProvidersController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
       currentServiceId.value = serviceId;
 
       final ProviderApiResponse response = await _providersRepository
@@ -52,7 +52,6 @@ class ServiceProvidersController extends GetxController {
       totalProviders.value = response.total;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading providers by service: $e');
     } finally {
       isLoading.value = false;
@@ -79,21 +78,26 @@ class ServiceProvidersController extends GetxController {
 
   // Get provider price
   double getProviderPrice(ProviderApiModel provider) {
-    if (provider.providerServices.isNotEmpty) {
-      return provider.providerServices.first.price;
+    if (provider.services.isNotEmpty) {
+      return provider.services.first.price;
     }
     return 0.0;
   }
 
   double? getProviderOfferPrice(ProviderApiModel provider) {
-    if (provider.providerServices.isNotEmpty) {
-      return provider.providerServices.first.offerPrice;
+    if (provider.services.isNotEmpty) {
+      print('offerPrice: ${provider.toJson()}');
+      return provider.services.first.offerPrice;
     }
     return null;
   }
 
   // Handle provider selection
   void onProviderSelected(ProviderApiModel provider) {
+    if (Get.find<StorageService>().getUser()?.role == 'VISTOR') {
+      Get.dialog(const LoginRequiredDialog());
+      return;
+    }
     Get.toNamed(
       AppRoutes.requestService,
       arguments: {

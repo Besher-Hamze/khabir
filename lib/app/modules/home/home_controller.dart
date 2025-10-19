@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/banner_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/repositories/services_repository.dart';
 import '../../data/repositories/providers_repository.dart';
@@ -82,20 +83,8 @@ class HomeController extends GetxController {
 
         if (activeProviders.isNotEmpty) {
           // Sort by rank (lower is better) and take top 5
-          activeProviders.sort((a, b) => a.rank.compareTo(b.rank));
+          activeProviders.sort((a, b) => a.rank.compareTo(b.rank ?? 0));
           bestProviders.value = activeProviders.take(5).toList();
-
-          print(
-            'Successfully loaded ${bestProviders.length} active providers from API',
-          );
-          print('Providers sorted by rank:');
-
-          // Debug: Print provider details
-          for (var provider in bestProviders) {
-            print(
-              'Provider: ${provider.name} - Rating: ${provider.averageRating} - Tier: ${provider.tier} - Rank: ${provider.rank}',
-            );
-          }
         } else {
           print('No active providers found in API response');
           bestProviders.value = [];
@@ -167,7 +156,7 @@ class HomeController extends GetxController {
       AppRoutes.services,
       arguments: {
         'categoryId': category.id,
-        'categoryName': category.titleEn,
+        'categoryName': category.getTitle(Get.locale?.languageCode ?? 'en'),
         'categoryImage': category.image,
         'categoryState': category.state,
       },
@@ -204,9 +193,13 @@ class HomeController extends GetxController {
           _showErrorMessage('Cannot open this link');
         }
       } else if (banner.linkType == 'provider' && banner.providerId != null) {
+        // get provider by id
+        final provider = await _providersRepository.getProviderById(
+          banner.providerId.toString(),
+        );
         Get.toNamed(
-          AppRoutes.providerDetail,
-          arguments: {'providerId': banner.providerId},
+          AppRoutes.requestService,
+          arguments: {'provider': provider},
         );
       }
     } catch (e) {

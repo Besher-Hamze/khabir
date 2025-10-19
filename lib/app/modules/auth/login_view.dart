@@ -31,9 +31,9 @@ class LoginView extends GetView<AuthController> {
               ),
 
               // Welcome Back Title
-              const Text(
-                'Welcome Back',
-                style: TextStyle(
+              Text(
+                'welcome_back'.tr,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -45,7 +45,7 @@ class LoginView extends GetView<AuthController> {
 
               // Subtitle
               Text(
-                'Login to continue',
+                'login_to_continue'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   color: AppColors.primary.withOpacity(0.5),
@@ -57,32 +57,35 @@ class LoginView extends GetView<AuthController> {
 
               // Phone Number Field
               PhoneTextField(
-                controller: controller.phoneController,
+                controller: controller.loginPhoneController,
                 validator: controller.validatePhone,
+                hint: 'enter_mobile_number'.tr,
               ),
 
               const SizedBox(height: 16),
 
               // Password Field
-              Obx(() => CustomTextField(
-                label: 'password'.tr,
-                controller: controller.passwordController,
-                obscureText: !controller.isPasswordVisible.value,
-                validator: controller.validatePassword,
-                prefixIcon: const Icon(
-                  Icons.lock,
-                  color: AppColors.textLight,
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    controller.isPasswordVisible.value
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+              Obx(
+                () => CustomTextField(
+                  hint: 'password'.tr,
+                  controller: controller.loginPasswordController,
+                  obscureText: !controller.isPasswordVisible.value,
+                  validator: controller.validatePassword,
+                  prefixIcon: const Icon(
+                    Icons.lock,
                     color: AppColors.textLight,
                   ),
-                  onPressed: controller.togglePasswordVisibility,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      controller.isPasswordVisible.value
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: AppColors.textLight,
+                    ),
+                    onPressed: controller.togglePasswordVisibility,
+                  ),
                 ),
-              )),
+              ),
 
               const SizedBox(height: 12),
 
@@ -105,14 +108,30 @@ class LoginView extends GetView<AuthController> {
               const SizedBox(height: 40),
 
               // Login Button
-              Obx(() => CustomButton(
-                text: 'login'.tr,
-                onPressed: controller.login,
-                isLoading: controller.isLoading.value,
-                width: double.infinity,
-              )),
+              Obx(
+                () => CustomButton(
+                  text: 'login'.tr,
+                  onPressed: controller.login,
+                  isLoading: controller.isLoading.value,
+                  width: double.infinity,
+                ),
+              ),
 
               const SizedBox(height: 24),
+
+              // Skip Button
+              Obx(
+                () => CustomButton(
+                  text: 'skip'.tr,
+                  onPressed: controller.loginAsVisitor,
+                  isLoading: controller.isVisitorLoading.value,
+                  width: double.infinity,
+                  backgroundColor: AppColors.background,
+                  textColor: AppColors.primary,
+                ),
+              ),
+
+              const SizedBox(height: 16),
 
               // Sign Up Link
               Row(
@@ -141,16 +160,6 @@ class LoginView extends GetView<AuthController> {
               ),
 
               const SizedBox(height: 40),
-
-              // Skip Button
-              CustomButton(
-                text: 'skip'.tr,
-                onPressed: controller.loginAsGuest,
-                isOutlined: true,
-                width: double.infinity,
-              ),
-
-              const SizedBox(height: 20),
             ],
           ),
         ),

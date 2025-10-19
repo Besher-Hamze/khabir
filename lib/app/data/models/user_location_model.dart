@@ -120,3 +120,27 @@ class UpdateLocationRequest {
     };
   }
 }
+
+class UserLocation {
+  final double latitude;
+  final double longitude;
+  final String address;
+
+  UserLocation({
+    required this.latitude,
+    required this.longitude,
+    required this.address,
+  });
+
+  factory UserLocation.fromJson(Map<String, dynamic> json) {
+    return UserLocation(
+      latitude: (json['latitude'] ?? 0.0).toDouble(),
+      longitude: (json['longitude'] ?? 0.0).toDouble(),
+      address: json['address'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'latitude': latitude, 'longitude': longitude, 'address': address};
+  }
+}

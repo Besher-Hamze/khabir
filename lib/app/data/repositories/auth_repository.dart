@@ -1,4 +1,8 @@
-import 'package:get/get.dart';
+import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
+import 'package:dio/dio.dart';
+import 'package:khabir/app/data/services/firebase_messaging_service.dart';
 import '../models/user_model.dart';
 import '../services/storage_service.dart';
 import '../services/api_service.dart';
@@ -8,12 +12,20 @@ class AuthRepository {
   final StorageService _storageService = StorageService.instance;
   final ApiService _apiService = ApiService.instance;
 
+  String countryCode = '+968';
   // Login with phone and password
   Future<Map<String, dynamic>> login(String phone, String password) async {
     try {
+      print('Login with phone: $phone and password: $password');
+      final fcmToken = await FirebaseMessaging.instance.getToken();
       final response = await _apiService.post(
-        AppConstants.authPhoneLogin,
-        data: {'phoneNumber': phone, 'password': password},
+        AppConstants.authLogin,
+        data: {
+          'phone': '$countryCode$phone'.trim(),
+          'password': password,
+          "type": "USER",
+          "fcm": fcmToken,
+        },
       );
 
       if (response.statusCode == 201) {
@@ -28,9 +40,9 @@ class AuthRepository {
 
           return {
             'success': true,
+            'message': "login_success".tr,
             'user': authResponse.user,
             'token': authResponse.accessToken,
-            'message': authResponse.message,
           };
         } else {
           return {'success': false, 'message': authResponse.message};
@@ -40,11 +52,61 @@ class AuthRepository {
       }
     } catch (e) {
       print('Login error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+      return {
+        'success': false,
+        'message': 'رقم الهاتف أو كلمة المرور غير صحيحة',
+      };
     }
   }
 
-  // Register new user - Step 1 (Initiate)
+  // Delete account
+
+  // Login as visitor with automatic credentials
+  Future<Map<String, dynamic>> loginAsVisitor() async {
+    try {
+      print('Login as visitor with phone: +96812345678');
+      final response = await _apiService.post(
+        AppConstants.authLogin,
+        data: {'email': 'admin@khabeer.com', 'password': 'admin123'},
+      );
+
+      if (response.statusCode == 201) {
+        final authResponse = AuthResponse.fromJson(response.data);
+
+        if (authResponse.success && authResponse.accessToken != null) {
+          // Save user and token
+          if (authResponse.user != null) {
+            final User visitorUser = User(
+              id: authResponse.user!.id,
+              name: "visitor",
+              phoneNumber: "96812345678",
+              role: "VISITOR",
+              createdAt: DateTime.now(),
+            );
+
+            await _storageService.saveUser(visitorUser);
+          }
+          await _storageService.saveToken(authResponse.accessToken!);
+
+          return {
+            'success': true,
+            'message': "visitor_login_success".tr,
+            'user': authResponse.user,
+            'token': authResponse.accessToken,
+          };
+        } else {
+          return {'success': false, 'message': authResponse.message};
+        }
+      } else {
+        return {'success': false, 'message': 'فشل في تسجيل الدخول كزائر'};
+      }
+    } catch (e) {
+      print('Visitor login error: $e');
+      return {'success': false, 'message': 'خطأ في تسجيل الدخول كزائر'};
+    }
+  }
+
+  // Register new user - Step 1 (Initiate with image upload)
   Future<Map<String, dynamic>> registerInitiate({
     required String name,
     required String phone,
@@ -52,89 +114,64 @@ class AuthRepository {
     required String state,
     String? email,
     String? address,
+    String? profileImagePath,
   }) async {
     try {
+      FormData formData = FormData.fromMap({
+        'name': name,
+        'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
+        'password': password,
+        'role': 'USER',
+        'state': state,
+        'email': email ?? '',
+        'address': address ?? '$state, OMAN',
+      });
+
+      // Add profile image if provided
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        File imageFile = File(profileImagePath);
+        if (await imageFile.exists()) {
+          formData.files.add(
+            MapEntry(
+              'image',
+              await MultipartFile.fromFile(
+                profileImagePath,
+                filename:
+                    'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              ),
+            ),
+          );
+        }
+      }
+
       final response = await _apiService.post(
         AppConstants.authRegisterInitiate,
-        data: {
-          'name': name,
-          'phoneNumber': phone,
-          'password': password,
-          'role': 'USER',
-          'state': state,
-          'email': email,
-          'address': address ?? '$state, Saudi Arabia',
-        },
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {'success': true, 'message': 'تم إرسال رمز التحقق إلى $phone'};
       } else {
         final responseData = response.data;
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'فشل في إنشاء الحساب',
-        };
-      }
-    } catch (e) {
-      print('Register initiate error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
-    }
-  }
-
-  // Register new user - Step 2 (Complete)
-  Future<Map<String, dynamic>> registerComplete({
-    required String name,
-    required String phone,
-    required String password,
-    required String state,
-    required String otp,
-    String? email,
-    String? address,
-  }) async {
-    try {
-      final response = await _apiService.post(
-        AppConstants.authRegisterComplete,
-        data: {
-          'name': name,
-          'phoneNumber': phone,
-          'password': password,
-          'otp': otp,
-          'role': 'USER',
-          'state': state,
-          'email': email,
-          'address': address ?? '$state, Saudi Arabia',
-        },
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final authResponse = AuthResponse.fromJson(response.data);
-
-        if (authResponse.success && authResponse.accessToken != null) {
-          // Save user and token
-          if (authResponse.user != null) {
-            await _storageService.saveUser(authResponse.user!);
-          }
-          await _storageService.saveToken(authResponse.accessToken!);
-
+        if (responseData['message'].toString().contains("Phone")) {
           return {
-            'success': true,
-            'user': authResponse.user,
-            'token': authResponse.accessToken,
-            'message': authResponse.message,
+            'success': false,
+            'message': 'phone_number_already_exists'.tr,
           };
-        } else {
-          return {'success': false, 'message': authResponse.message};
         }
-      } else {
-        final responseData = response.data;
         return {
           'success': false,
-          'message': responseData['message'] ?? 'فشل في إكمال التسجيل',
+          'message': responseData['message'].toString().contains("Phone")
+              ? "phone_number_already_exists".tr
+              : 'فشل في إنشاء الحساب',
         };
       }
     } catch (e) {
-      print('Register complete error: $e');
+      print('Register initiate error: ${e}');
+      if (e.toString().contains("409")) {
+        return {'success': false, 'message': 'phone_number_already_exists'.tr};
+      }
       return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
@@ -144,7 +181,10 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordResetSendOTP,
-        data: {'phoneNumber': phone},
+        data: {
+          'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
+          "role": "USER",
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -162,21 +202,19 @@ class AuthRepository {
     }
   }
 
-  // Verify OTP
-  Future<Map<String, dynamic>> verifyOTP(
-    User user,
-    String otp,
-    String password,
-  ) async {
+  // Verify OTP (simplified - just phone and OTP)
+  Future<Map<String, dynamic>> verifyOTP(String phoneNumber, String otp) async {
     try {
       final response = await _apiService.post(
         AppConstants.authRegisterComplete,
-        data: {...user.toJson(), 'otp': otp, 'password': password},
+        data: {
+          'phoneNumber': '$countryCode$phoneNumber'.replaceAll(' ', ''),
+          'otp': otp,
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final authResponse = AuthResponse.fromJson(response.data);
-
         if (authResponse.success && authResponse.accessToken != null) {
           // Save user and token
           if (authResponse.user != null) {
@@ -188,51 +226,47 @@ class AuthRepository {
             'success': true,
             'user': authResponse.user,
             'token': authResponse.accessToken,
-            'message': authResponse.message,
+            'message': 'otp_verified_successfully'.tr,
           };
         } else {
-          return {'success': false, 'message': authResponse.message};
+          return {'success': false, 'message': 'otp_verification_failed'.tr};
         }
       } else {
         final responseData = response.data;
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'رمز التحقق غير صحيح',
-        };
+        return {'success': false, 'message': 'otp_verification_failed'.tr};
       }
     } catch (e) {
       print('Verify OTP error: $e');
-      return {'success': false, 'message': 'خطأ في التحقق من الرمز'};
+      return {'success': false, 'message': 'otp_verification_failed'.tr};
     }
   }
 
-  // Reset password
+  // Reset password with OTP
   Future<Map<String, dynamic>> resetPassword(
     String phone,
+    String otp,
     String newPassword,
   ) async {
     try {
       final response = await _apiService.post(
         AppConstants.authPasswordReset,
         data: {
-          'phoneNumber': phone,
-          'otp': '123456', // This should be the OTP from the previous step
+          'phoneNumber': '$countryCode$phone'.replaceAll(' ', ''),
+          'otp': otp,
           'newPassword': newPassword,
+          "role": "USER",
         },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return {'success': true, 'message': 'تم تغيير كلمة المرور بنجاح'};
+        return {'success': true, 'message': 'password_reset_successfully'.tr};
       } else {
         final responseData = response.data;
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'فشل في تغيير كلمة المرور',
-        };
+        return {'success': false, 'message': 'password_reset_failed'.tr};
       }
     } catch (e) {
       print('Reset password error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+      return {'success': false, 'message': 'password_reset_failed'.tr};
     }
   }
 
@@ -252,7 +286,7 @@ class AuthRepository {
   // Get current user
   User? get currentUser => _storageService.getUser();
 
-  // Update user profile
+  // Update user profile with image upload
   Future<Map<String, dynamic>> updateProfile({
     String? name,
     String? email,
@@ -260,14 +294,33 @@ class AuthRepository {
     String? profileImagePath,
   }) async {
     try {
+      FormData formData = FormData();
+
+      if (name != null) formData.fields.add(MapEntry('name', name));
+      if (email != null) formData.fields.add(MapEntry('email', email));
+      if (state != null) formData.fields.add(MapEntry('state', state));
+
+      // Add profile image if provided
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        File imageFile = File(profileImagePath);
+        if (await imageFile.exists()) {
+          formData.files.add(
+            MapEntry(
+              'profileImage',
+              await MultipartFile.fromFile(
+                profileImagePath,
+                filename:
+                    'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+              ),
+            ),
+          );
+        }
+      }
+
       final response = await _apiService.put(
         AppConstants.userProfile,
-        data: {
-          if (name != null) 'name': name,
-          if (email != null) 'email': email,
-          if (state != null) 'state': state,
-          if (profileImagePath != null) 'profileImage': profileImagePath,
-        },
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -279,26 +332,71 @@ class AuthRepository {
           return {
             'success': true,
             'user': updatedUser,
-            'message': 'تم تحديث الملف الشخصي بنجاح',
+            'message': 'profile_updated'.tr,
           };
         }
       }
 
-      return {'success': false, 'message': 'فشل في تحديث الملف الشخصي'};
+      return {'success': false, 'message': 'profile_update_failed'.tr};
     } catch (e) {
       print('Update profile error: $e');
-      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+      return {'success': false, 'message': 'profile_update_failed'.tr};
     }
   }
 
   // Delete account
   Future<Map<String, dynamic>> deleteAccount() async {
     try {
-      await logout();
-      return {'success': true, 'message': 'تم حذف الحساب بنجاح'};
+      final response = await _apiService.delete(AppConstants.authDeleteAccount);
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        await logout();
+        return {'success': true, 'message': 'account_deleted_successfully'.tr};
+      } else {
+        final dynamic data = response.data;
+        String? backendMessage;
+        if (data is Map<String, dynamic>) {
+          backendMessage = (data['message'] ?? data['error'] ?? data['detail'])
+              ?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          backendMessage = data;
+        }
+        return {
+          'success': false,
+          'message': backendMessage ?? 'account_delete_failed'.tr,
+        };
+      }
     } catch (e) {
       print('Delete account error: $e');
-      return {'success': false, 'message': 'فشل في حذف الحساب'};
+      if (e is DioException) {
+        final res = e.response;
+        final dynamic data = res?.data;
+        String? backendMessage;
+        if (data is Map<String, dynamic>) {
+          backendMessage = (data['message'] ?? data['error'] ?? data['detail'])
+              ?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          backendMessage = data;
+        }
+        return {
+          'success': false,
+          'message': backendMessage ?? 'خطأ في الاتصال بالخادم',
+        };
+      }
+      return {'success': false, 'message': 'account_delete_failed'.tr};
+    }
+  }
+
+  Future<Map<String, dynamic>> getSystemInfo() async {
+    try {
+      //{"terms_en":"/uploads/documents/legal/legal-1758062440196-730754726.pdf","terms_ar":"/uploads/documents/legal/legal-1758062440197-215602153.pdf"}
+      final response = await _apiService.get(AppConstants.systemInfo);
+      return {
+        'terms_en': response.data['terms_en'],
+        'terms_ar': response.data['terms_ar'],
+      };
+    } catch (e) {
+      print('Get system info error: $e');
+      rethrow;
     }
   }
 }

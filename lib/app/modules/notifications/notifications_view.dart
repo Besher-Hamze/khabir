@@ -11,9 +11,10 @@ class NotificationsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: const DetailAppBar(
-        title: 'Notifications',
-        notificationCount: 0, // Hide notification badge on notification screen
+      appBar: DetailAppBar(
+        title: 'notifications'.tr,
+        notificationCount:
+            0.obs, // Hide notification badge on notification screen
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -294,14 +295,12 @@ class NotificationsView extends StatelessWidget {
             // Show delete confirmation
             Get.dialog(
               AlertDialog(
-                title: const Text('Delete Notification'),
-                content: const Text(
-                  'Are you sure you want to delete this notification?',
-                ),
+                title: Text('delete_notification'.tr),
+                content: Text('delete_notification_confirmation'.tr),
                 actions: [
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel'),
+                    child: Text('cancel'.tr),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -317,8 +316,8 @@ class NotificationsView extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
-                    child: const Text(
-                      'Delete',
+                    child: Text(
+                      'delete'.tr,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

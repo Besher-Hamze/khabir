@@ -6,8 +6,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:khabir/app/core/utils/helpers.dart' as Helpers;
 
-import '../../global_widgets/custom_appbar.dart';
+import '../../global_widgets/custom_drop_down.dart';
 import '../user/user_controller.dart';
+import '../../data/services/storage_service.dart';
 import '../../data/models/user_profile_model.dart';
 import '../../data/models/user_location_model.dart';
 import '../../widgets/map_picker_widget.dart';
@@ -19,21 +20,24 @@ class ProfileView extends GetView<UserController> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Profile Header Section
-          _buildProfileHeader(),
-          const SizedBox(height: 24),
+    return RefreshIndicator(
+      onRefresh: controller.refreshProfile,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Profile Header Section
+            _buildProfileHeader(),
+            const SizedBox(height: 24),
 
-          // Menu Items
-          _buildMenuItems(),
-          const SizedBox(height: 40),
+            // Menu Items
+            _buildMenuItems(),
+            const SizedBox(height: 40),
 
-          // Social Media Section
-          _buildSocialMediaSection(),
-          const SizedBox(height: 40),
-        ],
+            // Social Media Section
+            _buildSocialMediaSection(),
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
@@ -86,16 +90,11 @@ class ProfileView extends GetView<UserController> {
                   color: Colors.grey[700],
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                controller.profileErrorMessage.value,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
+
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: controller.refreshProfile,
-                child: const Text('Retry'),
+                child: Text('retry'.tr),
               ),
             ],
           ),
@@ -118,7 +117,7 @@ class ProfileView extends GetView<UserController> {
               ),
             ],
           ),
-          child: const Center(child: Text('No profile data available')),
+          child: Center(child: Text('no_profile_data'.tr)),
         );
       }
 
@@ -184,24 +183,6 @@ class ProfileView extends GetView<UserController> {
                               ),
                             ),
                     ),
-                    // Edit badge on profile picture
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          LucideIcons.edit,
-                          size: 12,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
 
@@ -237,33 +218,13 @@ class ProfileView extends GetView<UserController> {
 
                       const SizedBox(height: 8),
 
-                      // Phone with edit icon
-                      Row(
-                        children: [
-                          Text(
-                            user.phone,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => _showEditPhoneDialog(user),
-                            child: const Icon(
-                              LucideIcons.edit,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
-
                       // State
                       Text(
-                        user.state,
+                        getStateInLanguage(
+                              Get.locale?.languageCode ?? 'en',
+                              user.state,
+                            ) ??
+                            user.state,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -286,8 +247,8 @@ class ProfileView extends GetView<UserController> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.grey[300]!),
                     ),
-                    child: const Text(
-                      'Edit',
+                    child: Text(
+                      'edit'.tr,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -310,8 +271,8 @@ class ProfileView extends GetView<UserController> {
         _buildMenuItem(
           icon: LucideIcons.globe,
           iconColor: Colors.red,
-          title: 'Language',
-          subtitle: 'English',
+          title: 'language'.tr,
+          subtitle: Get.locale?.languageCode == 'ar' ? 'العربية' : 'English',
           hasArrow: true,
           onTap: () => _showLanguageDialog(),
         ),
@@ -319,44 +280,76 @@ class ProfileView extends GetView<UserController> {
         _buildMenuItem(
           icon: LucideIcons.mapPin,
           iconColor: Colors.red,
-          title: 'My Locations',
-          subtitle: 'Manage saved locations',
-          hasArrow: true,
+          title: 'my_locations'.tr,
+          hasArrow: false,
           onTap: () => _showLocationsDialog(),
         ),
 
-        _buildMenuItem(
-          icon: LucideIcons.fileText,
-          iconColor: Colors.red,
-          title: 'Terms and Conditions',
-          onTap: () => _openTermsAndConditions(),
-        ),
+        Obx(() {
+          final systemInfo = controller.systemInfoModel.value;
+          final isArabic = Get.locale?.languageCode == 'ar';
+          final termsUrl = isArabic
+              ? systemInfo?.legalDocuments.termsAr
+              : systemInfo?.legalDocuments.termsEn;
 
-        _buildMenuItem(
-          icon: LucideIcons.shield,
-          iconColor: Colors.red,
-          title: 'Privacy Policy',
-          onTap: () => _openPrivacyPolicy(),
-        ),
+          return _buildMenuItem(
+            icon: LucideIcons.fileText,
+            iconColor: Colors.red,
+            title: 'terms_and_conditions'.tr,
+            onTap: termsUrl != null && termsUrl.isNotEmpty
+                ? () => _openDocument(
+                    "${AppConstants.baseUrlImage}$termsUrl",
+                    "terms_and_conditions",
+                  )
+                : () => _showUnavailableDocument('Terms and Conditions'),
+          );
+        }),
 
-        _buildMenuItem(
-          icon: LucideIcons.headphones,
-          iconColor: Colors.red,
-          title: 'Support',
-          onTap: () => _openSupport(),
-        ),
+        Obx(() {
+          final systemInfo = controller.systemInfoModel.value;
+          final isArabic = Get.locale?.languageCode == 'ar';
+          final privacyUrl = isArabic
+              ? systemInfo?.legalDocuments.privacyAr
+              : systemInfo?.legalDocuments.privacyEn;
+
+          return _buildMenuItem(
+            icon: LucideIcons.shield,
+            iconColor: Colors.red,
+            title: 'privacy_policy'.tr,
+            onTap: privacyUrl != null && privacyUrl.isNotEmpty
+                ? () => _openDocument(
+                    "${AppConstants.baseUrlImage}$privacyUrl",
+                    "privacy_policy",
+                  )
+                : () => _showUnavailableDocument('Privacy Policy'),
+          );
+        }),
+
+        Obx(() {
+          final systemInfo = controller.systemInfoModel.value;
+          final supportUrl = systemInfo?.support.whatsappSupport;
+
+          return _buildMenuItem(
+            icon: LucideIcons.headphones,
+            iconColor: Colors.red,
+            title: 'support'.tr,
+            onTap: supportUrl != null && supportUrl.isNotEmpty
+                ? () => _openSupport("https://wa.me/${supportUrl}")
+                : () => _showUnavailableSupport(),
+          );
+        }),
 
         _buildMenuItem(
           icon: LucideIcons.trash2,
           iconColor: Colors.red,
-          title: 'Delete Account',
+          title: 'delete_account'.tr,
           onTap: () => _showDeleteAccountDialog(),
         ),
 
         _buildMenuItem(
           icon: LucideIcons.logOut,
           iconColor: Colors.red,
-          title: 'Log Out',
+          title: 'log_out'.tr,
           onTap: () => _showLogoutDialog(),
         ),
       ],
@@ -436,34 +429,84 @@ class ProfileView extends GetView<UserController> {
   }
 
   Widget _buildSocialMediaSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.whatsapp,
-          color: Colors.green,
-          onTap: () => _openWhatsApp(),
-        ),
-        const SizedBox(width: 24),
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.instagram,
-          color: Colors.pink,
-          onTap: () => _openInstagram(),
-        ),
-        const SizedBox(width: 24),
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.snapchat,
-          color: Colors.yellow[600]!,
-          onTap: () => _openSnapchat(),
-        ),
-        const SizedBox(width: 24),
-        _buildSocialIcon(
-          icon: FontAwesomeIcons.tiktok,
-          color: Colors.black,
-          onTap: () => _openTikTok(),
-        ),
-      ],
-    );
+    return Obx(() {
+      final systemInfo = controller.systemInfoModel.value;
+      if (systemInfo == null) {
+        return const SizedBox.shrink();
+      }
+
+      final socialMedia = systemInfo.socialMedia;
+      final socialIcons = <Widget>[];
+
+      // WhatsApp
+      if (socialMedia.whatsapp?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.whatsapp,
+            color: Colors.green,
+            onTap: () => _openSocialLink(socialMedia.whatsapp!),
+          ),
+        );
+      }
+
+      // Instagram
+      if (socialMedia.instagram?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.instagram,
+            color: Colors.pink,
+            onTap: () => _openSocialLink(socialMedia.instagram!),
+          ),
+        );
+      }
+
+      // Snapchat
+      if (socialMedia.snapchat?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.snapchat,
+            color: Colors.yellow[600]!,
+            onTap: () => _openSocialLink(socialMedia.snapchat!),
+          ),
+        );
+      }
+
+      // TikTok
+      if (socialMedia.tiktok?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.tiktok,
+            color: Colors.black,
+            onTap: () => _openSocialLink(socialMedia.tiktok!),
+          ),
+        );
+      }
+
+      // Facebook (if available)
+      if (socialMedia.facebook?.isNotEmpty == true) {
+        socialIcons.add(
+          _buildSocialIcon(
+            icon: FontAwesomeIcons.facebook,
+            color: Colors.blue[700]!,
+            onTap: () => _openSocialLink(socialMedia.facebook!),
+          ),
+        );
+      }
+
+      if (socialIcons.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:
+            socialIcons
+                .map((icon) => [icon, const SizedBox(width: 24)])
+                .expand((i) => i)
+                .toList()
+              ..removeLast(), // Remove the last SizedBox
+      );
+    });
   }
 
   Widget _buildSocialIcon({
@@ -486,6 +529,55 @@ class ProfileView extends GetView<UserController> {
     );
   }
 
+  // Helper Methods
+  void _openDocument(String url, String title) async {
+    try {
+      // Navigate to PDF Viewer with the URL
+      Get.toNamed(
+        AppRoutes.termsConditions,
+        arguments: {'pdf_url': url, 'title': title.tr},
+      );
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to open document: ${e.toString()}');
+    }
+  }
+
+  void _openSupport(String supportUrl) async {
+    try {
+      if (await canLaunchUrl(Uri.parse(supportUrl))) {
+        await launchUrl(
+          Uri.parse(supportUrl),
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        Get.snackbar('Error', 'Could not open support link ${supportUrl}');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to open support: ${e.toString()}');
+    }
+  }
+
+  void _openSocialLink(String url) async {
+    try {
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar('Error', 'Could not open social media link');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to open link: ${e.toString()}');
+    }
+  }
+
+  void _showUnavailableDocument(String documentName) {
+    Get.snackbar('Info', '$documentName is currently unavailable');
+  }
+
+  void _showUnavailableSupport() {
+    Get.snackbar('Info', 'Support is currently unavailable');
+  }
+
+  // Existing methods remain the same...
   void _showLocationsDialog() {
     Get.dialog(
       Dialog(
@@ -513,9 +605,9 @@ class ProfileView extends GetView<UserController> {
                   children: [
                     Icon(Icons.location_on, color: AppColors.primary, size: 24),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'My Saved Locations',
+                        'my_saved_locations'.tr,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -550,26 +642,18 @@ class ProfileView extends GetView<UserController> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Failed to load locations',
+                            'failed_to_load_locations'.tr,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.grey[700],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            controller.locationsErrorMessage.value,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: controller.refreshLocations,
-                            child: const Text('Retry'),
+                            child: Text('retry'.tr),
                           ),
                         ],
                       ),
@@ -596,7 +680,7 @@ class ProfileView extends GetView<UserController> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'No locations saved',
+                            'no_locations_saved'.tr,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -605,7 +689,7 @@ class ProfileView extends GetView<UserController> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Add your first location to get started',
+                            'add_first_location_message'.tr,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
@@ -619,7 +703,7 @@ class ProfileView extends GetView<UserController> {
                               _showAddLocationDialog();
                             },
                             icon: const Icon(Icons.add_location, size: 20),
-                            label: const Text('Add Location'),
+                            label: Text('add_location'.tr),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -645,7 +729,7 @@ class ProfileView extends GetView<UserController> {
                           itemCount: controller.userLocations.length,
                           itemBuilder: (context, index) {
                             final location = controller.userLocations[index];
-                            return _buildLocationCard(location);
+                            return _buildLocationCard(location, context);
                           },
                         ),
                       ),
@@ -666,7 +750,7 @@ class ProfileView extends GetView<UserController> {
                               _showAddLocationDialog();
                             },
                             icon: const Icon(Icons.add_location, size: 20),
-                            label: const Text('Add New Location'),
+                            label: Text('add_new_location'.tr),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -689,7 +773,7 @@ class ProfileView extends GetView<UserController> {
     );
   }
 
-  Widget _buildLocationCard(UserLocationModel location) {
+  Widget _buildLocationCard(UserLocationModel location, BuildContext context) {
     final String status = _getLocationStatus(location);
 
     return Container(
@@ -746,7 +830,11 @@ class ProfileView extends GetView<UserController> {
                           children: [
                             Expanded(
                               child: Text(
-                                location.title,
+                                getStateInLanguage(
+                                      Get.locale?.languageCode ?? 'en',
+                                      location.title,
+                                    ) ??
+                                    location.title,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -771,7 +859,7 @@ class ProfileView extends GetView<UserController> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'Default Location',
+                              'default_location'.tr,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.amber[800],
@@ -802,7 +890,7 @@ class ProfileView extends GetView<UserController> {
                           break;
                         case 'edit':
                           Get.back();
-                          _showEditLocationDialog(location);
+                          _showEditLocationDialog(location, context);
                           break;
                         case 'delete':
                           _showDeleteLocationConfirmation(location);
@@ -811,7 +899,7 @@ class ProfileView extends GetView<UserController> {
                     },
                     itemBuilder: (BuildContext context) => [
                       if (!location.isDefault)
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'set_default',
                           child: Row(
                             children: [
@@ -821,11 +909,11 @@ class ProfileView extends GetView<UserController> {
                                 color: Colors.amber,
                               ),
                               SizedBox(width: 8),
-                              Text('Set as Default'),
+                              Text('set_as_default'.tr),
                             ],
                           ),
                         ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'edit',
                         child: Row(
                           children: [
@@ -835,11 +923,11 @@ class ProfileView extends GetView<UserController> {
                               color: Colors.blue,
                             ),
                             SizedBox(width: 8),
-                            Text('Edit'),
+                            Text('edit'.tr),
                           ],
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'delete',
                         child: Row(
                           children: [
@@ -849,7 +937,10 @@ class ProfileView extends GetView<UserController> {
                               color: Colors.red,
                             ),
                             SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
+                            Text(
+                              'delete'.tr,
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ],
                         ),
                       ),
@@ -879,7 +970,7 @@ class ProfileView extends GetView<UserController> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'State:',
+                          'state'.tr + ':',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -890,7 +981,11 @@ class ProfileView extends GetView<UserController> {
                         Expanded(
                           child: Text(
                             _getStateLabel(
-                              location.address.split('|')[0],
+                              getStateInLanguage(
+                                    Get.locale?.languageCode ?? 'en',
+                                    location.address.split('|')[0],
+                                  ) ??
+                                  location.address.split('|')[0],
                             ), // Extract state from address
                             style: const TextStyle(
                               fontSize: 13,
@@ -912,7 +1007,7 @@ class ProfileView extends GetView<UserController> {
                           Icon(Icons.home, size: 14, color: Colors.grey[600]),
                           const SizedBox(width: 6),
                           Text(
-                            'Address:',
+                            'address'.tr + ':',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -972,7 +1067,7 @@ class ProfileView extends GetView<UserController> {
                   Icon(Icons.access_time, size: 11, color: Colors.grey[400]),
                   const SizedBox(width: 4),
                   Text(
-                    'Updated ${_formatDate(location.updatedAt)}',
+                    '${"updated".tr} ${_formatDate(location.updatedAt)}',
                     style: TextStyle(fontSize: 10, color: Colors.grey[400]),
                   ),
                   const Spacer(),
@@ -1010,19 +1105,19 @@ class ProfileView extends GetView<UserController> {
     switch (status.toLowerCase()) {
       case 'active':
         statusColor = Colors.green;
-        statusText = 'Active';
+        statusText = 'active'.tr;
         break;
       case 'inactive':
         statusColor = Colors.orange;
-        statusText = 'Inactive';
+        statusText = 'inactive'.tr;
         break;
       case 'verified':
         statusColor = Colors.blue;
-        statusText = 'Verified';
+        statusText = 'verified'.tr;
         break;
       default:
         statusColor = Colors.grey;
-        statusText = 'Unknown';
+        statusText = 'unknown'.tr;
     }
 
     return Container(
@@ -1084,328 +1179,320 @@ class ProfileView extends GetView<UserController> {
     String selectedState = AppConstants.OMAN_GOVERNORATES[0]['value']!;
     double? selectedLatitude;
     double? selectedLongitude;
-    String selectedMapAddress = '';
 
     Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,
-        child: Container(
-          width: Get.width * 0.95,
-          height: Get.height * 0.9,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => Container(
+            // Use setDialogState parameter
+            width: Get.width * 0.95,
+            height: Get.height * 0.9,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.add_location,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'add_new_location'.tr,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.close, size: 24),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.add_location,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Add New Location',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Get.back(),
-                      icon: const Icon(Icons.close, size: 24),
-                    ),
-                  ],
-                ),
-              ),
 
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Location Title
-                      Text(
-                        'Location Name',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          hintText: 'e.g., Home, Work, Office',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.label_outline,
-                            size: 20,
-                            color: Colors.grey[600],
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Location Title
+                        Text(
+                          'location_name'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // State Dropdown
-                      Text(
-                        'State/Governorate',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedState,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
-                        items: AppConstants.OMAN_GOVERNORATES.map((
-                          governorate,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: governorate['value'],
-                            child: Text(
-                              governorate['label']!,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: titleController,
+                          decoration: InputDecoration(
+                            hintText: 'home_work_office'.tr,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          );
-                        }).toList(),
-                        onChanged: (value) => selectedState = value!,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Address Details
-                      Text(
-                        'Address Details',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.label_outline,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: addressDetailsController,
-                        decoration: InputDecoration(
-                          hintText: 'Street, building number, apartment, etc.',
-                          border: OutlineInputBorder(
+
+                        const SizedBox(height: 16),
+
+                        // State Dropdown
+                        Text(
+                          'state_governorate'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomGroupedDropdown(
+                          hint: 'choose_state'.tr,
+                          selectedValue: selectedState.isEmpty
+                              ? null
+                              : selectedState,
+                          data: OmanStatesData.states,
+                          onChanged: (String value, String label) {
+                            selectedState = value;
+                            setDialogState(
+                              () {},
+                            ); // Use the StatefulBuilder's setState
+                          },
+                          prefixIcon: const Icon(
+                            Icons.public,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Address Details
+                        Text(
+                          'address_details'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: addressDetailsController,
+                          decoration: InputDecoration(
+                            hintText: 'street_building_number_apartment_etc'.tr,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.home_outlined,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          maxLines: 2,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Description
+                        Text(
+                          'description_optional'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: descriptionController,
+                          decoration: InputDecoration(
+                            hintText: 'additional_notes_about_this_location'.tr,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.description_outlined,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          maxLines: 2,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Map Picker
+                        Text(
+                          'pin_location_on_map'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.home_outlined,
-                            size: 20,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        maxLines: 2,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Description
-                      Text(
-                        'Description (Optional)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: descriptionController,
-                        decoration: InputDecoration(
-                          hintText: 'Additional notes about this location',
-                          border: OutlineInputBorder(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.description_outlined,
-                            size: 20,
-                            color: Colors.grey[600],
+                            child: MapPickerWidget(
+                              onLocationSelected:
+                                  (latitude, longitude, address) {
+                                    selectedLatitude = latitude;
+                                    selectedLongitude = longitude;
+                                  },
+                            ),
                           ),
                         ),
-                        maxLines: 2,
-                      ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                      const SizedBox(height: 16),
-
-                      // Map Picker
-                      Text(
-                        'Pin Location on Map',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                // Footer Actions
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Get.back(),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('cancel'.tr),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: MapPickerWidget(
-                            onLocationSelected: (latitude, longitude, address) {
-                              selectedLatitude = latitude;
-                              selectedLongitude = longitude;
-                              selectedMapAddress = address;
-                            },
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (titleController.text.isEmpty) {
+                              Get.snackbar(
+                                'Error',
+                                'please_enter_a_location_name'.tr,
+                              );
+                              return;
+                            }
+                            if (addressDetailsController.text.isEmpty) {
+                              Get.snackbar(
+                                'Error',
+                                'please_enter_address_details'.tr,
+                              );
+                              return;
+                            }
+                            if (selectedLatitude == null ||
+                                selectedLongitude == null) {
+                              Get.snackbar(
+                                'Error',
+                                'please_select_a_location_on_the_map'.tr,
+                              );
+                              return;
+                            }
+
+                            final fullAddress =
+                                '$selectedState|${addressDetailsController.text.trim()}';
+
+                            final request = CreateLocationRequest(
+                              title: titleController.text.trim(),
+                              description: descriptionController.text.trim(),
+                              latitude: selectedLatitude!,
+                              longitude: selectedLongitude!,
+                              address: fullAddress,
+                              isDefault: controller.userLocations.isEmpty,
+                            );
+
+                            await controller.createLocation(request);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
+                          child: Text('save_location'.tr),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // Footer Actions
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Get.back(),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (titleController.text.isEmpty) {
-                            Get.snackbar(
-                              'Error',
-                              'Please enter a location name',
-                            );
-                            return;
-                          }
-                          if (addressDetailsController.text.isEmpty) {
-                            Get.snackbar(
-                              'Error',
-                              'Please enter address details',
-                            );
-                            return;
-                          }
-                          if (selectedLatitude == null ||
-                              selectedLongitude == null) {
-                            Get.snackbar(
-                              'Error',
-                              'Please select a location on the map',
-                            );
-                            return;
-                          }
-
-                          final fullAddress =
-                              '$selectedState|${addressDetailsController.text.trim()}';
-
-                          final request = CreateLocationRequest(
-                            title: titleController.text.trim(),
-                            description: descriptionController.text.trim(),
-                            latitude: selectedLatitude!,
-                            longitude: selectedLongitude!,
-                            address: fullAddress,
-                            isDefault: controller.userLocations.isEmpty,
-                          );
-
-                          final success = await controller.createLocation(
-                            request,
-                          );
-                          if (success) {
-                            Get.back();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Save Location'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _showEditLocationDialog(UserLocationModel location) {
+  void _showEditLocationDialog(
+    UserLocationModel location,
+    BuildContext context,
+  ) {
     final addressParts = location.address.contains('|')
         ? location.address.split('|')
         : [location.address, ''];
@@ -1419,7 +1506,6 @@ class ProfileView extends GetView<UserController> {
     String selectedState = addressParts[0];
     double selectedLatitude = location.latitude;
     double selectedLongitude = location.longitude;
-    String selectedMapAddress = location.address;
 
     Get.dialog(
       Dialog(
@@ -1458,9 +1544,9 @@ class ProfileView extends GetView<UserController> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Edit Location',
+                        'edit_location'.tr,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -1485,7 +1571,7 @@ class ProfileView extends GetView<UserController> {
                     children: [
                       // Location Title
                       Text(
-                        'Location Name',
+                        'location_name'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1515,7 +1601,7 @@ class ProfileView extends GetView<UserController> {
 
                       // State Dropdown
                       Text(
-                        'State/Governorate',
+                        'state_governorate'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1523,42 +1609,26 @@ class ProfileView extends GetView<UserController> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedState,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.location_city,
-                            size: 20,
-                            color: Colors.grey[600],
-                          ),
+                      CustomGroupedDropdown(
+                        hint: 'choose_state'.tr,
+                        selectedValue: selectedState.isEmpty
+                            ? null
+                            : selectedState,
+                        data: OmanStatesData.states,
+                        onChanged: (String value, String label) {
+                          selectedState = value;
+                        },
+                        prefixIcon: const Icon(
+                          Icons.public,
+                          color: AppColors.textLight,
                         ),
-                        items: AppConstants.OMAN_GOVERNORATES.map((
-                          governorate,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: governorate['value'],
-                            child: Text(
-                              governorate['label']!,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) => selectedState = value!,
                       ),
 
                       const SizedBox(height: 16),
 
                       // Address Details
                       Text(
-                        'Address Details',
+                        'address_details'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1589,7 +1659,7 @@ class ProfileView extends GetView<UserController> {
 
                       // Description
                       Text(
-                        'Description (Optional)',
+                        'description_optional'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1620,7 +1690,7 @@ class ProfileView extends GetView<UserController> {
 
                       // Map Picker
                       Text(
-                        'Pin Location on Map',
+                        'pin_location_on_map'.tr,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1643,7 +1713,6 @@ class ProfileView extends GetView<UserController> {
                             onLocationSelected: (latitude, longitude, address) {
                               selectedLatitude = latitude;
                               selectedLongitude = longitude;
-                              selectedMapAddress = address;
                             },
                           ),
                         ),
@@ -1674,7 +1743,7 @@ class ProfileView extends GetView<UserController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text('cancel'.tr),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -1685,14 +1754,14 @@ class ProfileView extends GetView<UserController> {
                           if (titleController.text.isEmpty) {
                             Get.snackbar(
                               'Error',
-                              'Please enter a location name',
+                              'please_enter_a_location_name'.tr,
                             );
                             return;
                           }
                           if (addressDetailsController.text.isEmpty) {
                             Get.snackbar(
                               'Error',
-                              'Please enter address details',
+                              'please_enter_address_details'.tr,
                             );
                             return;
                           }
@@ -1707,14 +1776,8 @@ class ProfileView extends GetView<UserController> {
                             longitude: selectedLongitude,
                             address: fullAddress,
                           );
-
-                          final success = await controller.updateLocation(
-                            location.id,
-                            request,
-                          );
-                          if (success) {
-                            Get.back();
-                          }
+                          Get.back();
+                          await controller.updateLocation(location.id, request);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -1724,7 +1787,7 @@ class ProfileView extends GetView<UserController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Update Location'),
+                        child: Text('update_location'.tr),
                       ),
                     ),
                   ],
@@ -1744,14 +1807,16 @@ class ProfileView extends GetView<UserController> {
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
             const SizedBox(width: 8),
-            const Text('Delete Location'),
+            Text('delete_location'.tr),
           ],
         ),
         content: Text(
-          'Are you sure you want to delete "${location.title}"? This action cannot be undone.',
+          'are_you_sure_you_want_to_delete'.tr +
+              ' "${location.title}"?' +
+              'this_action_cannot_be_undone'.tr,
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back(); // Close confirmation dialog
@@ -1762,57 +1827,42 @@ class ProfileView extends GetView<UserController> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Delete'),
+            child: Text('delete'.tr),
           ),
         ],
       ),
     );
   }
 
-  // Other existing methods remain the same...
   void _showEditNameDialog(UserProfileModel user) {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Edit Name'),
-        content: const TextField(
-          decoration: InputDecoration(
-            hintText: 'Enter your name',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.snackbar('Success', 'Name updated successfully');
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
+    final nameController = TextEditingController(text: user.name);
 
-  void _showEditPhoneDialog(UserProfileModel user) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Edit Phone Number'),
-        content: const TextField(
+        title: Text('edit_name'.tr),
+        content: TextField(
+          controller: nameController,
           decoration: InputDecoration(
-            hintText: 'Enter your phone number',
+            hintText: 'enter_your_name'.tr,
             border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.person_outline),
           ),
-          keyboardType: TextInputType.phone,
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) {
+                Get.snackbar('error'.tr, 'name_cannot_be_empty'.tr);
+                return;
+              }
+
               Get.back();
-              Get.snackbar('Success', 'Phone number updated successfully');
+              await controller.updateProfile(
+                UpdateProfileRequest(name: nameController.text.trim()),
+              );
             },
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
       ),
@@ -1820,38 +1870,199 @@ class ProfileView extends GetView<UserController> {
   }
 
   void _showEditProfileDialog(UserProfileModel user) {
+    final nameController = TextEditingController(text: user.name);
+    String selectedState = user.state;
+
     Get.dialog(
-      AlertDialog(
-        title: const Text('Edit Profile'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
-              ),
+      Dialog(
+        backgroundColor: Colors.transparent,
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => Container(
+            width: Get.width * 0.9,
+            height: Get.height * 0.8,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
             ),
-            SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.05),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'edit_profile'.tr,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.close, size: 24),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name
+                        Text(
+                          'full_name'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            hintText: 'enter_your_full_name'.tr,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.person_outline,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // State
+                        Text(
+                          'state_governorate'.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomGroupedDropdown(
+                          hint: 'choose_state'.tr,
+                          selectedValue: selectedState.isEmpty
+                              ? null
+                              : selectedState,
+                          data: OmanStatesData.states,
+                          onChanged: (String value, String label) {
+                            selectedState = value;
+                            setDialogState(
+                              () {},
+                            ); // Use StatefulBuilder's setState
+                          },
+                          prefixIcon: const Icon(
+                            Icons.public,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Footer Actions
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Get.back(),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('cancel'.tr),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (nameController.text.trim().isEmpty) {
+                              Get.snackbar('Error', 'name_cannot_be_empty'.tr);
+                              return;
+                            }
+
+                            final request = UpdateProfileRequest(
+                              name: nameController.text.trim(),
+                              state: selectedState,
+                            );
+
+                            try {
+                              Get.back();
+                              await controller.updateProfile(request);
+                            } on Exception catch (e) {
+                              print(e);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('save_changes'.tr),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.snackbar('Success', 'Profile updated successfully');
-            },
-            child: const Text('Save'),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1859,27 +2070,56 @@ class ProfileView extends GetView<UserController> {
   void _showLanguageDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Select Language'),
+        title: Text('select_language'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('English'),
-              trailing: const Icon(Icons.check, color: Colors.green),
-              onTap: () {
-                Get.updateLocale(const Locale('en', 'US'));
+              title: Text('english'.tr),
+              trailing: Get.locale?.languageCode == 'en'
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
+              onTap: () async {
+                // Save to storage
+                final storageService = Get.find<StorageService>();
+                await storageService.saveLanguage('en');
+
+                // Update locale
+                Get.updateLocale(const Locale('en'));
                 Get.back();
-                Get.snackbar('Success', 'Language changed to English');
+
+                // Show success message
+                Get.snackbar(
+                  'Success',
+                  'Language changed to English',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('العربية'),
-              onTap: () {
-                Get.updateLocale(const Locale('ar', 'AE'));
+              title: Text('arabic'.tr),
+              trailing: Get.locale?.languageCode == 'ar'
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
+              onTap: () async {
+                // Save to storage
+                final storageService = Get.find<StorageService>();
+                await storageService.saveLanguage('ar');
+
+                // Update locale
+                Get.updateLocale(const Locale('ar'));
                 Get.back();
-                Get.snackbar('نجح', 'تم تغيير اللغة إلى العربية');
+
+                // Show success message
+                Get.snackbar(
+                  'نجح',
+                  'تم تغيير اللغة إلى العربية',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
               },
             ),
           ],
@@ -1891,19 +2131,45 @@ class ProfileView extends GetView<UserController> {
   void _showDeleteAccountDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Delete Account'),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
+            const SizedBox(width: 8),
+            Text('delete_account'.tr),
+          ],
+        ),
+        content: Text(
+          'are_you_sure_you_want_to_delete_your_account_this_action_cannot_be_undone'
+              .tr,
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
-              Get.snackbar('Warning', 'Account deletion initiated');
+              // Show loading
+              Get.dialog(
+                Center(child: CircularProgressIndicator()),
+                barrierDismissible: false,
+              );
+              await controller.deleteAccount();
+              // Simulate API call delay
+
+              Get.back(); // Close loading dialog
+
+              // Show success message
+              Get.snackbar(
+                'success'.tr,
+                'account_deleted_successfully'.tr,
+                backgroundColor: Colors.green,
+                colorText: Colors.white,
+                icon: Icon(Icons.check_circle, color: Colors.white),
+                duration: const Duration(seconds: 2),
+              );
+              Get.offAllNamed(AppRoutes.login);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text('delete'.tr, style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1913,60 +2179,22 @@ class ProfileView extends GetView<UserController> {
   void _showLogoutDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Row(
+          children: [
+            Icon(Icons.logout, color: Colors.orange, size: 24),
+            const SizedBox(width: 8),
+            Text('log_out'.tr),
+          ],
+        ),
+        content: Text('log_out_confirmation'.tr),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.offAllNamed(AppRoutes.login);
-              Get.snackbar('Info', 'Logged out successfully');
-            },
-            child: const Text('Log Out'),
+            onPressed: () => controller.logout(),
+            child: Text('log_out'.tr),
           ),
         ],
       ),
     );
-  }
-
-  void _openTermsAndConditions() {
-    Get.snackbar('Info', 'Opening Terms and Conditions...');
-  }
-
-  void _openPrivacyPolicy() {
-    Get.snackbar('Info', 'Opening Privacy Policy...');
-  }
-
-  void _openSupport() {
-    Get.snackbar('Support', 'Opening Support Center...');
-  }
-
-  void _openWhatsApp() async {
-    const url = 'https://wa.me/96812345678';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  void _openInstagram() async {
-    const url = 'https://instagram.com/khabir_app';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  void _openSnapchat() async {
-    const url = 'https://snapchat.com/add/khabir_app';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  void _openTikTok() async {
-    const url = 'https://tiktok.com/@khabir_app';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
   }
 }

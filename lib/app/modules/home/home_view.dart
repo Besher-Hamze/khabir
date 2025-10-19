@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/values/colors.dart';
@@ -7,7 +9,6 @@ import '../../data/models/service_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/models/category_model.dart';
 import 'home_controller.dart';
-import '../provider detail/provider_detail_view.dart';
 import '../all providers/all_providers_view.dart';
 import '../../routes/app_routes.dart';
 
@@ -74,7 +75,7 @@ class HomeView extends GetView<HomeController> {
             Icon(Icons.search, color: Colors.grey[400], size: 20),
             const SizedBox(width: 12),
             Text(
-              'Search',
+              'search'.tr,
               style: TextStyle(fontSize: 16, color: Colors.grey[500]),
             ),
           ],
@@ -86,6 +87,27 @@ class HomeView extends GetView<HomeController> {
   Widget _buildBannerCarousel() {
     final PageController pageController = PageController();
     final RxInt currentPage = 0.obs;
+    Timer? autoScrollTimer;
+
+    // Function to start auto-scroll
+    void startAutoScroll() {
+      autoScrollTimer?.cancel(); // Cancel any existing timer
+      autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+        if (controller.banners.isNotEmpty) {
+          final nextPage = (currentPage.value + 1) % controller.banners.length;
+          pageController.animateToPage(
+            nextPage,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+
+    // Function to stop auto-scroll
+    void stopAutoScroll() {
+      autoScrollTimer?.cancel();
+    }
 
     return Obx(() {
       if (controller.isBannersLoading.value) {
@@ -106,10 +128,10 @@ class HomeView extends GetView<HomeController> {
             borderRadius: BorderRadius.circular(12),
             color: Colors.grey[100],
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No banners available',
-              style: TextStyle(color: Colors.grey),
+              'no_banners_available'.tr,
+              style: const TextStyle(color: Colors.grey),
             ),
           ),
         );
@@ -117,81 +139,92 @@ class HomeView extends GetView<HomeController> {
 
       final banners = controller.banners;
 
+      // Start auto-scroll when banners are loaded
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        startAutoScroll();
+      });
+
       return Column(
         children: [
           SizedBox(
             height: 150,
-            child: PageView.builder(
-              controller: pageController,
-              onPageChanged: (index) {
-                currentPage.value = index;
-              },
-              itemCount: banners.length,
-              itemBuilder: (context, index) {
-                final banner = banners[index];
-                return GestureDetector(
-                  onTap: () => controller.onBannerTap(banner),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          offset: const Offset(0, 4),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        Helpers.getImageUrl(banner.imageUrl),
-                        width: double.infinity,
-                        height: 150,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.red.withOpacity(0.8),
-                                  Colors.orange.withOpacity(0.8),
-                                ],
+            child: GestureDetector(
+              onPanDown: (_) =>
+                  stopAutoScroll(), // Stop auto-scroll on user interaction
+              onPanCancel: () => startAutoScroll(), // Resume auto-scroll
+              onPanEnd: (_) => startAutoScroll(), // Resume auto-scroll
+              child: PageView.builder(
+                controller: pageController,
+                onPageChanged: (index) {
+                  currentPage.value = index;
+                },
+                itemCount: banners.length,
+                itemBuilder: (context, index) {
+                  final banner = banners[index];
+                  return GestureDetector(
+                    onTap: () => controller.onBannerTap(banner),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            offset: const Offset(0, 4),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          Helpers.getImageUrl(banner.imageUrl),
+                          width: double.infinity,
+                          height: 150,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.red.withOpacity(0.8),
+                                    Colors.orange.withOpacity(0.8),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.image,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    banner.title.isNotEmpty
-                                        ? banner.title
-                                        : 'Banner ${index + 1}',
-                                    style: const TextStyle(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.image,
+                                      size: 40,
                                       color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      banner.title.isNotEmpty
+                                          ? banner.title
+                                          : 'Banner ${index + 1}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -226,8 +259,8 @@ class HomeView extends GetView<HomeController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Categories',
+            Text(
+              'categories'.tr,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -237,7 +270,7 @@ class HomeView extends GetView<HomeController> {
             GestureDetector(
               onTap: () => controller.goToCategories(),
               child: Text(
-                'View All',
+                'view_all'.tr,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.red[400],
@@ -264,7 +297,7 @@ class HomeView extends GetView<HomeController> {
           }
 
           return SizedBox(
-            height: 100,
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: controller.categories.length,
@@ -285,6 +318,7 @@ class HomeView extends GetView<HomeController> {
       child: Container(
         width: 80,
         margin: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),
@@ -294,8 +328,8 @@ class HomeView extends GetView<HomeController> {
           children: [
             // Category Icon
             SizedBox(
-              width: 60,
-              height: 60,
+              width: 70,
+              height: 70,
               child: Center(
                 child: category.image.isNotEmpty
                     ? Image.network(
@@ -335,16 +369,18 @@ class HomeView extends GetView<HomeController> {
 
             const SizedBox(height: 4),
             // Category Name
-            Text(
-              category.titleEn.isNotEmpty ? category.titleEn : category.titleAr,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+            Expanded(
+              child: Text(
+                category.getTitle(Get.locale?.languageCode ?? 'en'),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -362,8 +398,8 @@ class HomeView extends GetView<HomeController> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Best Providers',
+                Text(
+                  'best_providers'.tr,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -375,7 +411,7 @@ class HomeView extends GetView<HomeController> {
             GestureDetector(
               onTap: () => _navigateToAllProviders(),
               child: Text(
-                'View All',
+                'view_all'.tr,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.primary,
@@ -407,7 +443,7 @@ class HomeView extends GetView<HomeController> {
                   Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'No providers available',
+                    'no_providers_available'.tr,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -416,7 +452,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Check back later for top service providers',
+                    'check_back_later'.tr,
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
@@ -424,7 +460,7 @@ class HomeView extends GetView<HomeController> {
                   ElevatedButton.icon(
                     onPressed: () => controller.forceRefreshProviders(),
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Try Again'),
+                    label: Text('try_again'.tr),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -526,7 +562,7 @@ class HomeView extends GetView<HomeController> {
                   Text(
                     provider.description.isNotEmpty
                         ? provider.description
-                        : 'Professional Service Provider',
+                        : 'professional_service_provider'.tr,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -575,7 +611,7 @@ class HomeView extends GetView<HomeController> {
                         Icon(Icons.verified, size: 10, color: Colors.green),
                         const SizedBox(width: 2),
                         Text(
-                          'Verified',
+                          'verified'.tr,
                           style: TextStyle(
                             fontSize: 8,
                             color: Colors.green,
@@ -594,7 +630,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   void _navigateToProviderDetail(TopProviderModel provider) {
-    Get.toNamed(AppRoutes.providerDetail, arguments: provider);
+    Get.toNamed(AppRoutes.requestService, arguments: {'provider': provider});
   }
 
   void _navigateToAllProviders() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/order_model.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/helpers.dart' as Helpers;
 import 'orders_controller.dart';
@@ -69,12 +70,7 @@ class OrdersView extends GetView<OrdersController> {
               color: Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            controller.errorMessage.value,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
+
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: controller.loadOrders,
@@ -86,7 +82,7 @@ class OrdersView extends GetView<OrdersController> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('Try Again'),
+            child: Text('try_again'.tr),
           ),
         ],
       ),
@@ -359,7 +355,7 @@ class OrdersView extends GetView<OrdersController> {
                 _buildDetailRow(
                   icon: Icons.location_on_outlined,
                   label: 'Location',
-                  value: order.locationDetails,
+                  value: order.location ?? 'No location',
                 ),
                 const SizedBox(height: 8),
                 _buildDetailRow(
@@ -398,27 +394,6 @@ class OrdersView extends GetView<OrdersController> {
                           ),
                           Text(
                             controller.formatCurrency(order.providerAmount),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Commission:',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          Text(
-                            controller.formatCurrency(order.commissionAmount),
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,

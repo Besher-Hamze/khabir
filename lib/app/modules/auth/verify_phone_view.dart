@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/routes/app_routes.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'dart:async';
 import '../../core/values/colors.dart';
@@ -23,7 +24,9 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Title
               Text(
-                'Forgot your Password?',
+                Get.previousRoute == AppRoutes.forgotPassword
+                    ? 'forgot_password_title'.tr
+                    : 'otp_sent_message'.tr,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -36,7 +39,7 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Description
               Text(
-                'We sent you a 4 digit code to verify\nyour mobile number',
+                'otp_sent_message'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -49,7 +52,7 @@ class VerifyPhoneView extends GetView<AuthController> {
 
               // Instruction
               Text(
-                'Enter in the field below.',
+                'enter_otp_instruction'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -64,7 +67,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                 textDirection: TextDirection.ltr,
                 child: PinCodeTextField(
                   appContext: context,
-                  length: 4,
+                  length: 6,
                   onChanged: (value) {
                     controller.otpCode.value = value;
                   },
@@ -75,7 +78,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                     shape: PinCodeFieldShape.box,
                     borderRadius: BorderRadius.circular(12),
                     fieldHeight: 60,
-                    fieldWidth: 60,
+                    fieldWidth: 50,
                     activeFillColor: Colors.white,
                     inactiveFillColor: Colors.white,
                     selectedFillColor: Colors.white,
@@ -84,13 +87,17 @@ class VerifyPhoneView extends GetView<AuthController> {
                     selectedColor: AppColors.primary,
                     borderWidth: 2,
                   ),
+                  backgroundColor: Colors.transparent,
                   enableActiveFill: true,
                   keyboardType: TextInputType.number,
                   textStyle: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
+                  animationDuration: const Duration(milliseconds: 300),
+                  animationType: AnimationType.fade,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 ),
               ),
 
@@ -101,7 +108,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Didn't get the code? ",
+                    'didnt_receive_code'.tr,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 14,
@@ -110,7 +117,7 @@ class VerifyPhoneView extends GetView<AuthController> {
                   GestureDetector(
                     onTap: controller.resendOTP,
                     child: Text(
-                      'Resend',
+                      'resend_otp'.tr,
                       style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
@@ -124,40 +131,44 @@ class VerifyPhoneView extends GetView<AuthController> {
               const SizedBox(height: 16),
 
               // Timer
-              Obx(() => RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Expires in ',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 14,
+              Obx(
+                () => RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'valid_until'.tr,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: _formatTimer(controller.timerSeconds.value),
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      TextSpan(
+                        text: _formatTimer(controller.timerSeconds.value),
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
 
               const SizedBox(height: 120),
 
               // Confirmation Button
-              Obx(() => CustomButton(
-                text: '▶ Confirmation',
-                onPressed: controller.otpCode.value.length == 4
-                    ? controller.verifyOTP
-                    : null,
-                isLoading: controller.isLoading.value,
-                width: double.infinity,
-                enabled: controller.otpCode.value.length == 4,
-              )),
+              Obx(
+                () => CustomButton(
+                  text: 'confirmation'.tr,
+                  onPressed: controller.otpCode.value.length == 6
+                      ? controller.verifyOTP
+                      : null,
+                  isLoading: controller.isLoading.value,
+                  width: double.infinity,
+                  enabled: controller.otpCode.value.length == 6,
+                ),
+              ),
 
               const SizedBox(height: 40),
             ],

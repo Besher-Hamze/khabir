@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import '../../core/values/colors.dart';
 import '../../data/models/provider_model.dart';
 import '../../core/utils/helpers.dart' as Helpers;
-import '../provider detail/provider_detail_view.dart';
 import '../home/home_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../core/utils/app_translations.dart';
 
 class AllProvidersView extends GetView<HomeController> {
   const AllProvidersView({Key? key}) : super(key: key);
@@ -21,9 +22,9 @@ class AllProvidersView extends GetView<HomeController> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'All Providers',
-          style: TextStyle(
+        title: Text(
+          'all_providers'.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -65,10 +66,10 @@ class AllProvidersView extends GetView<HomeController> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'khabir',
-                      style: TextStyle(
+                      'app_name'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -115,7 +116,7 @@ class AllProvidersView extends GetView<HomeController> {
           TextField(
             onChanged: (value) => _filterProviders(value),
             decoration: InputDecoration(
-              hintText: 'Search providers...',
+              hintText: 'search_providers'.tr,
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -134,52 +135,9 @@ class AllProvidersView extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 16),
-
-          // Category Filter
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _getCategories().map((category) {
-                return GestureDetector(
-                  onTap: () => _onCategoryChanged(category),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.primary),
-                    ),
-                    child: Text(
-                      category,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
         ],
       ),
     );
-  }
-
-  List<String> _getCategories() {
-    Set<String> categorySet = {'All'};
-    for (var provider in controller.bestProviders) {
-      for (var service in provider.providerServices) {
-        if (service.service.category != null) {
-          categorySet.add(service.service.category!.titleEn);
-        }
-      }
-    }
-    return categorySet.toList();
   }
 
   void _filterProviders(String query) {
@@ -277,7 +235,7 @@ class AllProvidersView extends GetView<HomeController> {
                               ),
                               const SizedBox(width: 2),
                               Text(
-                                'Verified',
+                                'verified'.tr,
                                 style: TextStyle(
                                   fontSize: 8,
                                   color: Colors.green,
@@ -306,7 +264,11 @@ class AllProvidersView extends GetView<HomeController> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        provider.state,
+                        getStateInLanguage(
+                              Get.locale?.languageCode ?? 'en',
+                              provider.state,
+                            ) ??
+                            provider.state,
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                       const Spacer(),
@@ -316,15 +278,17 @@ class AllProvidersView extends GetView<HomeController> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getTierColor(provider.tier).withOpacity(0.1),
+                          color: _getTierColor(
+                            provider.tier.name,
+                          ).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          provider.tier.toUpperCase(),
+                          _getTierName(provider.tier.name),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: _getTierColor(provider.tier),
+                            color: _getTierColor(provider.tier.name),
                           ),
                         ),
                       ),
@@ -343,12 +307,7 @@ class AllProvidersView extends GetView<HomeController> {
                         ),
                       ),
                       Text(
-                        ' (${provider.totalRatings} reviews)',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${provider.activeServices} services',
+                        ' (${provider.totalRatings} ${'reviews'.tr})',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
@@ -370,7 +329,7 @@ class AllProvidersView extends GetView<HomeController> {
           Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'No providers available',
+            'no_providers_available'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -379,7 +338,7 @@ class AllProvidersView extends GetView<HomeController> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Check back later for service providers',
+            'check_back_later'.tr,
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
@@ -387,7 +346,7 @@ class AllProvidersView extends GetView<HomeController> {
           ElevatedButton.icon(
             onPressed: () => controller.forceRefreshProviders(),
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('Try Again'),
+            label: Text('try_again'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -414,7 +373,22 @@ class AllProvidersView extends GetView<HomeController> {
     }
   }
 
+  String _getTierName(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'verified':
+        return 'verified'.tr;
+      case 'premium':
+        return 'premium'.tr;
+      case 'gold':
+        return 'gold'.tr;
+      case 'silver':
+        return 'silver'.tr;
+      default:
+        return 'bronze'.tr;
+    }
+  }
+
   void _onProviderTap(TopProviderModel provider) {
-    Get.toNamed(AppRoutes.providerDetail, arguments: provider);
+    Get.toNamed(AppRoutes.requestService, arguments: {'provider': provider});
   }
 }

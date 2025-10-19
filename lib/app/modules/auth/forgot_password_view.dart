@@ -19,7 +19,6 @@ class ForgotPasswordView extends GetView<AuthController> {
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Get.back(),
         ),
-
       ),
       body: SafeArea(
         child: Padding(
@@ -68,12 +67,14 @@ class ForgotPasswordView extends GetView<AuthController> {
                 const SizedBox(height: 32),
 
                 // Send OTP Button
-                Obx(() => CustomButton(
-                  text: 'send_otp'.tr,
-                  onPressed: controller.sendOTP,
-                  isLoading: controller.isLoading.value,
-                  width: double.infinity,
-                )),
+                Obx(
+                  () => CustomButton(
+                    text: 'send_otp'.tr,
+                    onPressed: controller.sendOTP,
+                    isLoading: controller.isLoading.value,
+                    width: double.infinity,
+                  ),
+                ),
 
                 const Spacer(),
 
@@ -103,36 +104,6 @@ class ForgotPasswordView extends GetView<AuthController> {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageButton(String text, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        if (text == 'عربي' && Get.locale?.languageCode != 'ar') {
-          Get.updateLocale(const Locale('ar'));
-        } else if (text == 'EN' && Get.locale?.languageCode != 'en') {
-          Get.updateLocale(const Locale('en'));
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-          ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
           ),
         ),
       ),

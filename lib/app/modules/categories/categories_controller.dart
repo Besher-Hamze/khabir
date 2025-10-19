@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../../data/models/category_model.dart';
 import '../../data/repositories/categories_repository.dart';
-import '../../core/utils/app_translations.dart';
 import '../../routes/app_routes.dart';
 
 class CategoriesController extends GetxController {
@@ -12,7 +11,6 @@ class CategoriesController extends GetxController {
   final RxList<CategoryModel> categories = <CategoryModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
   final RxString selectedState = ''.obs;
 
   @override
@@ -26,7 +24,6 @@ class CategoriesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final List<CategoryModel> fetchedCategories = await _categoriesRepository
           .getCategories();
@@ -34,7 +31,6 @@ class CategoriesController extends GetxController {
       categories.value = fetchedCategories;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading categories: $e');
     } finally {
       isLoading.value = false;
@@ -46,7 +42,6 @@ class CategoriesController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
       selectedState.value = state;
 
       final List<CategoryModel> fetchedCategories = await _categoriesRepository
@@ -55,7 +50,6 @@ class CategoriesController extends GetxController {
       categories.value = fetchedCategories;
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading categories by state: $e');
     } finally {
       isLoading.value = false;
@@ -103,6 +97,18 @@ class CategoriesController extends GetxController {
         'categoryName': getCategoryTitle(category),
         'categoryImage': category.image,
         'categoryState': category.state,
+      },
+    );
+  }
+
+  // Handle Khabir Category selection
+  void onKhabirCategorySelected() {
+    Get.toNamed(
+      AppRoutes.services,
+      arguments: {
+        'categoryType': 'Khabir',
+        'categoryName': 'Khabir Category',
+        'categoryId': 0, // Special ID for Khabir Category
       },
     );
   }

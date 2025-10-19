@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:get/get_utils/src/platform/platform.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/services/storage_service.dart';
 import '../../routes/app_routes.dart';
@@ -98,15 +99,14 @@ class OnboardingController extends GetxController {
     selectedRole.value = 'provider';
     await _storageService.setOnboardingCompleted();
 
-    // Open Google Play Store for provider app
-    final url = '${AppConstants.playStoreUrl}${AppConstants.providerAppId}';
+    // Open store for provider app based on platform
+    final String url = GetPlatform.isIOS
+        ? AppConstants.providerAppStoreUrl
+        : '${AppConstants.playStoreUrl}${AppConstants.providerAppId}';
 
     try {
       if (await canLaunchUrl(Uri.parse(url))) {
-        await launchUrl(
-          Uri.parse(url),
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       } else {
         // Fallback: show dialog with manual instructions
         Get.dialog(
@@ -114,10 +114,7 @@ class OnboardingController extends GetxController {
             title: Text('download_provider_app'.tr),
             content: Text('download_provider_app_message'.tr),
             actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: Text('ok'.tr),
-              ),
+              TextButton(onPressed: () => Get.back(), child: Text('ok'.tr)),
             ],
           ),
         );

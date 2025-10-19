@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:khabir/app/data/models/offer_model.dart';
 import '../../data/models/provider_model.dart';
 import '../../data/repositories/offers_repository.dart';
 
@@ -11,7 +12,6 @@ class OffersController extends GetxController {
   final RxList<OfferModel> offers = <OfferModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
-  final RxString errorMessage = ''.obs;
 
   @override
   void onInit() {
@@ -24,16 +24,12 @@ class OffersController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final List<OfferModel> loadedOffers = await _offersRepository
           .getAvailableOffers();
       offers.value = loadedOffers;
-
-      print('Successfully loaded ${offers.length} offers');
     } catch (e) {
       hasError.value = true;
-      errorMessage.value = e.toString();
       print('Error loading offers: $e');
     } finally {
       isLoading.value = false;

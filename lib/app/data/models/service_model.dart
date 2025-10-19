@@ -1,13 +1,20 @@
+import 'package:get/get.dart';
+import 'package:khabir/app/data/models/user_location_model.dart';
+
 import 'category_model.dart';
+
+enum ServiceType { NORMAL, KHABEER }
 
 class ServiceModel {
   final int id;
   final String image;
   final String title;
   final String description;
-  final double commission;
+  final String descriptionEn;
+  final String descriptionAr;
   final String whatsapp;
   final int categoryId;
+  final ServiceType serviceType;
   final CategoryModel category;
 
   ServiceModel({
@@ -15,22 +22,31 @@ class ServiceModel {
     required this.image,
     required this.title,
     required this.description,
-    required this.commission,
+    required this.descriptionEn,
+    required this.descriptionAr,
     required this.whatsapp,
     required this.categoryId,
     required this.category,
+    required this.serviceType,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
       id: json['id'] ?? 0,
       image: json['image'] ?? '',
-      title: json['title'] ?? '',
+      title:
+          json['title'] ??
+          (Get.locale?.languageCode == 'ar'
+              ? json['titleAr']
+              : json['titleEn']) ??
+          '',
       description: json['description'] ?? '',
-      commission: (json['commission'] ?? 0.0).toDouble(),
+      descriptionEn: json['descriptionEn'] ?? '',
+      descriptionAr: json['descriptionAr'] ?? '',
       whatsapp: json['whatsapp'] ?? '',
       categoryId: json['categoryId'] ?? 0,
       category: CategoryModel.fromJson(json['category'] ?? {}),
+      serviceType: ServiceType.values.byName(json['serviceType'] ?? 'NORMAL'),
     );
   }
 
@@ -40,10 +56,12 @@ class ServiceModel {
       'image': image,
       'title': title,
       'description': description,
-      'commission': commission,
+      'descriptionEn': descriptionEn,
+      'descriptionAr': descriptionAr,
       'whatsapp': whatsapp,
       'categoryId': categoryId,
       'category': category.toJson(),
+      'serviceType': serviceType.name,
     };
   }
 
@@ -56,9 +74,6 @@ class ServiceModel {
     if (image.startsWith('http')) return image;
     return '$baseUrl$image';
   }
-
-  // Format commission for display
-  String get formattedCommission => 'SAR $commission';
 }
 
 class ServiceCategory {
@@ -363,5 +378,73 @@ class UpdateRatingRequest {
 
   Map<String, dynamic> toJson() {
     return {'rating': rating, 'comment': comment};
+  }
+}
+
+// New model for service request API request
+class ServiceRequestRequest {
+  final int providerId;
+  final List<ServiceRequestItem> services;
+  final String scheduledDate;
+  final String location;
+  final String locationDetails;
+  final UserLocation userLocation;
+  final String notes;
+
+  ServiceRequestRequest({
+    required this.providerId,
+    required this.services,
+    required this.scheduledDate,
+    required this.location,
+    required this.locationDetails,
+    required this.userLocation,
+    required this.notes,
+  });
+
+  factory ServiceRequestRequest.fromJson(Map<String, dynamic> json) {
+    return ServiceRequestRequest(
+      providerId: json['providerId'] ?? 0,
+      services:
+          (json['services'] as List<dynamic>?)
+              ?.map((e) => ServiceRequestItem.fromJson(e))
+              .toList() ??
+          [],
+      scheduledDate: json['scheduledDate'] ?? '',
+      location: json['location'] ?? '',
+      locationDetails: json['locationDetails'] ?? '',
+      userLocation: UserLocation.fromJson(json['userLocation'] ?? {}),
+      notes: json['notes'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'providerId': providerId,
+      'services': services.map((e) => e.toJson()).toList(),
+      'scheduledDate': scheduledDate,
+      // 'location': location,
+      // 'locationDetails': locationDetails,
+      'currentLocation': userLocation.toJson(),
+      'notes': notes,
+    };
+  }
+}
+
+// New model for service request item
+class ServiceRequestItem {
+  final int serviceId;
+  final int quantity;
+
+  ServiceRequestItem({required this.serviceId, required this.quantity});
+
+  factory ServiceRequestItem.fromJson(Map<String, dynamic> json) {
+    return ServiceRequestItem(
+      serviceId: json['serviceId'] ?? 0,
+      quantity: json['quantity'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'serviceId': serviceId, 'quantity': quantity};
   }
 }

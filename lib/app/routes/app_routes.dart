@@ -30,6 +30,7 @@ class AppRoutes {
   static const rateService = '/rate-service';
   static const services = '/services';
   static const requestService = '/request-service';
+  static const requestServiceKhabir = '/request-service-khabir';
   static const successPage = '/success-page';
   static const orders = '/orders';
 
@@ -47,6 +48,6 @@ class AppRoutes {
   static const searchResults = '/search-results';
 
   // Provider Routes
-  static const providerDetail = '/provider-detail';
+  // static const providerDetail = '/provider-detail';
   static const allProviders = '/all-providers';
 }

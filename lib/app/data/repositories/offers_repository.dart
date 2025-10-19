@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:khabir/app/data/models/offer_model.dart';
 import '../models/provider_model.dart';
 import '../../core/constants/app_constants.dart';
 import '../services/api_service.dart';

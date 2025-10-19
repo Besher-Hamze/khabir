@@ -7,8 +7,9 @@ class LocationRepository {
   // Health check for location tracking
   Future<Map<String, dynamic>> checkLocationTrackingHealth() async {
     try {
-      final response =
-          await _apiService.get(AppConstants.locationTrackingHealth);
+      final response = await _apiService.get(
+        AppConstants.locationTrackingHealth,
+      );
 
       if (response.statusCode == 200) {
         final responseData = response.data;
@@ -19,24 +20,20 @@ class LocationRepository {
         };
       }
 
-      return {
-        'success': false,
-        'message': 'فشل في فحص حالة التتبع',
-      };
+      return {'success': false, 'message': 'فشل في فحص حالة التتبع'};
     } catch (e) {
       print('Location tracking health check error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 
   // Get current location for an order
   Future<Map<String, dynamic>> getCurrentLocation(String orderId) async {
     try {
-      final path = AppConstants.locationTrackingCurrentLocation
-          .replaceAll('{orderId}', orderId);
+      final path = AppConstants.locationTrackingCurrentLocation.replaceAll(
+        '{orderId}',
+        orderId,
+      );
       final response = await _apiService.get(path);
 
       if (response.statusCode == 200) {
@@ -53,25 +50,23 @@ class LocationRepository {
         }
       }
 
-      return {
-        'success': false,
-        'message': 'فشل في جلب الموقع الحالي',
-      };
+      return {'success': false, 'message': 'فشل في جلب الموقع الحالي'};
     } catch (e) {
       print('Get current location error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 
   // Get location history for an order
-  Future<Map<String, dynamic>> getLocationHistory(String orderId,
-      {int limit = 50}) async {
+  Future<Map<String, dynamic>> getLocationHistory(
+    String orderId, {
+    int limit = 50,
+  }) async {
     try {
-      final path =
-          AppConstants.locationTrackingHistory.replaceAll('{orderId}', orderId);
+      final path = AppConstants.locationTrackingHistory.replaceAll(
+        '{orderId}',
+        orderId,
+      );
       final response = await _apiService.get(
         path,
         queryParameters: {'limit': limit},
@@ -89,58 +84,51 @@ class LocationRepository {
         }
       }
 
-      return {
-        'success': false,
-        'message': 'فشل في جلب سجل المواقع',
-      };
+      return {'success': false, 'message': 'فشل في جلب سجل المواقع'};
     } catch (e) {
       print('Get location history error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 
   // Get estimated arrival time for an order
-  Future<Map<String, dynamic>> getEstimatedArrival(String orderId) async {
-    try {
-      final path = AppConstants.locationTrackingEstimatedArrival
-          .replaceAll('{orderId}', orderId);
-      final response = await _apiService.get(path);
+  // Future<Map<String, dynamic>> getEstimatedArrival(String orderId) async {
+  //   try {
+  //     final path = AppConstants.locationTrackingEstimatedArrival.replaceAll(
+  //       '{orderId}',
+  //       orderId,
+  //     );
+  //     final response = await _apiService.get(path);
 
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        if (responseData['estimatedArrival'] != null) {
-          final estimatedArrival =
-              responseData['estimatedArrival'] as Map<String, dynamic>;
-          return {
-            'success': true,
-            'estimatedTime': estimatedArrival['estimatedTime'],
-            'distance': estimatedArrival['distance'],
-            'message': 'تم جلب وقت الوصول المتوقع بنجاح',
-          };
-        }
-      }
+  //     if (response.statusCode == 200) {
+  //       final responseData = response.data;
+  //       if (responseData['estimatedArrival'] != null) {
+  //         final estimatedArrival =
+  //             responseData['estimatedArrival'] as Map<String, dynamic>;
+  //         return {
+  //           'success': true,
+  //           'estimatedTime': estimatedArrival['estimatedTime'],
+  //           'distance': estimatedArrival['distance'],
+  //           'message': 'تم جلب وقت الوصول المتوقع بنجاح',
+  //         };
+  //       }
+  //     }
 
-      return {
-        'success': false,
-        'message': 'فشل في جلب وقت الوصول المتوقع',
-      };
-    } catch (e) {
-      print('Get estimated arrival error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
-    }
-  }
+  //     return {'success': false, 'message': 'فشل في جلب وقت الوصول المتوقع'};
+  //   } catch (e) {
+  //     print('Get estimated arrival error: $e');
+  //     return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
+  //   }
+  // }
 
   // Get tracking status for an order
   Future<Map<String, dynamic>> getTrackingStatus(String orderId) async {
     try {
-      final path =
-          AppConstants.locationTrackingStatus.replaceAll('{orderId}', orderId);
+      print('============== getTrackingStatus: $orderId');
+      final path = AppConstants.locationTrackingStatus.replaceAll(
+        '{orderId}',
+        orderId,
+      );
       final response = await _apiService.get(path);
 
       if (response.statusCode == 200) {
@@ -158,24 +146,20 @@ class LocationRepository {
         }
       }
 
-      return {
-        'success': false,
-        'message': 'فشل في جلب حالة التتبع',
-      };
+      return {'success': false, 'message': 'فشل في جلب حالة التتبع'};
     } catch (e) {
       print('Get tracking status error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 
   // Get user orders with location tracking
   Future<Map<String, dynamic>> getUserOrdersWithTracking(String userId) async {
     try {
-      final path = AppConstants.locationTrackingUserOrders
-          .replaceAll('{userId}', userId);
+      final path = AppConstants.locationTrackingUserOrders.replaceAll(
+        '{userId}',
+        userId,
+      );
       final response = await _apiService.get(path);
 
       if (response.statusCode == 200) {
@@ -190,36 +174,26 @@ class LocationRepository {
         }
       }
 
-      return {
-        'success': false,
-        'message': 'فشل في جلب الطلبات مع التتبع',
-      };
+      return {'success': false, 'message': 'فشل في جلب الطلبات مع التتبع'};
     } catch (e) {
       print('Get user orders with tracking error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 
   // Start tracking (for testing/documentation)
-  Future<Map<String, dynamic>> startTracking(String orderId,
-      {int updateInterval = 30}) async {
+  Future<Map<String, dynamic>> startTracking(
+    String orderId, {
+    int updateInterval = 30,
+  }) async {
     try {
       final response = await _apiService.post(
         AppConstants.locationTrackingStart,
-        data: {
-          'orderId': orderId,
-          'updateInterval': updateInterval,
-        },
+        data: {'orderId': orderId, 'updateInterval': updateInterval},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return {
-          'success': true,
-          'message': 'تم بدء التتبع بنجاح',
-        };
+        return {'success': true, 'message': 'تم بدء التتبع بنجاح'};
       } else {
         final responseData = response.data;
         return {
@@ -229,10 +203,7 @@ class LocationRepository {
       }
     } catch (e) {
       print('Start tracking error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 
@@ -241,16 +212,11 @@ class LocationRepository {
     try {
       final response = await _apiService.post(
         AppConstants.locationTrackingStop,
-        data: {
-          'orderId': orderId,
-        },
+        data: {'orderId': orderId},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return {
-          'success': true,
-          'message': 'تم إيقاف التتبع بنجاح',
-        };
+        return {'success': true, 'message': 'تم إيقاف التتبع بنجاح'};
       } else {
         final responseData = response.data;
         return {
@@ -260,10 +226,7 @@ class LocationRepository {
       }
     } catch (e) {
       print('Stop tracking error: $e');
-      return {
-        'success': false,
-        'message': 'خطأ في الاتصال بالخادم',
-      };
+      return {'success': false, 'message': 'خطأ في الاتصال بالخادم'};
     }
   }
 }

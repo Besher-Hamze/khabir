@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:khabir/app/core/utils/helpers.dart';
+import 'package:khabir/app/global_widgets/custom_drop_down.dart';
 import '../../core/values/colors.dart';
 import '../../core/utils/app_translations.dart';
 import 'service_providers_controller.dart';
@@ -46,10 +48,10 @@ class ServiceProvidersView extends StatelessWidget {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'khabir',
-                      style: TextStyle(
+                      'app_name'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -81,12 +83,7 @@ class ServiceProvidersView extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  controller.errorMessage.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
+
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: controller.refreshProviders,
@@ -113,7 +110,7 @@ class ServiceProvidersView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'No providers available for this service',
+                  'no_providers_available'.tr,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
@@ -172,9 +169,7 @@ class ServiceProvidersView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
                       image: controller.providerHasImage(provider)
-                          ? NetworkImage(
-                              controller.getProviderImageUrl(provider),
-                            )
+                          ? NetworkImage(getImageUrl(provider.image))
                           : const AssetImage('assets/images/logo-04.png')
                                 as ImageProvider,
                       fit: BoxFit.cover,
@@ -218,9 +213,17 @@ class ServiceProvidersView extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Description
-                  if (provider.description.isNotEmpty)
+                  if (provider.description.isNotEmpty ||
+                      (provider.descriptionAr?.isNotEmpty ?? false) ||
+                      (provider.descriptionEn?.isNotEmpty ?? false))
                     Text(
-                      provider.description,
+                      Get.locale?.languageCode == 'ar'
+                          ? provider.descriptionAr?.isNotEmpty ?? false
+                                ? provider.descriptionAr!
+                                : provider.description
+                          : provider.descriptionEn?.isNotEmpty ?? false
+                          ? provider.descriptionEn!
+                          : provider.description,
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -231,53 +234,64 @@ class ServiceProvidersView extends StatelessWidget {
                   // State
                   if (provider.state.isNotEmpty)
                     Text(
-                      provider.state,
+                      getStateInLanguage(
+                            Get.locale?.languageCode ?? 'en',
+                            provider.state,
+                          ) ??
+                          provider.state,
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
 
                   const SizedBox(height: 8),
 
                   // Price
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Price  ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w400,
-                          ),
+                  Row(
+                    children: [
+                      // Price Label
+                      Text(
+                        'price_label'.tr,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w400,
                         ),
-                        TextSpan(
-                          text: '${controller.getProviderPrice(provider)} OMR',
-                          style: TextStyle(
-                            decoration:
-                                controller.getProviderOfferPrice(provider) !=
-                                    null
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
+                      ),
+                      const SizedBox(width: 8),
+
+                      // Original Price
+                      Text(
+                        '${controller.getProviderPrice(provider)} OMR',
+                        style: TextStyle(
+                          fontSize:
+                              controller.getProviderOfferPrice(provider) != null
+                              ? 14
+                              : 16,
+                          color:
+                              controller.getProviderOfferPrice(provider) != null
+                              ? Colors.grey
+                              : Colors.green,
+                          fontWeight: FontWeight.w600,
+                          decoration:
+                              controller.getProviderOfferPrice(provider) != null
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+
+                      // Offer Price
+                      if (controller.getProviderOfferPrice(provider) !=
+                          null) ...[
+                        const SizedBox(width: 12),
+                        Text(
+                          '${controller.getProviderOfferPrice(provider)} OMR',
+                          style: const TextStyle(
                             fontSize: 16,
-                            color:
-                                controller.getProviderOfferPrice(provider) !=
-                                    null
-                                ? Colors.green
-                                : Colors.red,
+                            color: Colors.red,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (controller.getProviderOfferPrice(provider) != null)
-                          TextSpan(
-                            text:
-                                '${controller.getProviderOfferPrice(provider)} OMR',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.green,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
                       ],
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -291,7 +305,7 @@ class ServiceProvidersView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      provider.rate
+                      (provider.rate ?? 0)
                           .toString(), // Default rating since API doesn't provide it
                       style: const TextStyle(
                         fontSize: 16,
@@ -323,7 +337,7 @@ class ServiceProvidersView extends StatelessWidget {
                         Icon(Icons.verified, size: 14, color: Colors.green),
                         const SizedBox(width: 4),
                         Text(
-                          'Verified',
+                          'verified'.tr,
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.green,

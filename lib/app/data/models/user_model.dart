@@ -112,7 +112,7 @@ class AuthResponse {
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
-      success: json['success'] ?? false,
+      success: true,
       message: json['message'] ?? '',
       accessToken: json['access_token'] ?? json['accessToken'],
       user: json['user'] != null ? User.fromJson(json['user']) : null,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../core/values/colors.dart';
 import '../../global_widgets/custom_button.dart';
@@ -19,22 +20,9 @@ class ResetPasswordView extends GetView<AuthController> {
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Get.back(),
         ),
-        actions: [
-          // Language Toggle Button
-          Container(
-            margin: const EdgeInsets.only(right: 16, top: 8),
-            child: Row(
-              children: [
-                _buildLanguageButton('عربي', Get.locale?.languageCode == 'ar'),
-                const SizedBox(width: 8),
-                _buildLanguageButton('EN', Get.locale?.languageCode == 'en'),
-              ],
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Form(
             key: controller.resetPasswordFormKey,
@@ -42,24 +30,6 @@ class ResetPasswordView extends GetView<AuthController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
-
-                // Icon
-                Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    margin: const EdgeInsets.only(bottom: 32),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: const Icon(
-                      Icons.lock_reset,
-                      size: 50,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
 
                 // Title
                 Center(
@@ -90,69 +60,169 @@ class ResetPasswordView extends GetView<AuthController> {
 
                 const SizedBox(height: 40),
 
-                // New Password Field
-                Obx(() => CustomTextField(
-                  label: 'new_password'.tr,
-                  controller: controller.newPasswordController,
-                  obscureText: !controller.isPasswordVisible.value,
-                  validator: controller.validatePassword,
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: AppColors.textLight,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.isPasswordVisible.value
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: AppColors.textLight,
-                    ),
-                    onPressed: controller.togglePasswordVisibility,
-                  ),
-                )),
-
-                const SizedBox(height: 16),
-
-                // Confirm New Password Field
-                Obx(() => CustomTextField(
-                  label: 'confirm_new_password'.tr,
-                  controller: controller.confirmPasswordController,
-                  obscureText: !controller.isConfirmPasswordVisible.value,
+                // OTP Code Field
+                CustomTextField(
+                  label: 'verification_code'.tr,
+                  hint: 'enter_6_digit_code'.tr,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  maxLines: 1,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  onChanged: (value) {
+                    controller.otpCode.value = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'field_required'.tr;
                     }
-                    if (value != controller.newPasswordController.text) {
-                      return 'passwords_not_match'.tr;
+                    if (value.length != 6) {
+                      return 'enter_valid_otp'.tr;
                     }
                     return null;
                   },
                   prefixIcon: const Icon(
-                    Icons.lock,
+                    Icons.verified_user,
                     color: AppColors.textLight,
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.isConfirmPasswordVisible.value
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                  suffixIcon: Obx(
+                    () => controller.timerSeconds.value > 0
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
+                            child: Text(
+                              controller.formattedTimer,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        : TextButton(
+                            onPressed: controller.resendOTP,
+                            child: Text(
+                              'resend'.tr,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // New Password Field
+                Obx(
+                  () => CustomTextField(
+                    label: 'new_password'.tr,
+                    controller: controller.newPasswordController,
+                    obscureText: !controller.isPasswordVisible.value,
+                    textInputAction: TextInputAction.next,
+                    validator: controller.validatePassword,
+                    prefixIcon: const Icon(
+                      Icons.lock,
                       color: AppColors.textLight,
                     ),
-                    onPressed: controller.toggleConfirmPasswordVisibility,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: controller.togglePasswordVisibility,
+                    ),
                   ),
-                )),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Confirm New Password Field
+                Obx(
+                  () => CustomTextField(
+                    label: 'confirm_new_password'.tr,
+                    controller: controller.confirmPasswordController,
+                    obscureText: !controller.isConfirmPasswordVisible.value,
+                    textInputAction: TextInputAction.done,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'field_required'.tr;
+                      }
+                      if (value != controller.newPasswordController.text) {
+                        return 'passwords_not_match'.tr;
+                      }
+                      return null;
+                    },
+                    prefixIcon: const Icon(
+                      Icons.lock,
+                      color: AppColors.textLight,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isConfirmPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: controller.toggleConfirmPasswordVisibility,
+                    ),
+                    onFieldSubmitted: (_) {
+                      if (controller.resetPasswordFormKey.currentState
+                              ?.validate() ??
+                          false) {
+                        controller.resetPassword();
+                      }
+                    },
+                  ),
+                ),
 
                 const SizedBox(height: 32),
 
                 // Reset Password Button
-                Obx(() => CustomButton(
-                  text: 'reset_password'.tr,
-                  onPressed: controller.resetPassword,
-                  isLoading: controller.isLoading.value,
-                  width: double.infinity,
-                )),
+                Obx(
+                  () => CustomButton(
+                    text: 'reset_password'.tr,
+                    onPressed: controller.resetPassword,
+                    isLoading: controller.isLoading.value,
+                    width: double.infinity,
+                  ),
+                ),
 
-                const Spacer(),
+                const SizedBox(height: 16),
+
+                // Resend OTP Button (visible when timer is 0)
+                Obx(
+                  () => controller.timerSeconds.value == 0
+                      ? Center(
+                          child: TextButton.icon(
+                            onPressed: controller.resendOTP,
+                            icon: const Icon(
+                              Icons.refresh,
+                              color: AppColors.primary,
+                              size: 18,
+                            ),
+                            label: Text(
+                              'resend_verification_code'.tr,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+
+                const SizedBox(height: 40),
 
                 // Back to Login
                 Row(
@@ -178,6 +248,8 @@ class ResetPasswordView extends GetView<AuthController> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),

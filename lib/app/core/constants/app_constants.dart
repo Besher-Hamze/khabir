@@ -10,6 +10,7 @@ class AppConstants {
 
   // API Endpoints
   static const String authLogin = '/auth/login';
+  static const String authDeleteAccount = '/auth/delete-account';
   static const String authPhoneLogin = '/auth/phone/login';
   static const String authRegisterInitiate = '/auth/register/initiate';
   static const String authRegisterComplete = '/auth/register/complete';
@@ -17,12 +18,14 @@ class AppConstants {
       '/auth/phone/password-reset/send-otp';
   static const String authPasswordReset = '/auth/phone/password-reset';
   static const String authCheckStatus = '/auth/check-status';
+  static const String systemInfo = '/admin/settings/terms-and-conditions';
 
   // User Endpoints
   static const String userProfile = '/users/profile';
   static const String userLocations = '/users/locations';
   static const String userLocationById = '/users/locations/{id}';
   static const String setDefaultLocation = '/users/locations/{id}/set-default';
+  static const String updateUserProfile = '/users/{userId}';
 
   // Orders Endpoints
   static const String orders = '/orders';
@@ -56,12 +59,14 @@ class AppConstants {
   // Categories & Services Endpoints
   static const String categories = '/categories';
   static const String services = '/services';
+  static const String servicesKhabir = '/services/khabeer';
   static const String servicesByCategory = '/services/category/{id}';
 
   // Provider Endpoints
   static const String providersByService = '/providers/service/{id}';
   static const String providerServices =
       '/providers/{providerId}/categories/{categoryId}/services';
+  static const String providerServicesAll = '/providers/{providerId}';
   static const String createServiceRequest = '/orders/multiple-services';
   static const String topProviders = '/providers/top/comprehensive';
   static const String providerById = '/providers/{id}';
@@ -74,8 +79,6 @@ class AppConstants {
       '/location-tracking/order/{orderId}/current-location';
   static const String locationTrackingHistory =
       '/location-tracking/order/{orderId}/location-history';
-  static const String locationTrackingEstimatedArrival =
-      '/location-tracking/order/{orderId}/estimated-arrival';
   static const String locationTrackingStatus =
       '/location-tracking/order/{orderId}/tracking-status';
   static const String locationTrackingUserOrders =
@@ -140,10 +143,13 @@ class AppConstants {
   static const String tiktokUrl = 'https://tiktok.com/@khabir_app';
 
   // Google Play Store
-  static const String providerAppId =
-      'com.akwan.khabirkhadmat_new.khabir_provider';
+  static const String providerAppId = 'com.akwan.khabirprovider_new';
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=';
+
+  // Apple App Store
+  static const String providerAppStoreUrl =
+      'https://apps.apple.com/us/app/k-provider/id6477719296';
 
   // Error Messages Keys
   static const String networkError = 'network_error';
