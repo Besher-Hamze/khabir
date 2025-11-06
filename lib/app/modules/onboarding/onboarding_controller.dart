@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:get/get_utils/src/platform/platform.dart';
-import '../../core/constants/app_constants.dart';
 import '../../data/services/storage_service.dart';
 import '../../routes/app_routes.dart';
 
@@ -99,10 +97,8 @@ class OnboardingController extends GetxController {
     selectedRole.value = 'provider';
     await _storageService.setOnboardingCompleted();
 
-    // Open store for provider app based on platform
-    final String url = GetPlatform.isIOS
-        ? AppConstants.providerAppStoreUrl
-        : '${AppConstants.playStoreUrl}${AppConstants.providerAppId}';
+    // Open Khabirs website
+    const String url = 'https://khabirs.com/';
 
     try {
       if (await canLaunchUrl(Uri.parse(url))) {
@@ -111,8 +107,8 @@ class OnboardingController extends GetxController {
         // Fallback: show dialog with manual instructions
         Get.dialog(
           AlertDialog(
-            title: Text('download_provider_app'.tr),
-            content: Text('download_provider_app_message'.tr),
+            title: Text('error'.tr),
+            content: Text('cannot_open_website'.tr),
             actions: [
               TextButton(onPressed: () => Get.back(), child: Text('ok'.tr)),
             ],
@@ -122,9 +118,42 @@ class OnboardingController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'error'.tr,
-        'cannot_open_store'.tr,
+        'cannot_open_website'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
     }
   }
+
+  // void selectServiceProvider() async {
+  //   selectedRole.value = 'provider';
+  //   await _storageService.setOnboardingCompleted();
+
+  //   // Open store for provider app based on platform
+  //   final String url = GetPlatform.isIOS
+  //       ? AppConstants.providerAppStoreUrl
+  //       : '${AppConstants.playStoreUrl}${AppConstants.providerAppId}';
+
+  //   try {
+  //     if (await canLaunchUrl(Uri.parse(url))) {
+  //       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  //     } else {
+  //       // Fallback: show dialog with manual instructions
+  //       Get.dialog(
+  //         AlertDialog(
+  //           title: Text('download_provider_app'.tr),
+  //           content: Text('download_provider_app_message'.tr),
+  //           actions: [
+  //             TextButton(onPressed: () => Get.back(), child: Text('ok'.tr)),
+  //           ],
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar(
+  //       'error'.tr,
+  //       'cannot_open_store'.tr,
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   }
+  // }
 }
