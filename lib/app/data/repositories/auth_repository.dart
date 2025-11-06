@@ -67,7 +67,7 @@ class AuthRepository {
       print('Login as visitor with phone: +96812345678');
       final response = await _apiService.post(
         AppConstants.authLogin,
-        data: {'email': 'admin@khabeer.com', 'password': 'admin123'},
+        data: {'email': 'admin@khabeer.com', 'password': 'AbdMkb@2025'},
       );
 
       if (response.statusCode == 201) {

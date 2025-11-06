@@ -143,7 +143,7 @@ class AppConstants {
   static const String tiktokUrl = 'https://tiktok.com/@khabir_app';
 
   // Google Play Store
-  static const String providerAppId = 'com.akwan.khabirprovider_new';
+  static const String providerAppId = 'com.khabirs.provider';
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=';
 

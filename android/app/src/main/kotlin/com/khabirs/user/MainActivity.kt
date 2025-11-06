@@ -1,4 +1,4 @@
-package com.akwan.khabirkhadmat_new
+package com.khabirs.user
 
 import io.flutter.embedding.android.FlutterActivity
 
